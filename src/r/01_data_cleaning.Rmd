@@ -1,0 +1,141 @@
+
+
+```{r}
+setwd("./")
+
+library(tidyverse)
+library(janitor)
+library(plotly)
+library(patchwork)
+
+```
+
+load the data from [https://doi.org/10.1101/2023.09.26.23296137] supplementary material Table S1. the data has all thes sequenced klebs from Malawi collected at QECH up to 2020.
+```{r}
+metadata <-
+    read_csv("docs/kleb_metadata.csv") %>%
+    clean_names()
+
+full_source_data <-
+    metadata %>%
+    select(reference, lane_acc, date, major_wards, neonate, st) %>%
+    mutate(date = factor(date), st = factor(st))
+
+summarised_data <-
+    full_source_data %>%
+    group_by(st) %>%
+    summarise(count = n()) %>%
+    mutate(props = count / sum(count)) %>%
+    mutate(percentage = round(props * 100, 2))
+
+View(summarised_data)
+
+summarised_data %>% ggplot(aes(x = st, y = percentage)) + geom_col()
+```
+
+```{}
+summary(full_source_data)
+```
+this reveals that st14 has the largest number of isolates followed by st29
+
+```{r}
+summary(full_source_data %>% filter(st == "ST14"))
+```
+
+isolates are well distributed across the years
+
+```{r}
+summary(full_source_data %>% filter(st == "ST39"))
+```
+most isolates isolated in 2017 alone with a cluster in the neonatak wards
+
+
+
+```{r}
+#create a bouble plot of the sequence types
+
+metadata %>% mutate(year = factor(date)) %>%
+    mutate(st = factor(st)) %>%
+    ggplot(aes(x = year, y = st)) +
+    geom_count()
+```
+
+We are interested in ST39 klebsiella.
+
+```{r}
+st39 <-
+    metadata %>%
+    filter(st == "ST39") %>%
+    mutate(date = factor(date))
+
+summary(st39)
+
+
+summarised_st39 <-
+    st39 %>%
+    group_by(date) %>%
+    summarise(count = n()) %>%
+    mutate(props = count / sum(count)) %>%
+    mutate(percentage = round(props * 100, 2))
+
+st39_by_ward <-
+    st39 %>%
+    group_by(major_wards) %>%
+    summarise(count = n()) %>%
+    mutate(props = count / sum(count)) %>%
+    mutate(percentage = round(props * 100, 2))
+
+View(st39_by_ward)
+
+View(summarised_st39)
+# subset the dataframe to 
+
+source_data <-
+    st39 %>%
+    select(reference, lane_acc, date, major_wards, neonate)
+
+summary(source_data)
+```
+
+
+```{r}
+# create a bouble plot of the years
+bubble <-
+    st39 %>% mutate(year = factor(date)) %>%
+    mutate(ward = factor(major_wards)) %>%
+    ggplot(aes(x = year, y = ward)) +
+    geom_count(aes(color = neonate)) +
+    scale_size_area(max_size = 19)
+
+ggplotly(bubble)
+
+bar <-
+    st39 %>% mutate(year = factor(date)) %>%
+    mutate(ward = factor(major_wards)) %>%
+    ggplot(aes(x = year, fill = ward)) +
+    geom_bar() +
+    scale_fill_viridis_d()
+
+ggplotly(bar)
+
+
+
+
+```
+
+```{r}
+# save the phages
+plotting_dir <- file.path("results/plots/r", Sys.Date())
+plot_name <- file.path(plotting_dir, "distribution_of_isolates.svg")
+
+if (!dir.exists(plotting_dir)) {dir.create(plotting_dir, recursive = TRUE)}
+
+svg(plot_name,
+    width = 15,
+    height = 5)
+
+bubble + bar
+
+
+dev.off() 
+```
