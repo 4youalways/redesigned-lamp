@@ -6,6 +6,9 @@ include { FILTLONG  } from './modules/filtlong.nf'
 include { NANOPLOT  } from './modules/nanoplot.nf'
 include { TRYCYCLER_SUBSAMPLE  } from './modules/trycycler_assemble.nf'
 include { FLYE  } from './modules/trycycler_assemble.nf'
+include { RAVEN  } from './modules/trycycler_assemble.nf'
+include { MINIPOLISH  } from './modules/trycycler_assemble.nf'
+
 
 workflow  {
 
