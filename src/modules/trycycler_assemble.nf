@@ -109,7 +109,8 @@ process ANY2FASTA {
 process TRYCYCLER_CLUSTER {
 
     tag "TRYCYCLER_CLUSTER on $sample_id"
-
+    container 'staphb/trycycler:0.5.4'
+    
     input: 
     tuple val(sample_id), path('raven'), path('flye'), path('minipolish'), path('reads')
    
