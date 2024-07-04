@@ -5,7 +5,7 @@ process NANOPLOT {
     tuple val(sample_id), path(reads) 
 
     output:
-    path "nanoplot/$sample_id"
+    path "$sample_id"
  
     script :
     
