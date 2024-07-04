@@ -2,3 +2,6 @@
 nextflow/*
 data/ont/*
 data/illumina/*
+work/
+.nextflow*
+.nextflow/
