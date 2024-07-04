@@ -1,2 +1,6 @@
 sample_name,ont_read,illumina_read1,illumina_read2
 1004078,data/ont/1004078_0.fastq.gz,data/illumina/ERR12059076_1.fastq.gz,data/illumina/ERR12059076_2.fastq.gz
+BKREGE,data/ont/BKREGE_0.fastq.gz,data/illumina/ERR12058301_1.fastq.gz,data/illumina/ERR12058301_2.fastq.gz
+CAA8N9,data/ont/CAA8N9_0.fastq.gz,data/illumina/ERR12058306_1.fastq.gz,data/illumina/ERR12058306_2.fastq.gz
+CAAUE8,data/ont/CAAUE8_0.fastq.gz,data/illumina/ERR12059348_1.fastq.gz,data/illumina/ERR12059348_2.fastq.gz
+CHI11E,data/ont/CHI11E_0.fastq.gz,data/illumina/ERR12058885_1.fastq.gz,data/illumina/ERR12058885_2.fastq.gz
