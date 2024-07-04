@@ -8,6 +8,7 @@ include { TRYCYCLER_SUBSAMPLE  } from './modules/trycycler_assemble.nf'
 include { FLYE  } from './modules/trycycler_assemble.nf'
 include { RAVEN  } from './modules/trycycler_assemble.nf'
 include { MINIPOLISH  } from './modules/trycycler_assemble.nf'
+include { ANY2FASTA  } from './modules/trycycler_assemble.nf'
 
 
 workflow  {
@@ -34,6 +35,9 @@ workflow  {
     FLYE(TRYCYCLER_SUBSAMPLE.out)
     RAVEN(TRYCYCLER_SUBSAMPLE.out)
     MINIPOLISH(TRYCYCLER_SUBSAMPLE.out)
+
+    // convert the minipolish assembly to a fasta file
+    ANY2FASTA(MINIPOLISH.out)
     //  qc = channel.fromPath(params.qc, checkIfExists:true
         
 

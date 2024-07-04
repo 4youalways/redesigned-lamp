@@ -138,7 +138,8 @@ process MINIPOLISH {
 process ANY2FASTA {
 
     tag "ANY2FASTA on $sample_id"
-    publishDir "${params.output}", mode: 'copy'
+    container 'staphb/any2fasta:0.4.2'
+   
 
     input: 
     tuple val(sample_id), path('gfa')
