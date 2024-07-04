@@ -82,7 +82,7 @@ process FLYE {
     mkdir -p ${sample_id}
     for i in 02 01 06 10 13 14; do
         mkdir -p flye_temp/\${i}
-        flye --nano-hq ${reads}/sample_\${i}.fastq --threads 16 --out-dir flye_temp/\${i} -i 3 -g 4.5m
+        flye --nano-hq ${reads}/sample_\${i}.fastq --threads 16 --out-dir flye_temp/\${i} -i 3
         cp flye_temp/\${i}/assembly.fasta ${sample_id}/assembly_\${i}.fasta
         cp flye_temp/\${i}/assembly_graph.gfa ${sample_id}/assembly_\${i}.gfa
     done   
