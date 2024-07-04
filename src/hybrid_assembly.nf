@@ -29,6 +29,11 @@ workflow  {
 
     // assemble the 16 read clusters
     FLYE(TRYCYCLER_SUBSAMPLE.out)
+    RAVEN(TRYCYCLER_SUBSAMPLE.out)
+    MINIPOLISH(TRYCYCLER_SUBSAMPLE.out)
+    //  qc = channel.fromPath(params.qc, checkIfExists:true
+        
+    )
 
   //  qc.collect().out()
     
