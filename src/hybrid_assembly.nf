@@ -41,7 +41,7 @@ workflow  {
     ANY2FASTA(MINIPOLISH.out)
 
 
-    RAVEN.out[0]
+    initial_assemblies = RAVEN.out[0]
     .join(FLYE.out[0])
     .join(ANY2FASTA.out)
     .join(filtered_long_reads)
