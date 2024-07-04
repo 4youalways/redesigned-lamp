@@ -14,57 +14,6 @@ process TRYCYCLER_SUBSAMPLE {
 }
 
 
-/*
-process ASSEMBLIES {
-
-    tag "INITIAL CANU ASSEMBLY on $sample_id"
-    cpus 8
-    
-    input: 
-    tuple val(sample_id), path('reads')
-
-    output:
-    tuple val(sample_id),  path("assemblies/${sample_id}/*.fasta")
-    path "assemblies/${sample_id}/*.gfa"
-
-    script:
-    """ 
-    mkdir -p assemblies/${sample_id}
-    for i in 01; do
-        
-        canu -correct -p canu -d ${sample_id}.\${i}/canu_temp genomeSize=4.5m useGrid=false maxMemory=10g maxThreads=32 -nanopore-raw ${reads}/sample_\${i}.fastq
-        canu -trim -p canu -d ${sample_id}.\${i}/canu_temp genomeSize=4.5m -nanopore-corrected ${sample_id}.\${i}/canu_temp/canu.correctedReads.fasta.gz
-        canu -p canu -d ${sample_id}.\${i}/canu_temp genomeSize=4.5m -nanopore-corrected ${sample_id}.\${i}/canu_temp/canu.correctedReads.fasta.gz
-        cp ${sample_id}.\${i}/canu_temp/canu.contigs.fasta assemblies/${sample_id}/assembly_\${i}.fasta
-    done
-
-    """
-}
-
-process CANU {
-
-    tag "INITIAL CANU ASSEMBLY on $sample_id"
-    publishDir "${params.output}", mode: 'copy'
-
-    input: 
-    tuple val(sample_id), path('reads')
-
-    output:
-    //tuple val(sample_id),  path("assemblies/${sample_id}/*.fasta")
-    path "assemblies/${sample_id}/*.fasta"
-    script:
-    """ 
-    mkdir -p assemblies/${sample_id}
-    for i in 01 05 09 13; do
-        
-        canu -p canu -d ${sample_id}.\${i}/canu_temp -fast genomeSize=4.5m useGrid=false minThreads=64 maxThreads=100 -nanopore-raw ${reads}/sample_\${i}.fastq
-        /home/azuza/miniconda3/bin/python3 /home/azuza/styphi/workflows/nextflow/trycycler/canu_trim.py ${sample_id}.\${i}/canu_temp/canu.contigs.fasta > assemblies/${sample_id}/assembly_\${i}.fasta
-    done
-
-    """
-}
-
-*/
 process FLYE {
 
     tag "INITIAL FLYE ASSEMBLY on $sample_id"
@@ -160,50 +109,16 @@ process ANY2FASTA {
 process TRYCYCLER_CLUSTER {
 
     tag "TRYCYCLER_CLUSTER on $sample_id"
-    publishDir "${params.output}", mode: 'copy'
 
     input: 
     tuple val(sample_id), path('raven'), path('flye'), path('minipolish'), path('reads')
    
     output:
-    tuple val(sample_id),  path("trycycler/${sample_id}")
+    tuple val(sample_id),  path("${sample_id}")
 
     script:
     """
-    trycycler cluster --assemblies ${raven} ${flye} ${minipolish} --reads ${reads} --out_dir trycycler/${sample_id} --threads 32
+    trycycler cluster --assemblies ${raven} ${flye} ${minipolish} --reads ${reads} --out_dir ${sample_id} --threads 32
 
     """
-}
-
-
-workflow {
-    // collect long reads
-    reads_ch = channel.fromPath(params.reads, followLinks: true, checkIfExists: false)
-    
-    // make a tuple
-    tuppled_fastq = reads_ch.map {it -> [it.simpleName.tokenize("_")[0], it]}.groupTuple()
-
-    // make subsamples
-    subsamples = TRYCYCLER_SUBSAMPLE(tuppled_fastq)
-    
-
-    //CANU(subsamples)
-
-    flye = ASSEMBLY_FLYE(subsamples)
-
-
-    raven = RAVEN(subsamples)
-
-
-    minipolish = MINIPOLISH(subsamples)
-
-
-    ANY2FASTA(MINIPOLISH.out)
-    
-    //cluster_input = ANY2FASTA.out.mix(RAVEN.out[0]).mix(ASSEMBLY_FLYE.out[0]).collect().view()
-    //cluster_input = RAVEN.out[0].mix(ASSEMBLY_FLYE.out[0]).collect().groupTuple().view()
-    //RAVEN.out[0].flatten().join(ASSEMBLY_FLYE.out[0]).view()
-    cluster_input = RAVEN.out[0].join(ASSEMBLY_FLYE.out[0]).join(ANY2FASTA.out).join(tuppled_fastq)
- 
-    TRYCYCLER_CLUSTER( cluster_input )
 }

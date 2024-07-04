@@ -9,6 +9,7 @@ include { FLYE  } from './modules/trycycler_assemble.nf'
 include { RAVEN  } from './modules/trycycler_assemble.nf'
 include { MINIPOLISH  } from './modules/trycycler_assemble.nf'
 include { ANY2FASTA  } from './modules/trycycler_assemble.nf'
+include { TRYCYCLER_CLUSTER  } from './modules/trycycler_assemble.nf'
 
 
 workflow  {
@@ -38,16 +39,12 @@ workflow  {
 
     // convert the minipolish assembly to a fasta file
     ANY2FASTA(MINIPOLISH.out)
-    //  qc = channel.fromPath(params.qc, checkIfExists:true
-        
 
-  //  qc.collect().out()
-    
-    //MULTIQC(.collect())
-/*
-    ref_ch = channel.fromPath(params.ref, checkIfExists:true)
-    
-    trimmed = TRIMMOMATIC(reads_ch) // trimming and filtering
-    after_trim(trimmed)
-*/
+
+    initial_assemblies = RAVEN.out[0].join(ASSEMBLY_FLYE.out[0]).join(ANY2FASTA.out).join(tuppled_fastq)
+    .view()
+
+
+    //TRYCYCLER_CLUSTER(initial_assemblies)
+ 
 }
