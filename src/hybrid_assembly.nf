@@ -33,7 +33,6 @@ workflow  {
     MINIPOLISH(TRYCYCLER_SUBSAMPLE.out)
     //  qc = channel.fromPath(params.qc, checkIfExists:true
         
-    )
 
   //  qc.collect().out()
     
