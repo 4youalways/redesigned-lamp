@@ -47,6 +47,6 @@ workflow  {
     .join(filtered_long_reads)
 
 
-    //TRYCYCLER_CLUSTER(initial_assemblies)
+    TRYCYCLER_CLUSTER(initial_assemblies)
  
 }
