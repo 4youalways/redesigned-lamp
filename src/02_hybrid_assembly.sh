@@ -45,8 +45,11 @@ fi
 
 
 # write the stdout to a log file
-#for everysamples, you will need to run this stript multiple times as it requires manual internvention
-
+date=$(date +"%Y-%m-%d-%T")
+logDIR=(logs)
+exec 3>&1 4>&2
+trap 'exec 2>&4 1>&3' 0 1 2 3
+exec 1>"logs/trycycler_reconsile.log" 2>&1
 
 #To allow trycycler to run the reconsile per directory, we need to loop through the cluster directories and run reconsile if the
 # directory exists
@@ -54,7 +57,7 @@ for i in 001 002 003 004 005 006 007 007 009; do
     
     for i in "${C}/cluster_${i}"; do
         if [ -d ${i} ]; then
-            trycycler reconcile --reads ${R} --cluster_dir ${i} --threads 18 --max_add_seq 3000
+            trycycler reconcile --reads ${R} --cluster_dir ${i} --threads 64 --max_add_seq 3000
         fi
 
     done
