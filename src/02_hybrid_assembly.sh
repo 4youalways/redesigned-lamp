@@ -14,7 +14,7 @@
 
 # write the stdout to a log file
 date=$(date +"%Y-%m-%d-%T"  | sed 's/-//'g | sed s'/://'g)
-if [ ! -d '/logs' ] ; then mkdir -p '/logs' ; fi
+if [ ! -d './logs' ] ; then mkdir -p './logs' ; fi
 
 exec 3>&1 4>&2
 trap 'exec 2>&4 1>&3' 0 1 2 3
