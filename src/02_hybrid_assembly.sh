@@ -12,6 +12,14 @@
 # the script will also need to be run on one sample at a time.
 
 
+# write the stdout to a log file
+date=$(date +"%Y-%m-%d-%T"  | sed 's/-//'g | sed s'/://'g)
+if [ ! -d ../logs ] ; then mkdir -p ../logs ; fi
+
+exec 3>&1 4>&2
+trap 'exec 2>&4 1>&3' 0 1 2 3
+exec 1> logs/${date}_trycycler_reconsile.log 2>&1
+
 usage() { echo "Usage: $0 [-R <PathToReads>] [-C <PathToClusters>] 
 
 			-R Path to the raw reads
@@ -44,12 +52,6 @@ fi
 
 
 
-# write the stdout to a log file
-date=$(date +"%Y-%m-%d-%T")
-logDIR=(logs)
-exec 3>&1 4>&2
-trap 'exec 2>&4 1>&3' 0 1 2 3
-exec 1>"logs/trycycler_reconsile.log" 2>&1
 
 #To allow trycycler to run the reconsile per directory, we need to loop through the cluster directories and run reconsile if the
 # directory exists
