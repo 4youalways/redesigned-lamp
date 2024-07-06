@@ -1,6 +1,6 @@
-sample_name,ont_read,illumina_read1,illumina_read2,trycycler_assembly
-1004078,data/ont/1004078_0.fastq.gz,data/illumina/ERR12059076_1.fastq.gz,data/illumina/ERR12059076_2.fastq.gz,results/consensus/1004078_consensus.fasta
-BKREGE,data/ont/BKREGE_0.fastq.gz,data/illumina/ERR12058301_1.fastq.gz,data/illumina/ERR12058301_2.fastq.gz,results/consensus/BKREGE_consensus.fasta
-CAA8N9,data/ont/CAA8N9_0.fastq.gz,data/illumina/ERR12058306_1.fastq.gz,data/illumina/ERR12058306_2.fastq.gz,results/consensus/CAA8N9_consensus.fasta
-CAAUE8,data/ont/CAAUE8_0.fastq.gz,data/illumina/ERR12059348_1.fastq.gz,data/illumina/ERR12059348_2.fastq.gz,results/consensus/CAAUE8_consensus.fasta
-CHI11E,data/ont/CHI11E_0.fastq.gz,data/illumina/ERR12058885_1.fastq.gz,data/illumina/ERR12058885_2.fastq.gz,results/consensus/CHI11E_consensus.fasta
+sample_name,ont_read,illumina_read1,illumina_read2,trycycler_assembly,polished_ont
+1004078,data/ont/1004078_0.fastq.gz,data/illumina/ERR12059076_1.fastq.gz,data/illumina/ERR12059076_2.fastq.gz,results/consensus/1004078_consensus.fasta,results/filtlong/1004078.fastq.gz
+BKREGE,data/ont/BKREGE_0.fastq.gz,data/illumina/ERR12058301_1.fastq.gz,data/illumina/ERR12058301_2.fastq.gz,results/consensus/BKREGE_consensus.fasta,results/filtlong/BKREGE.fastq.gz
+CAA8N9,data/ont/CAA8N9_0.fastq.gz,data/illumina/ERR12058306_1.fastq.gz,data/illumina/ERR12058306_2.fastq.gz,results/consensus/CAA8N9_consensus.fasta,results/filtlong/CAA8N9.fastq.gz
+CAAUE8,data/ont/CAAUE8_0.fastq.gz,data/illumina/ERR12059348_1.fastq.gz,data/illumina/ERR12059348_2.fastq.gz,results/consensus/CAAUE8_consensus.fasta,results/filtlong/CAAUE8.fastq.gz
+CHI11E,data/ont/CHI11E_0.fastq.gz,data/illumina/ERR12058885_1.fastq.gz,data/illumina/ERR12058885_2.fastq.gz,results/consensus/CHI11E_consensus.fasta,results/filtlong/CHI11E.fastq.gz
