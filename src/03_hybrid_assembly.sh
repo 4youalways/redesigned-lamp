@@ -11,27 +11,21 @@
 # this script needs to be run multiple times as it requires manual intervention
 # the script will also need to be run on one sample at a time.
 
-#set -euo pipefail
+set -euo pipefail
 
-# write the stdout to a log file
-date=$(date +"%Y-%m-%d-%T"  | sed 's/-//'g | sed s'/://'g)
-if [ ! -d './logs' ] ; then mkdir -p './logs' ; fi
 
-exec 3>&1 4>&2
-trap 'exec 2>&4 1>&3' 0 1 2 3
-exec 1> logs/${date}_trycycler_reconsile.log 2>&1
-
-usage() { echo "Usage: $0 [-R <PathToReads>] [-C <PathToClusters>] [-O <PathToOutdir>] $1
+usage() { echo "Usage: $0 [-R <PathToReads>] [-C <PathToClusters>] [-O <PathToOutdir>] [-S <PathToSampleSheet>]
 
 			-R Path to the filtered reads directory
 			-C Path to cluster directories
             -O Path to output consensus sequence
+            -S Path to sample sheet
 			
 			 " 
 			 1>&2; exit 1; 
 }
 
-while getopts ":R:C:O:" o; do
+while getopts ":R:C:O:S:" o; do
 	case "${o}" in
 		R)
 			R=${OPTARG}
@@ -40,7 +34,10 @@ while getopts ":R:C:O:" o; do
 			C=${OPTARG}
 			;;
         O)
-			C=${OPTARG}
+			O=${OPTARG}
+			;;
+        S)
+            S=${OPTARG}
 			;;
 		*)
 			usage
@@ -51,19 +48,23 @@ done
 shift "$((OPTIND-1))"
 
 
-if [ -z "${R}" ] || [ -z "${C}" ] || [ -z "${O}" ] ; then
+if [ -z "${R}" ] || [ -z "${C}" ] ; then
 	usage
 fi
 
 
+if [ ! -d "${O}" ] ; then mkdir -p "${O}" ; fi
 
-#reads=$
-#assembly=("/home/azuza/styphi/workflows/nextflow/results/trycycler")
-samples=$(cat $1)
+# write the stdout to a log file
+date=$(date +"%Y-%m-%d-%T"  | sed 's/-//'g | sed s'/://'g)
+if [ ! -d './logs' ] ; then mkdir -p './logs' ; fi
+
+exec 3>&1 4>&2
+trap 'exec 2>&4 1>&3' 0 1 2 3
+exec 1> logs/${date}_trycycler_msa.log 2>&1
 
 
-for id in $(cat samples); do
-    echo $i
+for id in $(cat ${S}); do
     for count in 001 002 003 004 005 006 007 007 009; do
         
         for i in "${C}/${id}/cluster_${count}"; do
