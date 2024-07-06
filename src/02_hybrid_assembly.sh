@@ -11,6 +11,7 @@
 # this script needs to be run multiple times as it requires manual intervention
 # the script will also need to be run on one sample at a time.
 
+set -euo pipefail
 
 # write the stdout to a log file
 date=$(date +"%Y-%m-%d-%T"  | sed 's/-//'g | sed s'/://'g)
@@ -59,7 +60,7 @@ for i in 001 002 003 004 005 006 007 007 009; do
     
     for i in "${C}/cluster_${i}"; do
         if [ -d ${i} ]; then
-            trycycler reconcile --reads ${R} --cluster_dir ${i} --threads 64 --max_add_seq 3000
+            trycycler reconcile --reads ${R} --cluster_dir ${i} --threads 128 --max_add_seq 3000
         fi
 
     done
