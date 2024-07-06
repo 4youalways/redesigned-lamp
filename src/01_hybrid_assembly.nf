@@ -12,8 +12,9 @@ include { ANY2FASTA  } from './modules/trycycler_assemble.nf'
 include { TRYCYCLER_CLUSTER  } from './modules/trycycler_assemble.nf'
 
 
-workflow  {
+workflow  INITIAL_ASSEMBLY {
 
+/*
     reads_ch = channel.fromPath(params.assembly_sample_sheet, checkIfExists:true)
     .splitCsv(header: true)
     .map {
@@ -26,6 +27,12 @@ workflow  {
         ]]
     }
 
+*/
+
+    take:
+    reads_ch
+
+    main:
     before_trim(reads_ch)
     filtered_long_reads = FILTLONG(reads_ch)
     NANOPLOT(filtered_long_reads)
@@ -49,4 +56,7 @@ workflow  {
 
     TRYCYCLER_CLUSTER(initial_assemblies)
  
+    emit:
+    filtlong = FILTLONG.out
+
 }
