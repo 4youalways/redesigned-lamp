@@ -11,7 +11,7 @@
 # this script needs to be run multiple times as it requires manual intervention
 # the script will also need to be run on one sample at a time.
 
-set -euo pipefail
+#set -euo pipefail
 
 # write the stdout to a log file
 date=$(date +"%Y-%m-%d-%T"  | sed 's/-//'g | sed s'/://'g)
