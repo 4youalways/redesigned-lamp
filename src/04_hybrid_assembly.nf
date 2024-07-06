@@ -1,27 +1,10 @@
 nextflow.enable.dsl=2
 
 include { FILTLONG  } from './modules/filtlong.nf'
+include { MEDAKA_POLISH } from './modules/medaka.nf'
 
 // polish the trycycler assembly using long reads
-process MEDAKA_POLISH {
-    tag "MEDAKA_POLISH on $sample_id"
-    publishDir "${params.assemblies}", mode: 'copy'
 
-    container 'ontresearch/medaka:latest'
-
-    input:
-    tuple val(sample_id), path('reads'), path('assembly')
-
-
-    output:
-    tuple val(sample_id), path("medaka/$sample_id")
- 
-    script :
-    """
-    mkdir -p medaka/$sample_id
-    medaka_consensus -i ${reads} -d ${assembly} -o medaka/$sample_id -m r941_min_sup_g507
-    """
-}
 
 // make seperate indexes of short reads
 process BWA_INDEX_MEM {
@@ -103,17 +86,14 @@ process PROKKA {
 
 workflow POLISH_TRYCYCLER {
     take:
-    input_ch
+    polishing_ch
+//    polishing_data
 
     main:
-    FILTLONG(input_ch)
-    polishing_input = input_ch.join(FILTLONG.out)
 
-    MEDAKA_POLISH(polishing_input)
- //   input_ch
-  //  .view()
+    MEDAKA_POLISH(polishing_ch)
 
-    //emit:
+   
 
     /*
     // collect long reads

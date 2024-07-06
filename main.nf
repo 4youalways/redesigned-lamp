@@ -27,13 +27,13 @@ reads_ch = channel.fromPath(params.assembly_sample_sheet, checkIfExists:true)
         ]]
     }
 
-input_ch = channel.fromPath(params.assembly_sample_sheet, checkIfExists:true)
+polishing_ch = channel.fromPath(params.assembly_sample_sheet, checkIfExists:true)
     .splitCsv(header: true)
     .map {
         row ->
         meta = row.sample_name
         [meta, [
-            file(row.ont_read),
+            file(row.polished_ont),
             file(row.illumina_read1),
             file(row.illumina_read2),
             file(row.trycycler_assembly)
@@ -47,6 +47,7 @@ workflow ASSEMBLY {
 }
 
 workflow  POLISH {
-    POLISH_TRYCYCLER{input_ch}
-   // input_ch.view()
+    POLISH_TRYCYCLER{polishing_ch}
+//    POLISH_TRYCYCLER(polishing_data)
+ //   input_ch.join(FILTLONG.out.filtered)
 }
