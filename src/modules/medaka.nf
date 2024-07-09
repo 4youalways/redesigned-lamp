@@ -1,7 +1,6 @@
 
 process MEDAKA_POLISH {
     tag "MEDAKA_POLISH on $sample_id"
-    publishDir "${params.assemblies}", mode: 'copy'
 
     container 'nanozoo/medaka:1.11.3--ce388c3'
 
@@ -10,7 +9,7 @@ process MEDAKA_POLISH {
 
 
     output:
-    tuple val(sample_id), path("$sample_id")
+    tuple val(sample_id), path("$sample_id/consensus.fasta")
  
     script :
     """

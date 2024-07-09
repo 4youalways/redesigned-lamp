@@ -2,7 +2,7 @@ process FILTLONG {
 
     tag "$sample_id"
     container 'nanozoo/filtlong:0.2.0--0c4cbe3'
-    debug true
+    
     input:
     tuple val(sample_id), path(reads)
     

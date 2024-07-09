@@ -27,6 +27,7 @@ reads_ch = channel.fromPath(params.assembly_sample_sheet, checkIfExists:true)
         ]]
     }
 
+ 
 polishing_ch = channel.fromPath(params.assembly_sample_sheet, checkIfExists:true)
     .splitCsv(header: true)
     .map {
@@ -41,13 +42,10 @@ polishing_ch = channel.fromPath(params.assembly_sample_sheet, checkIfExists:true
     }
 
 
-
 workflow ASSEMBLY {
-    INITIAL_ASSEMBLY{reads_ch}
+    INITIAL_ASSEMBLY(reads_ch)
 }
 
 workflow  POLISH {
-    POLISH_TRYCYCLER{polishing_ch}
-//    POLISH_TRYCYCLER(polishing_data)
- //   input_ch.join(FILTLONG.out.filtered)
+    POLISH_TRYCYCLER()
 }
