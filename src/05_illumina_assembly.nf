@@ -2,25 +2,23 @@ nextflow.enable.dsl=2
 
 
 include { FASTQC_ASSEMBLY as before_trim } from './modules/fastqc.nf'
+include { SHOVILL } from './modules/shovill.nf'
 
-
-polishing_ch = channel.fromPath(params.assembly_sample_sheet, checkIfExists:true)
+short_read_ch = channel.fromPath(params.sample_sheet, checkIfExists:true)
     .splitCsv(header: true)
     .map {
         row ->
         meta = row.sample_name
         [meta, [
-            file(row.polished_ont),
-            file(row.illumina_read1),
-            file(row.illumina_read2),
-            file(row.trycycler_assembly)
+            file(row.read_1),
+            file(row.read_2)
         ]]
     }
 
 
 workflow ILLUMINA_ASSEMBLER {
-    before_trim(reads_ch)
-
+    before_trim(short_read_ch)
+    SHOVILL(short_read_ch)
 }
 
 /*
