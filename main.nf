@@ -10,6 +10,7 @@ Trycycler assembly workflow
 
 include { INITIAL_ASSEMBLY } from "./src/01_hybrid_assembly.nf"
 include { POLISH_TRYCYCLER } from "./src/04_hybrid_assembly.nf"
+include { ILLUMINA_ASSEMBLER } from "./src/05_illumina_assembly.nf"
 
 
 
@@ -48,4 +49,8 @@ workflow ASSEMBLY {
 
 workflow  POLISH {
     POLISH_TRYCYCLER()
+}
+
+workflow  SHOVILL_WORKFLOW {
+    ILLUMINA_ASSEMBLER()
 }
