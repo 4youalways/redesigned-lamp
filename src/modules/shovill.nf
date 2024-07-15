@@ -9,7 +9,7 @@ process SHOVILL {
     tuple val(sample_id), path(reads)
 
     output:
-    tuple val(sample_id), path("$sample_id")
+    tuple val(sample_id), path("${sample_id}/contigs.fa")
  
     script :
     """
