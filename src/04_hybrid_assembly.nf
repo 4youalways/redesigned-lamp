@@ -9,20 +9,6 @@ include { PROKKA } from './modules/prokka.nf'
 
 
 
-/*
-polishing_ch = channel.fromPath(params.assembly_sample_sheet, checkIfExists:true)
-    .splitCsv(header: true)
-    .map {
-        row ->
-        meta = row.sample_name
-        [meta, [
-            file(row.polished_ont),
-            file(row.illumina_read1),
-            file(row.illumina_read2),
-            file(row.trycycler_assembly)
-        ]]
-    }
-*/
 
 workflow POLISH_TRYCYCLER {
     take:
@@ -38,13 +24,3 @@ workflow POLISH_TRYCYCLER {
 
 }
 
-/*
-workflow {
-    medaka_polish = MEDAKA_POLISH(polishing_ch)
-    bwa_input = polishing_ch.join(medaka_polish)
-    BWA_INDEX_MEM(bwa_input)
-    POLYPOLISH(BWA_INDEX_MEM.out.join(medaka_polish))
-    POLCA(polishing_ch.join(POLYPOLISH.out))
-
-}
-*/

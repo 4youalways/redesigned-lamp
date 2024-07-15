@@ -5,3 +5,7 @@ data/illumina/*
 work/
 .nextflow*
 .nextflow/
+results/
+results.bak/
+test/
+

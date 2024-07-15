@@ -56,6 +56,8 @@ short_read_ch = channel.fromPath(params.sample_sheet, checkIfExists:true)
         ]]
     }
 
+reference = channel.fromPath(params.ref)
+
 workflow ASSEMBLY {
     INITIAL_ASSEMBLY(reads_ch)
 }
@@ -65,7 +67,7 @@ workflow  POLISH {
 }
 
 workflow  SHOVILL_WORKFLOW {
-    ILLUMINA_ASSEMBLER(short_read_ch)
+    ILLUMINA_ASSEMBLER(short_read_ch, reference)
     ABRICATE_WF(ILLUMINA_ASSEMBLER.out.assemblies)
     MLST_CHECK(ILLUMINA_ASSEMBLER.out.assemblies)
 }

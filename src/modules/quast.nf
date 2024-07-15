@@ -1,12 +1,12 @@
 
 process QUAST {
     
-    conda 'quast'
+    container 'quay.io/biocontainers/quast:5.0.2--py37pl526hb5aa323_2'
 
     input:
-    path(fasta)
-    path(reference)
-    val(sample_id)
+    tuple val(sample_id), path(fasta)
+    each path(reference)
+
 
     output:
     path("${sample_id}")
@@ -18,9 +18,8 @@ process QUAST {
 }
 
 process QUAST_MULTIQC {
-
-    conda 'multiqc'
-    publishDir "${params.result}/Qusts_multiqc", mode: 'copy'
+    container 'quay.io/biocontainers/multiqc:1.21--pyhdfd78af_0'
+    
     input:
     path(qc_files)
 
