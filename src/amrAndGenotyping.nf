@@ -3,6 +3,7 @@ nextflow.enable.dsl=2
 
 include { ARIBA_PREPARE } from './modules/ariba.nf'
 include { ARIBA_RUN } from './modules/ariba.nf'
+include { ARIBA_MLST } from './modules/ariba.nf'
 include { ABRICATE } from './modules/abricate.nf'
 include { MLST } from './modules/mlst.nf'
 
@@ -15,7 +16,7 @@ workflow ARIBA {
     ARIBA_PREPARE()
 
     ARIBA_RUN(ARIBA_PREPARE.out.argannot, reads)
-
+    //ARIBA_MLST(ARIBA_PREPARE.out.mlst_db, reads)
 }
 
 
