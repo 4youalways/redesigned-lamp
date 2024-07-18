@@ -79,13 +79,13 @@ dna_seg4 <- read_dna_seg_from_genbank(file = "results/mauve/fasta/prokka_chromos
 dna_seg5 <- read_dna_seg_from_genbank(file = "results/mauve/fasta/prokka_chromosome/CHI11E.gbk")
 
 save(dna_seg1, dna_seg2, dna_seg3, dna_seg4, dna_seg5,
-     file = "data/r/dnaSegments")
+     file = "data/r/dnaSegments.RData")
 
 ```
 
 
 ```{r}
-load(file = "data/r/dnaSegments")
+load(file = "data/r/dnaSegments.RData")
 
 region_num <- c("one", "two", "three", "four", "five", "six", "seven", "eight", "nine", "ten", "eleven", "twelve", "thirteen", "fourteen", "fifteen", "sixteen")
 starts <- c("cpxR", "ahr", "pknK", "ppiB", "phoH", "ves", "dcuS", "lcfB", "budC", "ychF", "yedJ", "fadL", "nadK", "cysD", "tsaD", "pyrE")
