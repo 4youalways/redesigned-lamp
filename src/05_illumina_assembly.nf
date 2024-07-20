@@ -7,6 +7,7 @@ include { PROKKA } from './modules/prokka.nf'
 include { PANAROO } from './modules/panaroo.nf'
 include { QUAST } from './modules/quast.nf'
 include { QUAST_MULTIQC } from './modules/quast.nf'
+include { CORE_GENE_TREE } from './modules/iqtree.nf'
 
 workflow ILLUMINA_ASSEMBLER {
     take:
@@ -20,6 +21,7 @@ workflow ILLUMINA_ASSEMBLER {
     PANAROO(PROKKA.out.gff.collect())
     QUAST(SHOVILL.out, reference)
     QUAST_MULTIQC(QUAST.out.collect())
+    CORE_GENE_TREE(PANAROO.out.core_gene_alignment)
 
     emit:
     assemblies = SHOVILL.out
