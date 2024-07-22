@@ -1,0 +1,1239 @@
+
+[93m[1m[4mStarting Trycycler reconcile[0m [2m(2024-07-06 08:16:04)[0m
+[2m    Trycycler reconcile is a tool for reconciling multiple alternative contigs[0m
+[2mwith each other.[0m
+
+Input reads: data/ont/CAA8N9_0.fastq.gz
+  size = 284,436,473 bytes
+
+Input contigs:
+  results/clusters/CAA8N9/cluster_001/1_contigs/A_Utg1226.fasta (5,530,816 bp)
+  results/clusters/CAA8N9/cluster_001/1_contigs/B_Utg1222.fasta (5,530,980 bp)
+  results/clusters/CAA8N9/cluster_001/1_contigs/C_Utg1264.fasta (5,527,781 bp)
+  results/clusters/CAA8N9/cluster_001/1_contigs/D_Utg1180.fasta (5,529,069 bp)
+  results/clusters/CAA8N9/cluster_001/1_contigs/E_Utg1184.fasta (5,529,728 bp)
+  results/clusters/CAA8N9/cluster_001/1_contigs/F_contig_2.fasta (5,531,887 bp)
+  results/clusters/CAA8N9/cluster_001/1_contigs/G_contig_4.fasta (5,531,896 bp)
+  results/clusters/CAA8N9/cluster_001/1_contigs/H_contig_4.fasta (5,531,905 bp)
+  results/clusters/CAA8N9/cluster_001/1_contigs/I_contig_1.fasta (5,531,898 bp)
+  results/clusters/CAA8N9/cluster_001/1_contigs/J_contig_2.fasta (5,531,912 bp)
+  results/clusters/CAA8N9/cluster_001/1_contigs/K_contig_2.fasta (5,531,894 bp)
+  results/clusters/CAA8N9/cluster_001/1_contigs/L_utg000001c.fasta (5,532,013 bp)
+  results/clusters/CAA8N9/cluster_001/1_contigs/M_utg000001c.fasta (5,532,240 bp)
+  results/clusters/CAA8N9/cluster_001/1_contigs/N_utg000001c.fasta (5,532,057 bp)
+  results/clusters/CAA8N9/cluster_001/1_contigs/O_utg000001c.fasta (5,532,331 bp)
+  results/clusters/CAA8N9/cluster_001/1_contigs/P_utg000001c.fasta (5,532,061 bp)
+
+Checking required software:
+  minimap2: v2.24-r1122
+
+
+[93m[1m[4mInitial check of contigs[0m [2m(2024-07-06 08:16:05)[0m
+[2m    Before proceeding, Trycycler ensures that the input contigs appear[0m
+[2msufficiently close to each other to make a consensus. If not, the program will[0m
+[2mquit and the user must fix the input contigs (make them more similar to each[0m
+[2mother) or exclude some before trying again.[0m
+
+Relative sequence lengths:
+  A_Utg1226:    [2m1.000[0m  1.000  1.001  1.000  1.000  1.000  1.000  1.000  1.000  1.000  1.000  1.000  1.000  1.000  1.000  1.000
+  B_Utg1222:    1.000  [2m1.000[0m  1.001  1.000  1.000  1.000  1.000  1.000  1.000  1.000  1.000  1.000  1.000  1.000  1.000  1.000
+  C_Utg1264:    0.999  0.999  [2m1.000[0m  1.000  1.000  0.999  0.999  0.999  0.999  0.999  0.999  0.999  0.999  0.999  0.999  0.999
+  D_Utg1180:    1.000  1.000  1.000  [2m1.000[0m  1.000  0.999  0.999  0.999  0.999  0.999  0.999  0.999  0.999  0.999  0.999  0.999
+  E_Utg1184:    1.000  1.000  1.000  1.000  [2m1.000[0m  1.000  1.000  1.000  1.000  1.000  1.000  1.000  1.000  1.000  1.000  1.000
+  F_contig_2:   1.000  1.000  1.001  1.001  1.000  [2m1.000[0m  1.000  1.000  1.000  1.000  1.000  1.000  1.000  1.000  1.000  1.000
+  G_contig_4:   1.000  1.000  1.001  1.001  1.000  1.000  [2m1.000[0m  1.000  1.000  1.000  1.000  1.000  1.000  1.000  1.000  1.000
+  H_contig_4:   1.000  1.000  1.001  1.001  1.000  1.000  1.000  [2m1.000[0m  1.000  1.000  1.000  1.000  1.000  1.000  1.000  1.000
+  I_contig_1:   1.000  1.000  1.001  1.001  1.000  1.000  1.000  1.000  [2m1.000[0m  1.000  1.000  1.000  1.000  1.000  1.000  1.000
+  J_contig_2:   1.000  1.000  1.001  1.001  1.000  1.000  1.000  1.000  1.000  [2m1.000[0m  1.000  1.000  1.000  1.000  1.000  1.000
+  K_contig_2:   1.000  1.000  1.001  1.001  1.000  1.000  1.000  1.000  1.000  1.000  [2m1.000[0m  1.000  1.000  1.000  1.000  1.000
+  L_utg000001c: 1.000  1.000  1.001  1.001  1.000  1.000  1.000  1.000  1.000  1.000  1.000  [2m1.000[0m  1.000  1.000  1.000  1.000
+  M_utg000001c: 1.000  1.000  1.001  1.001  1.000  1.000  1.000  1.000  1.000  1.000  1.000  1.000  [2m1.000[0m  1.000  1.000  1.000
+  N_utg000001c: 1.000  1.000  1.001  1.001  1.000  1.000  1.000  1.000  1.000  1.000  1.000  1.000  1.000  [2m1.000[0m  1.000  1.000
+  O_utg000001c: 1.000  1.000  1.001  1.001  1.000  1.000  1.000  1.000  1.000  1.000  1.000  1.000  1.000  1.000  [2m1.000[0m  1.000
+  P_utg000001c: 1.000  1.000  1.001  1.001  1.000  1.000  1.000  1.000  1.000  1.000  1.000  1.000  1.000  1.000  1.000  [2m1.000[0m
+
+Mash distances:
+  A_Utg1226:    [2m0.000[0m  0.000  0.000  0.000  0.000  0.000  0.000  0.000  0.000  0.000  0.000  0.000  0.000  0.000  0.000  0.000
+  B_Utg1222:    0.000  [2m0.000[0m  0.000  0.000  0.000  0.000  0.000  0.000  0.000  0.000  0.000  0.000  0.000  0.000  0.000  0.000
+  C_Utg1264:    0.000  0.000  [2m0.000[0m  0.000  0.000  0.000  0.000  0.000  0.000  0.000  0.000  0.000  0.000  0.000  0.000  0.000
+  D_Utg1180:    0.000  0.000  0.000  [2m0.000[0m  0.000  0.000  0.000  0.000  0.000  0.000  0.000  0.000  0.000  0.000  0.000  0.000
+  E_Utg1184:    0.000  0.000  0.000  0.000  [2m0.000[0m  0.000  0.000  0.000  0.000  0.000  0.000  0.000  0.000  0.000  0.000  0.000
+  F_contig_2:   0.000  0.000  0.000  0.000  0.000  [2m0.000[0m  0.000  0.000  0.000  0.000  0.000  0.000  0.000  0.000  0.000  0.000
+  G_contig_4:   0.000  0.000  0.000  0.000  0.000  0.000  [2m0.000[0m  0.000  0.000  0.000  0.000  0.000  0.000  0.000  0.000  0.000
+  H_contig_4:   0.000  0.000  0.000  0.000  0.000  0.000  0.000  [2m0.000[0m  0.000  0.000  0.000  0.000  0.000  0.000  0.000  0.000
+  I_contig_1:   0.000  0.000  0.000  0.000  0.000  0.000  0.000  0.000  [2m0.000[0m  0.000  0.000  0.000  0.000  0.000  0.000  0.000
+  J_contig_2:   0.000  0.000  0.000  0.000  0.000  0.000  0.000  0.000  0.000  [2m0.000[0m  0.000  0.000  0.000  0.000  0.000  0.000
+  K_contig_2:   0.000  0.000  0.000  0.000  0.000  0.000  0.000  0.000  0.000  0.000  [2m0.000[0m  0.000  0.000  0.000  0.000  0.000
+  L_utg000001c: 0.000  0.000  0.000  0.000  0.000  0.000  0.000  0.000  0.000  0.000  0.000  [2m0.000[0m  0.000  0.000  0.000  0.000
+  M_utg000001c: 0.000  0.000  0.000  0.000  0.000  0.000  0.000  0.000  0.000  0.000  0.000  0.000  [2m0.000[0m  0.000  0.000  0.000
+  N_utg000001c: 0.000  0.000  0.000  0.000  0.000  0.000  0.000  0.000  0.000  0.000  0.000  0.000  0.000  [2m0.000[0m  0.000  0.000
+  O_utg000001c: 0.000  0.000  0.000  0.000  0.000  0.000  0.000  0.000  0.000  0.000  0.000  0.000  0.000  0.000  [2m0.000[0m  0.000
+  P_utg000001c: 0.000  0.000  0.000  0.000  0.000  0.000  0.000  0.000  0.000  0.000  0.000  0.000  0.000  0.000  0.000  [2m0.000[0m
+
+Contigs have passed the initial check - they seem sufficiently close to reconcile.
+
+
+[93m[1m[4mNormalising strands[0m [2m(2024-07-06 08:16:19)[0m
+[2m    In this step, Trycycler ensures that all sequences are on the same strand.[0m
+[2mIt does this by first finding a sequence that occurs once in each contig and[0m
+[2mthen flipping any of the contigs (converting to their reverse complement[0m
+[2msequence) which have this sequence on the negative strand.[0m
+
+Randomly-chosen common sequence:
+  GAAGCGTTTTATTTGGGCGCTTCTGAGGAATACACTTGGGCGCTGGGACT
+  CTGTAGCTTCCCCATTCGCCACGGCGGCCGCATGGAGATCATTAAGGCTA
+  TAGCGTCCCTCATTGTCGACACGAACAGAGACGCCGTTTACTGATACGGT
+  TGGATACTTCATCGTGTTTACCTTTCTGTGGTGTGAGCCTGCTCGCGTAG
+  ACGTGGGCGGCCAAGAGCGGAACGATGAAATCCACCGCCCTGTCTCAGAC
+
+A_Utg1226:    - strand (using reverse complement)
+B_Utg1222:    - strand (using reverse complement)
+C_Utg1264:    - strand (using reverse complement)
+D_Utg1180:    - strand (using reverse complement)
+E_Utg1184:    - strand (using reverse complement)
+F_contig_2:   - strand (using reverse complement)
+G_contig_4:   + strand (using original sequence)
+H_contig_4:   + strand (using original sequence)
+I_contig_1:   - strand (using reverse complement)
+J_contig_2:   + strand (using original sequence)
+K_contig_2:   - strand (using reverse complement)
+L_utg000001c: - strand (using reverse complement)
+M_utg000001c: + strand (using original sequence)
+N_utg000001c: + strand (using original sequence)
+O_utg000001c: + strand (using original sequence)
+P_utg000001c: + strand (using original sequence)
+
+
+[93m[1m[4mCircularisation[0m [2m(2024-07-06 08:16:34)[0m
+[2m    Trycycler now compares the contigs to each other to repair any[0m
+[2mcircularisation issues. After this step, each sequence should be cleanly[0m
+[2mcircularised - i.e. the first base in the contig immediately follows the last[0m
+[2mbase. Each contig will be circularised by looking for the position of its start[0m
+[2mand end in the other contigs. If necessary, additional sequence will be added[0m
+[2mor duplicated sequence will be removed. If there are multiple possible ways to[0m
+[2mfix a contig's circularisation, then Trycycler will use read alignments to[0m
+[2mchoose the best one.[0m
+
+Circularising A_Utg1226:
+  using B_Utg1222:
+    unable to circularise: A_Utg1226's start could not be found in B_Utg1222
+  using C_Utg1264:
+    unable to circularise: A_Utg1226's end could not be found in C_Utg1264
+  using D_Utg1180:
+    unable to circularise: A_Utg1226's end could not be found in D_Utg1180
+  using E_Utg1184:
+    unable to circularise: A_Utg1226's start/end is the same as E_Utg1184's start/end
+  using F_contig_2:
+    circularising A_Utg1226 by adding 1907 bp of sequence from F_contig_2 (1051393-1053300)
+  using G_contig_4:
+    circularising A_Utg1226 by adding 1908 bp of sequence from G_contig_4 (3871393-3873301)
+  using H_contig_4:
+    circularising A_Utg1226 by adding 1908 bp of sequence from H_contig_4 (5410745-5412653)
+  using I_contig_1:
+    circularising A_Utg1226 by adding 1908 bp of sequence from I_contig_1 (3888812-3890720)
+  using J_contig_2:
+    circularising A_Utg1226 by adding 1908 bp of sequence from J_contig_2 (459519-461427)
+  using K_contig_2:
+    circularising A_Utg1226 by adding 1908 bp of sequence from K_contig_2 (157329-159237)
+  using L_utg000001c:
+    circularising A_Utg1226 by adding 1908 bp of sequence from L_utg000001c (4467443-4469351)
+  using M_utg000001c:
+    circularising A_Utg1226 by adding 1908 bp of sequence from M_utg000001c (2966478-2968386)
+  using N_utg000001c:
+    circularising A_Utg1226 by adding 1908 bp of sequence from N_utg000001c (4926107-4928015)
+  using O_utg000001c:
+    circularising A_Utg1226 by adding 1909 bp of sequence from O_utg000001c (1132097-1134006)
+  using P_utg000001c:
+    circularising A_Utg1226 by adding 1908 bp of sequence from P_utg000001c (2964804-2966712)
+  choosing most common circularisation
+  circularisation complete (5,532,724 bp)
+
+Circularising B_Utg1222:
+  using A_Utg1226:
+    unable to circularise: B_Utg1222's start/end is the same as A_Utg1226's start/end
+  using C_Utg1264:
+    unable to circularise: B_Utg1222's end could not be found in C_Utg1264
+  using D_Utg1180:
+    unable to circularise: B_Utg1222's end could not be found in D_Utg1180
+  using E_Utg1184:
+    unable to circularise: cannot determine trim amount
+  using F_contig_2:
+    circularising B_Utg1222 by adding 2271 bp of sequence from F_contig_2 (1051393-1053664)
+  using G_contig_4:
+    circularising B_Utg1222 by adding 2272 bp of sequence from G_contig_4 (3871393-3873665)
+  using H_contig_4:
+    circularising B_Utg1222 by adding 2272 bp of sequence from H_contig_4 (5410745-5413017)
+  using I_contig_1:
+    circularising B_Utg1222 by adding 2272 bp of sequence from I_contig_1 (3888812-3891084)
+  using J_contig_2:
+    circularising B_Utg1222 by adding 2272 bp of sequence from J_contig_2 (459519-461791)
+  using K_contig_2:
+    circularising B_Utg1222 by adding 2272 bp of sequence from K_contig_2 (157329-159601)
+  using L_utg000001c:
+    circularising B_Utg1222 by adding 2272 bp of sequence from L_utg000001c (4467443-4469715)
+  using M_utg000001c:
+    circularising B_Utg1222 by adding 2272 bp of sequence from M_utg000001c (2966478-2968750)
+  using N_utg000001c:
+    circularising B_Utg1222 by adding 2272 bp of sequence from N_utg000001c (4926107-4928379)
+  using O_utg000001c:
+    circularising B_Utg1222 by adding 2273 bp of sequence from O_utg000001c (1132097-1134370)
+  using P_utg000001c:
+    circularising B_Utg1222 by adding 2272 bp of sequence from P_utg000001c (2964804-2967076)
+  choosing most common circularisation
+  circularisation complete (5,533,252 bp)
+
+Circularising C_Utg1264:
+  using A_Utg1226:
+    unable to circularise: cannot determine trim amount
+  using B_Utg1222:
+    unable to circularise: C_Utg1264's start/end is the same as B_Utg1222's start/end
+  using D_Utg1180:
+    unable to circularise: cannot determine trim amount
+  using E_Utg1184:
+    unable to circularise: cannot determine trim amount
+  using F_contig_2:
+    unable to circularise: C_Utg1264 requires 3728 bp to be added but settings only allow 3000 bp
+  using G_contig_4:
+    unable to circularise: C_Utg1264 requires 3729 bp to be added but settings only allow 3000 bp
+  using H_contig_4:
+    unable to circularise: C_Utg1264 requires 3730 bp to be added but settings only allow 3000 bp
+  using I_contig_1:
+    unable to circularise: C_Utg1264 requires 3729 bp to be added but settings only allow 3000 bp
+  using J_contig_2:
+    unable to circularise: C_Utg1264 requires 3729 bp to be added but settings only allow 3000 bp
+  using K_contig_2:
+    unable to circularise: C_Utg1264 requires 3729 bp to be added but settings only allow 3000 bp
+  using L_utg000001c:
+    unable to circularise: C_Utg1264 requires 3729 bp to be added but settings only allow 3000 bp
+  using M_utg000001c:
+    unable to circularise: C_Utg1264 requires 3729 bp to be added but settings only allow 3000 bp
+  using N_utg000001c:
+    unable to circularise: C_Utg1264 requires 3729 bp to be added but settings only allow 3000 bp
+  using O_utg000001c:
+    unable to circularise: C_Utg1264 requires 3730 bp to be added but settings only allow 3000 bp
+  using P_utg000001c:
+    unable to circularise: C_Utg1264 requires 3729 bp to be added but settings only allow 3000 bp
+
+Error: failed to circularise sequence C_Utg1264 for multiple reasons. You must
+either repair this sequence or exclude it and then try running trycycler
+reconcile again.
+
+
+[93m[1m[4mStarting Trycycler reconcile[0m [2m(2024-07-06 08:17:00)[0m
+[2m    Trycycler reconcile is a tool for reconciling multiple alternative contigs[0m
+[2mwith each other.[0m
+
+Input reads: data/ont/CAA8N9_0.fastq.gz
+  size = 284,436,473 bytes
+
+Input contigs:
+  results/clusters/CAA8N9/cluster_002/1_contigs/A_Utg1222.fasta (193,143 bp)
+  results/clusters/CAA8N9/cluster_002/1_contigs/B_Utg1220.fasta (192,492 bp)
+  results/clusters/CAA8N9/cluster_002/1_contigs/C_Utg1266.fasta (190,863 bp)
+  results/clusters/CAA8N9/cluster_002/1_contigs/D_Utg1178.fasta (192,600 bp)
+  results/clusters/CAA8N9/cluster_002/1_contigs/E_Utg1180.fasta (192,869 bp)
+  results/clusters/CAA8N9/cluster_002/1_contigs/F_contig_4.fasta (193,160 bp)
+  results/clusters/CAA8N9/cluster_002/1_contigs/G_contig_3.fasta (193,158 bp)
+  results/clusters/CAA8N9/cluster_002/1_contigs/H_contig_5.fasta (193,162 bp)
+  results/clusters/CAA8N9/cluster_002/1_contigs/I_contig_2.fasta (193,154 bp)
+  results/clusters/CAA8N9/cluster_002/1_contigs/J_contig_3.fasta (193,160 bp)
+  results/clusters/CAA8N9/cluster_002/1_contigs/K_contig_5.fasta (193,161 bp)
+  results/clusters/CAA8N9/cluster_002/1_contigs/L_utg000003c.fasta (193,171 bp)
+  results/clusters/CAA8N9/cluster_002/1_contigs/M_utg000003c.fasta (191,963 bp)
+  results/clusters/CAA8N9/cluster_002/1_contigs/N_utg000003c.fasta (191,577 bp)
+  results/clusters/CAA8N9/cluster_002/1_contigs/O_utg000002c.fasta (193,333 bp)
+  results/clusters/CAA8N9/cluster_002/1_contigs/P_utg000003c.fasta (193,162 bp)
+
+Checking required software:
+  minimap2: v2.24-r1122
+
+
+[93m[1m[4mInitial check of contigs[0m [2m(2024-07-06 08:17:00)[0m
+[2m    Before proceeding, Trycycler ensures that the input contigs appear[0m
+[2msufficiently close to each other to make a consensus. If not, the program will[0m
+[2mquit and the user must fix the input contigs (make them more similar to each[0m
+[2mother) or exclude some before trying again.[0m
+
+Relative sequence lengths:
+  A_Utg1222:    [2m1.000[0m  1.003  1.012  1.003  1.001  1.000  1.000  1.000  1.000  1.000  1.000  1.000  1.006  1.008  0.999  1.000
+  B_Utg1220:    0.997  [2m1.000[0m  1.009  0.999  0.998  0.997  0.997  0.997  0.997  0.997  0.997  0.996  1.003  1.005  0.996  0.997
+  C_Utg1266:    0.988  0.992  [2m1.000[0m  0.991  0.990  0.988  0.988  0.988  0.988  0.988  0.988  0.988  0.994  0.996  0.987  0.988
+  D_Utg1178:    0.997  1.001  1.009  [2m1.000[0m  0.999  0.997  0.997  0.997  0.997  0.997  0.997  0.997  1.003  1.005  0.996  0.997
+  E_Utg1180:    0.999  1.002  1.011  1.001  [2m1.000[0m  0.998  0.999  0.998  0.999  0.998  0.998  0.998  1.005  1.007  0.998  0.998
+  F_contig_4:   1.000  1.003  1.012  1.003  1.002  [2m1.000[0m  1.000  1.000  1.000  1.000  1.000  1.000  1.006  1.008  0.999  1.000
+  G_contig_3:   1.000  1.003  1.012  1.003  1.001  1.000  [2m1.000[0m  1.000  1.000  1.000  1.000  1.000  1.006  1.008  0.999  1.000
+  H_contig_5:   1.000  1.003  1.012  1.003  1.002  1.000  1.000  [2m1.000[0m  1.000  1.000  1.000  1.000  1.006  1.008  0.999  1.000
+  I_contig_2:   1.000  1.003  1.012  1.003  1.001  1.000  1.000  1.000  [2m1.000[0m  1.000  1.000  1.000  1.006  1.008  0.999  1.000
+  J_contig_3:   1.000  1.003  1.012  1.003  1.002  1.000  1.000  1.000  1.000  [2m1.000[0m  1.000  1.000  1.006  1.008  0.999  1.000
+  K_contig_5:   1.000  1.003  1.012  1.003  1.002  1.000  1.000  1.000  1.000  1.000  [2m1.000[0m  1.000  1.006  1.008  0.999  1.000
+  L_utg000003c: 1.000  1.004  1.012  1.003  1.002  1.000  1.000  1.000  1.000  1.000  1.000  [2m1.000[0m  1.006  1.008  0.999  1.000
+  M_utg000003c: 0.994  0.997  1.006  0.997  0.995  0.994  0.994  0.994  0.994  0.994  0.994  0.994  [2m1.000[0m  1.002  0.993  0.994
+  N_utg000003c: 0.992  0.995  1.004  0.995  0.993  0.992  0.992  0.992  0.992  0.992  0.992  0.992  0.998  [2m1.000[0m  0.991  0.992
+  O_utg000002c: 1.001  1.004  1.013  1.004  1.002  1.001  1.001  1.001  1.001  1.001  1.001  1.001  1.007  1.009  [2m1.000[0m  1.001
+  P_utg000003c: 1.000  1.003  1.012  1.003  1.002  1.000  1.000  1.000  1.000  1.000  1.000  1.000  1.006  1.008  0.999  [2m1.000[0m
+
+Mash distances:
+  A_Utg1222:    [2m0.000[0m  0.000  0.001  0.000  0.000  0.000  0.000  0.000  0.000  0.000  0.000  0.000  0.001  0.001  0.000  0.000
+  B_Utg1220:    0.000  [2m0.000[0m  0.001  0.000  0.000  0.000  0.000  0.000  0.000  0.001  0.000  0.000  0.001  0.001  0.000  0.000
+  C_Utg1266:    0.001  0.001  [2m0.000[0m  0.001  0.001  0.001  0.001  0.001  0.001  0.001  0.001  0.001  0.001  0.001  0.001  0.001
+  D_Utg1178:    0.000  0.000  0.001  [2m0.000[0m  0.000  0.000  0.000  0.000  0.000  0.000  0.000  0.000  0.001  0.001  0.000  0.000
+  E_Utg1180:    0.000  0.000  0.001  0.000  [2m0.000[0m  0.000  0.000  0.000  0.000  0.000  0.000  0.000  0.001  0.001  0.000  0.000
+  F_contig_4:   0.000  0.000  0.001  0.000  0.000  [2m0.000[0m  0.000  0.000  0.000  0.000  0.000  0.000  0.001  0.001  0.000  0.000
+  G_contig_3:   0.000  0.000  0.001  0.000  0.000  0.000  [2m0.000[0m  0.000  0.000  0.000  0.000  0.000  0.001  0.001  0.000  0.000
+  H_contig_5:   0.000  0.000  0.001  0.000  0.000  0.000  0.000  [2m0.000[0m  0.000  0.000  0.000  0.000  0.001  0.001  0.000  0.000
+  I_contig_2:   0.000  0.000  0.001  0.000  0.000  0.000  0.000  0.000  [2m0.000[0m  0.000  0.000  0.000  0.001  0.001  0.000  0.000
+  J_contig_3:   0.000  0.001  0.001  0.000  0.000  0.000  0.000  0.000  0.000  [2m0.000[0m  0.000  0.000  0.001  0.001  0.000  0.000
+  K_contig_5:   0.000  0.000  0.001  0.000  0.000  0.000  0.000  0.000  0.000  0.000  [2m0.000[0m  0.000  0.001  0.001  0.000  0.000
+  L_utg000003c: 0.000  0.000  0.001  0.000  0.000  0.000  0.000  0.000  0.000  0.000  0.000  [2m0.000[0m  0.001  0.001  0.000  0.000
+  M_utg000003c: 0.001  0.001  0.001  0.001  0.001  0.001  0.001  0.001  0.001  0.001  0.001  0.001  [2m0.000[0m  0.000  0.001  0.001
+  N_utg000003c: 0.001  0.001  0.001  0.001  0.001  0.001  0.001  0.001  0.001  0.001  0.001  0.001  0.000  [2m0.000[0m  0.001  0.001
+  O_utg000002c: 0.000  0.000  0.001  0.000  0.000  0.000  0.000  0.000  0.000  0.000  0.000  0.000  0.001  0.001  [2m0.000[0m  0.000
+  P_utg000003c: 0.000  0.000  0.001  0.000  0.000  0.000  0.000  0.000  0.000  0.000  0.000  0.000  0.001  0.001  0.000  [2m0.000[0m
+
+Contigs have passed the initial check - they seem sufficiently close to reconcile.
+
+
+[93m[1m[4mNormalising strands[0m [2m(2024-07-06 08:17:02)[0m
+[2m    In this step, Trycycler ensures that all sequences are on the same strand.[0m
+[2mIt does this by first finding a sequence that occurs once in each contig and[0m
+[2mthen flipping any of the contigs (converting to their reverse complement[0m
+[2msequence) which have this sequence on the negative strand.[0m
+
+Randomly-chosen common sequence:
+  CGTTACCGGCCACAGCAAGACTCAGTTCGCCTTTCAATCCTGCAAGACTT
+  AACCCGGTATCGGGAAAAGTGAGTCCCCATAATGGCATTGATTATTCCAT
+  GCCCATGAACACGAAAATAGTCAGCGTCATCGACGGAAAAATCACCCGGG
+  CCGAATACAACAGTACCATGGGATATTTTGTTGAAGTAACGGGAAAAGCC
+  GGTGTTAAAACTCGCTATCTCCACCTCAATAAAATACTCGTTACTAAAGG
+
+A_Utg1222:    + strand (using original sequence)
+B_Utg1220:    - strand (using reverse complement)
+C_Utg1266:    - strand (using reverse complement)
+D_Utg1178:    - strand (using reverse complement)
+E_Utg1180:    + strand (using original sequence)
+F_contig_4:   + strand (using original sequence)
+G_contig_3:   + strand (using original sequence)
+H_contig_5:   + strand (using original sequence)
+I_contig_2:   + strand (using original sequence)
+J_contig_3:   - strand (using reverse complement)
+K_contig_5:   + strand (using original sequence)
+L_utg000003c: - strand (using reverse complement)
+M_utg000003c: - strand (using reverse complement)
+N_utg000003c: - strand (using reverse complement)
+O_utg000002c: - strand (using reverse complement)
+P_utg000003c: + strand (using original sequence)
+
+
+[93m[1m[4mCircularisation[0m [2m(2024-07-06 08:17:03)[0m
+[2m    Trycycler now compares the contigs to each other to repair any[0m
+[2mcircularisation issues. After this step, each sequence should be cleanly[0m
+[2mcircularised - i.e. the first base in the contig immediately follows the last[0m
+[2mbase. Each contig will be circularised by looking for the position of its start[0m
+[2mand end in the other contigs. If necessary, additional sequence will be added[0m
+[2mor duplicated sequence will be removed. If there are multiple possible ways to[0m
+[2mfix a contig's circularisation, then Trycycler will use read alignments to[0m
+[2mchoose the best one.[0m
+
+Circularising A_Utg1222:
+  using B_Utg1220:
+    no adjustment needed (A_Utg1222 is already circular)
+  using C_Utg1266:
+    no adjustment needed (A_Utg1222 is already circular)
+  using D_Utg1178:
+    no adjustment needed (A_Utg1222 is already circular)
+  using E_Utg1180:
+    no adjustment needed (A_Utg1222 is already circular)
+  using F_contig_4:
+    no adjustment needed (A_Utg1222 is already circular)
+  using G_contig_3:
+    no adjustment needed (A_Utg1222 is already circular)
+  using H_contig_5:
+    no adjustment needed (A_Utg1222 is already circular)
+  using I_contig_2:
+    no adjustment needed (A_Utg1222 is already circular)
+  using J_contig_3:
+    no adjustment needed (A_Utg1222 is already circular)
+  using K_contig_5:
+    no adjustment needed (A_Utg1222 is already circular)
+  using L_utg000003c:
+    no adjustment needed (A_Utg1222 is already circular)
+  using M_utg000003c:
+    no adjustment needed (A_Utg1222 is already circular)
+  using N_utg000003c:
+    no adjustment needed (A_Utg1222 is already circular)
+  using O_utg000002c:
+    no adjustment needed (A_Utg1222 is already circular)
+  using P_utg000003c:
+    no adjustment needed (A_Utg1222 is already circular)
+  circularisation complete (193,143 bp)
+
+Circularising B_Utg1220:
+  using A_Utg1222:
+    no adjustment needed (B_Utg1220 is already circular)
+  using C_Utg1266:
+    unable to circularise: B_Utg1220's end could not be found in C_Utg1266
+  using D_Utg1178:
+    unable to circularise: B_Utg1220's start/end is the same as D_Utg1178's start/end
+  using E_Utg1180:
+    no adjustment needed (B_Utg1220 is already circular)
+  using F_contig_4:
+    no adjustment needed (B_Utg1220 is already circular)
+  using G_contig_3:
+    no adjustment needed (B_Utg1220 is already circular)
+  using H_contig_5:
+    no adjustment needed (B_Utg1220 is already circular)
+  using I_contig_2:
+    no adjustment needed (B_Utg1220 is already circular)
+  using J_contig_3:
+    no adjustment needed (B_Utg1220 is already circular)
+  using K_contig_5:
+    no adjustment needed (B_Utg1220 is already circular)
+  using L_utg000003c:
+    no adjustment needed (B_Utg1220 is already circular)
+  using M_utg000003c:
+    no adjustment needed (B_Utg1220 is already circular)
+  using N_utg000003c:
+    no adjustment needed (B_Utg1220 is already circular)
+  using O_utg000002c:
+    no adjustment needed (B_Utg1220 is already circular)
+  using P_utg000003c:
+    no adjustment needed (B_Utg1220 is already circular)
+  circularisation complete (192,492 bp)
+
+Circularising C_Utg1266:
+  using A_Utg1222:
+    no adjustment needed (C_Utg1266 is already circular)
+  using B_Utg1220:
+    unable to circularise: C_Utg1266's start could not be found in B_Utg1220
+  using D_Utg1178:
+    unable to circularise: C_Utg1266's start could not be found in D_Utg1178
+  using E_Utg1180:
+    no adjustment needed (C_Utg1266 is already circular)
+  using F_contig_4:
+    no adjustment needed (C_Utg1266 is already circular)
+  using G_contig_3:
+    no adjustment needed (C_Utg1266 is already circular)
+  using H_contig_5:
+    no adjustment needed (C_Utg1266 is already circular)
+  using I_contig_2:
+    no adjustment needed (C_Utg1266 is already circular)
+  using J_contig_3:
+    no adjustment needed (C_Utg1266 is already circular)
+  using K_contig_5:
+    no adjustment needed (C_Utg1266 is already circular)
+  using L_utg000003c:
+    no adjustment needed (C_Utg1266 is already circular)
+  using M_utg000003c:
+    no adjustment needed (C_Utg1266 is already circular)
+  using N_utg000003c:
+    no adjustment needed (C_Utg1266 is already circular)
+  using O_utg000002c:
+    no adjustment needed (C_Utg1266 is already circular)
+  using P_utg000003c:
+    no adjustment needed (C_Utg1266 is already circular)
+  circularisation complete (190,863 bp)
+
+Circularising D_Utg1178:
+  using A_Utg1222:
+    no adjustment needed (D_Utg1178 is already circular)
+  using B_Utg1220:
+    unable to circularise: D_Utg1178's start/end is the same as B_Utg1220's start/end
+  using C_Utg1266:
+    unable to circularise: D_Utg1178's end could not be found in C_Utg1266
+  using E_Utg1180:
+    no adjustment needed (D_Utg1178 is already circular)
+  using F_contig_4:
+    no adjustment needed (D_Utg1178 is already circular)
+  using G_contig_3:
+    no adjustment needed (D_Utg1178 is already circular)
+  using H_contig_5:
+    no adjustment needed (D_Utg1178 is already circular)
+  using I_contig_2:
+    no adjustment needed (D_Utg1178 is already circular)
+  using J_contig_3:
+    no adjustment needed (D_Utg1178 is already circular)
+  using K_contig_5:
+    no adjustment needed (D_Utg1178 is already circular)
+  using L_utg000003c:
+    no adjustment needed (D_Utg1178 is already circular)
+  using M_utg000003c:
+    no adjustment needed (D_Utg1178 is already circular)
+  using N_utg000003c:
+    no adjustment needed (D_Utg1178 is already circular)
+  using O_utg000002c:
+    no adjustment needed (D_Utg1178 is already circular)
+  using P_utg000003c:
+    no adjustment needed (D_Utg1178 is already circular)
+  circularisation complete (192,600 bp)
+
+Circularising E_Utg1180:
+  using A_Utg1222:
+    no adjustment needed (E_Utg1180 is already circular)
+  using B_Utg1220:
+    no adjustment needed (E_Utg1180 is already circular)
+  using C_Utg1266:
+    no adjustment needed (E_Utg1180 is already circular)
+  using D_Utg1178:
+    no adjustment needed (E_Utg1180 is already circular)
+  using F_contig_4:
+    no adjustment needed (E_Utg1180 is already circular)
+  using G_contig_3:
+    no adjustment needed (E_Utg1180 is already circular)
+  using H_contig_5:
+    no adjustment needed (E_Utg1180 is already circular)
+  using I_contig_2:
+    no adjustment needed (E_Utg1180 is already circular)
+  using J_contig_3:
+    no adjustment needed (E_Utg1180 is already circular)
+  using K_contig_5:
+    no adjustment needed (E_Utg1180 is already circular)
+  using L_utg000003c:
+    no adjustment needed (E_Utg1180 is already circular)
+  using M_utg000003c:
+    no adjustment needed (E_Utg1180 is already circular)
+  using N_utg000003c:
+    no adjustment needed (E_Utg1180 is already circular)
+  using O_utg000002c:
+    no adjustment needed (E_Utg1180 is already circular)
+  using P_utg000003c:
+    no adjustment needed (E_Utg1180 is already circular)
+  circularisation complete (192,869 bp)
+
+Circularising F_contig_4:
+  using A_Utg1222:
+    no adjustment needed (F_contig_4 is already circular)
+  using B_Utg1220:
+    unable to circularise: F_contig_4's end could not be found in B_Utg1220
+  using C_Utg1266:
+    no adjustment needed (F_contig_4 is already circular)
+  using D_Utg1178:
+    no adjustment needed (F_contig_4 is already circular)
+  using E_Utg1180:
+    no adjustment needed (F_contig_4 is already circular)
+  using G_contig_3:
+    no adjustment needed (F_contig_4 is already circular)
+  using H_contig_5:
+    no adjustment needed (F_contig_4 is already circular)
+  using I_contig_2:
+    no adjustment needed (F_contig_4 is already circular)
+  using J_contig_3:
+    no adjustment needed (F_contig_4 is already circular)
+  using K_contig_5:
+    no adjustment needed (F_contig_4 is already circular)
+  using L_utg000003c:
+    no adjustment needed (F_contig_4 is already circular)
+  using M_utg000003c:
+    no adjustment needed (F_contig_4 is already circular)
+  using N_utg000003c:
+    no adjustment needed (F_contig_4 is already circular)
+  using O_utg000002c:
+    no adjustment needed (F_contig_4 is already circular)
+  using P_utg000003c:
+    no adjustment needed (F_contig_4 is already circular)
+  circularisation complete (193,160 bp)
+
+Circularising G_contig_3:
+  using A_Utg1222:
+    no adjustment needed (G_contig_3 is already circular)
+  using B_Utg1220:
+    no adjustment needed (G_contig_3 is already circular)
+  using C_Utg1266:
+    no adjustment needed (G_contig_3 is already circular)
+  using D_Utg1178:
+    no adjustment needed (G_contig_3 is already circular)
+  using E_Utg1180:
+    no adjustment needed (G_contig_3 is already circular)
+  using F_contig_4:
+    no adjustment needed (G_contig_3 is already circular)
+  using H_contig_5:
+    unable to circularise: G_contig_3's start/end is the same as H_contig_5's start/end
+  using I_contig_2:
+    no adjustment needed (G_contig_3 is already circular)
+  using J_contig_3:
+    no adjustment needed (G_contig_3 is already circular)
+  using K_contig_5:
+    no adjustment needed (G_contig_3 is already circular)
+  using L_utg000003c:
+    no adjustment needed (G_contig_3 is already circular)
+  using M_utg000003c:
+    no adjustment needed (G_contig_3 is already circular)
+  using N_utg000003c:
+    no adjustment needed (G_contig_3 is already circular)
+  using O_utg000002c:
+    no adjustment needed (G_contig_3 is already circular)
+  using P_utg000003c:
+    no adjustment needed (G_contig_3 is already circular)
+  circularisation complete (193,158 bp)
+
+Circularising H_contig_5:
+  using A_Utg1222:
+    no adjustment needed (H_contig_5 is already circular)
+  using B_Utg1220:
+    no adjustment needed (H_contig_5 is already circular)
+  using C_Utg1266:
+    no adjustment needed (H_contig_5 is already circular)
+  using D_Utg1178:
+    no adjustment needed (H_contig_5 is already circular)
+  using E_Utg1180:
+    no adjustment needed (H_contig_5 is already circular)
+  using F_contig_4:
+    no adjustment needed (H_contig_5 is already circular)
+  using G_contig_3:
+    unable to circularise: H_contig_5's start/end is the same as G_contig_3's start/end
+  using I_contig_2:
+    no adjustment needed (H_contig_5 is already circular)
+  using J_contig_3:
+    no adjustment needed (H_contig_5 is already circular)
+  using K_contig_5:
+    no adjustment needed (H_contig_5 is already circular)
+  using L_utg000003c:
+    no adjustment needed (H_contig_5 is already circular)
+  using M_utg000003c:
+    no adjustment needed (H_contig_5 is already circular)
+  using N_utg000003c:
+    no adjustment needed (H_contig_5 is already circular)
+  using O_utg000002c:
+    no adjustment needed (H_contig_5 is already circular)
+  using P_utg000003c:
+    no adjustment needed (H_contig_5 is already circular)
+  circularisation complete (193,162 bp)
+
+Circularising I_contig_2:
+  using A_Utg1222:
+    no adjustment needed (I_contig_2 is already circular)
+  using B_Utg1220:
+    no adjustment needed (I_contig_2 is already circular)
+  using C_Utg1266:
+    no adjustment needed (I_contig_2 is already circular)
+  using D_Utg1178:
+    no adjustment needed (I_contig_2 is already circular)
+  using E_Utg1180:
+    no adjustment needed (I_contig_2 is already circular)
+  using F_contig_4:
+    no adjustment needed (I_contig_2 is already circular)
+  using G_contig_3:
+    no adjustment needed (I_contig_2 is already circular)
+  using H_contig_5:
+    no adjustment needed (I_contig_2 is already circular)
+  using J_contig_3:
+    no adjustment needed (I_contig_2 is already circular)
+  using K_contig_5:
+    no adjustment needed (I_contig_2 is already circular)
+  using L_utg000003c:
+    no adjustment needed (I_contig_2 is already circular)
+  using M_utg000003c:
+    no adjustment needed (I_contig_2 is already circular)
+  using N_utg000003c:
+    no adjustment needed (I_contig_2 is already circular)
+  using O_utg000002c:
+    no adjustment needed (I_contig_2 is already circular)
+  using P_utg000003c:
+    no adjustment needed (I_contig_2 is already circular)
+  circularisation complete (193,154 bp)
+
+Circularising J_contig_3:
+  using A_Utg1222:
+    circularising J_contig_3 by adding 1 bp of sequence from A_Utg1222 (1725-1726)
+  using B_Utg1220:
+    no adjustment needed (J_contig_3 is already circular)
+  using C_Utg1266:
+    circularising J_contig_3 by adding 1 bp of sequence from C_Utg1266 (63311-63312)
+  using D_Utg1178:
+    no adjustment needed (J_contig_3 is already circular)
+  using E_Utg1180:
+    circularising J_contig_3 by adding 1 bp of sequence from E_Utg1180 (95830-95831)
+  using F_contig_4:
+    no adjustment needed (J_contig_3 is already circular)
+  using G_contig_3:
+    no adjustment needed (J_contig_3 is already circular)
+  using H_contig_5:
+    no adjustment needed (J_contig_3 is already circular)
+  using I_contig_2:
+    no adjustment needed (J_contig_3 is already circular)
+  using K_contig_5:
+    no adjustment needed (J_contig_3 is already circular)
+  using L_utg000003c:
+    no adjustment needed (J_contig_3 is already circular)
+  using M_utg000003c:
+    no adjustment needed (J_contig_3 is already circular)
+  using N_utg000003c:
+    no adjustment needed (J_contig_3 is already circular)
+  using O_utg000002c:
+    no adjustment needed (J_contig_3 is already circular)
+  using P_utg000003c:
+    no adjustment needed (J_contig_3 is already circular)
+  choosing best circularisation of 2 alternatives
+    alternative 1 (193,161 bp): score = 11,832,839
+    alternative 2 (193,160 bp): score = 11,832,839
+    best alternative: 1
+  circularisation complete (193,161 bp)
+
+Circularising K_contig_5:
+  using A_Utg1222:
+    no adjustment needed (K_contig_5 is already circular)
+  using B_Utg1220:
+    no adjustment needed (K_contig_5 is already circular)
+  using C_Utg1266:
+    no adjustment needed (K_contig_5 is already circular)
+  using D_Utg1178:
+    no adjustment needed (K_contig_5 is already circular)
+  using E_Utg1180:
+    no adjustment needed (K_contig_5 is already circular)
+  using F_contig_4:
+    no adjustment needed (K_contig_5 is already circular)
+  using G_contig_3:
+    no adjustment needed (K_contig_5 is already circular)
+  using H_contig_5:
+    no adjustment needed (K_contig_5 is already circular)
+  using I_contig_2:
+    no adjustment needed (K_contig_5 is already circular)
+  using J_contig_3:
+    no adjustment needed (K_contig_5 is already circular)
+  using L_utg000003c:
+    no adjustment needed (K_contig_5 is already circular)
+  using M_utg000003c:
+    no adjustment needed (K_contig_5 is already circular)
+  using N_utg000003c:
+    no adjustment needed (K_contig_5 is already circular)
+  using O_utg000002c:
+    no adjustment needed (K_contig_5 is already circular)
+  using P_utg000003c:
+    no adjustment needed (K_contig_5 is already circular)
+  circularisation complete (193,161 bp)
+
+Circularising L_utg000003c:
+  using A_Utg1222:
+    no adjustment needed (L_utg000003c is already circular)
+  using B_Utg1220:
+    no adjustment needed (L_utg000003c is already circular)
+  using C_Utg1266:
+    no adjustment needed (L_utg000003c is already circular)
+  using D_Utg1178:
+    no adjustment needed (L_utg000003c is already circular)
+  using E_Utg1180:
+    no adjustment needed (L_utg000003c is already circular)
+  using F_contig_4:
+    no adjustment needed (L_utg000003c is already circular)
+  using G_contig_3:
+    no adjustment needed (L_utg000003c is already circular)
+  using H_contig_5:
+    no adjustment needed (L_utg000003c is already circular)
+  using I_contig_2:
+    no adjustment needed (L_utg000003c is already circular)
+  using J_contig_3:
+    no adjustment needed (L_utg000003c is already circular)
+  using K_contig_5:
+    no adjustment needed (L_utg000003c is already circular)
+  using M_utg000003c:
+    no adjustment needed (L_utg000003c is already circular)
+  using N_utg000003c:
+    no adjustment needed (L_utg000003c is already circular)
+  using O_utg000002c:
+    no adjustment needed (L_utg000003c is already circular)
+  using P_utg000003c:
+    no adjustment needed (L_utg000003c is already circular)
+  circularisation complete (193,171 bp)
+
+Circularising M_utg000003c:
+  using A_Utg1222:
+    no adjustment needed (M_utg000003c is already circular)
+  using B_Utg1220:
+    no adjustment needed (M_utg000003c is already circular)
+  using C_Utg1266:
+    no adjustment needed (M_utg000003c is already circular)
+  using D_Utg1178:
+    no adjustment needed (M_utg000003c is already circular)
+  using E_Utg1180:
+    no adjustment needed (M_utg000003c is already circular)
+  using F_contig_4:
+    no adjustment needed (M_utg000003c is already circular)
+  using G_contig_3:
+    no adjustment needed (M_utg000003c is already circular)
+  using H_contig_5:
+    no adjustment needed (M_utg000003c is already circular)
+  using I_contig_2:
+    no adjustment needed (M_utg000003c is already circular)
+  using J_contig_3:
+    no adjustment needed (M_utg000003c is already circular)
+  using K_contig_5:
+    no adjustment needed (M_utg000003c is already circular)
+  using L_utg000003c:
+    no adjustment needed (M_utg000003c is already circular)
+  using N_utg000003c:
+    unable to circularise: M_utg000003c's end could not be found in N_utg000003c
+  using O_utg000002c:
+    no adjustment needed (M_utg000003c is already circular)
+  using P_utg000003c:
+    no adjustment needed (M_utg000003c is already circular)
+  circularisation complete (191,963 bp)
+
+Circularising N_utg000003c:
+  using A_Utg1222:
+    no adjustment needed (N_utg000003c is already circular)
+  using B_Utg1220:
+    no adjustment needed (N_utg000003c is already circular)
+  using C_Utg1266:
+    no adjustment needed (N_utg000003c is already circular)
+  using D_Utg1178:
+    no adjustment needed (N_utg000003c is already circular)
+  using E_Utg1180:
+    no adjustment needed (N_utg000003c is already circular)
+  using F_contig_4:
+    no adjustment needed (N_utg000003c is already circular)
+  using G_contig_3:
+    no adjustment needed (N_utg000003c is already circular)
+  using H_contig_5:
+    no adjustment needed (N_utg000003c is already circular)
+  using I_contig_2:
+    no adjustment needed (N_utg000003c is already circular)
+  using J_contig_3:
+    no adjustment needed (N_utg000003c is already circular)
+  using K_contig_5:
+    no adjustment needed (N_utg000003c is already circular)
+  using L_utg000003c:
+    no adjustment needed (N_utg000003c is already circular)
+  using M_utg000003c:
+    unable to circularise: N_utg000003c's start could not be found in M_utg000003c
+  using O_utg000002c:
+    no adjustment needed (N_utg000003c is already circular)
+  using P_utg000003c:
+    no adjustment needed (N_utg000003c is already circular)
+  circularisation complete (191,577 bp)
+
+Circularising O_utg000002c:
+  using A_Utg1222:
+    no adjustment needed (O_utg000002c is already circular)
+  using B_Utg1220:
+    no adjustment needed (O_utg000002c is already circular)
+  using C_Utg1266:
+    no adjustment needed (O_utg000002c is already circular)
+  using D_Utg1178:
+    no adjustment needed (O_utg000002c is already circular)
+  using E_Utg1180:
+    no adjustment needed (O_utg000002c is already circular)
+  using F_contig_4:
+    no adjustment needed (O_utg000002c is already circular)
+  using G_contig_3:
+    no adjustment needed (O_utg000002c is already circular)
+  using H_contig_5:
+    no adjustment needed (O_utg000002c is already circular)
+  using I_contig_2:
+    no adjustment needed (O_utg000002c is already circular)
+  using J_contig_3:
+    no adjustment needed (O_utg000002c is already circular)
+  using K_contig_5:
+    no adjustment needed (O_utg000002c is already circular)
+  using L_utg000003c:
+    no adjustment needed (O_utg000002c is already circular)
+  using M_utg000003c:
+    no adjustment needed (O_utg000002c is already circular)
+  using N_utg000003c:
+    no adjustment needed (O_utg000002c is already circular)
+  using P_utg000003c:
+    no adjustment needed (O_utg000002c is already circular)
+  circularisation complete (193,333 bp)
+
+Circularising P_utg000003c:
+  using A_Utg1222:
+    no adjustment needed (P_utg000003c is already circular)
+  using B_Utg1220:
+    no adjustment needed (P_utg000003c is already circular)
+  using C_Utg1266:
+    no adjustment needed (P_utg000003c is already circular)
+  using D_Utg1178:
+    no adjustment needed (P_utg000003c is already circular)
+  using E_Utg1180:
+    no adjustment needed (P_utg000003c is already circular)
+  using F_contig_4:
+    no adjustment needed (P_utg000003c is already circular)
+  using G_contig_3:
+    no adjustment needed (P_utg000003c is already circular)
+  using H_contig_5:
+    no adjustment needed (P_utg000003c is already circular)
+  using I_contig_2:
+    no adjustment needed (P_utg000003c is already circular)
+  using J_contig_3:
+    no adjustment needed (P_utg000003c is already circular)
+  using K_contig_5:
+    no adjustment needed (P_utg000003c is already circular)
+  using L_utg000003c:
+    no adjustment needed (P_utg000003c is already circular)
+  using M_utg000003c:
+    no adjustment needed (P_utg000003c is already circular)
+  using N_utg000003c:
+    no adjustment needed (P_utg000003c is already circular)
+  using O_utg000002c:
+    no adjustment needed (P_utg000003c is already circular)
+  circularisation complete (193,162 bp)
+
+
+[93m[1m[4mFinding starting sequence[0m [2m(2024-07-06 08:17:23)[0m
+[2m    In this step, Trycycler finds a sequence to use as a starting point for[0m
+[2meach of the contigs. This can be a standard starting point (e.g. the dnaA gene)[0m
+[2mor if one is not found, then a randomly-chosen unique sequence will be used. If[0m
+[2mnecessary, the sequences will be flipped (converted to their reverse complement[0m
+[2msequence) to ensure that the starting sequence is on the positive strand.[0m
+
+Looking for known starting sequences in each contig...
+
+Found starting sequence 0014_A6D67_RS27660 (replication initiation protein)
+  ATGACGAGCGAAAATAACAGCTTACTTCTGAACCTTCAGGAAGTTGATAA...
+
+A_Utg1222:    - strand (using reverse complement)
+B_Utg1220:    - strand (using reverse complement)
+C_Utg1266:    - strand (using reverse complement)
+D_Utg1178:    - strand (using reverse complement)
+E_Utg1180:    - strand (using reverse complement)
+F_contig_4:   - strand (using reverse complement)
+G_contig_3:   - strand (using reverse complement)
+H_contig_5:   - strand (using reverse complement)
+I_contig_2:   - strand (using reverse complement)
+J_contig_3:   - strand (using reverse complement)
+K_contig_5:   - strand (using reverse complement)
+L_utg000003c: - strand (using reverse complement)
+M_utg000003c: - strand (using reverse complement)
+N_utg000003c: - strand (using reverse complement)
+O_utg000002c: - strand (using reverse complement)
+P_utg000003c: - strand (using reverse complement)
+
+
+[93m[1m[4mRotating contigs to starting sequence[0m [2m(2024-07-06 08:17:25)[0m
+[2m    For a circular contig, any point in the sequence is a valid starting[0m
+[2mposition and it can thus be 'rotated' by moving sequence from the contig start[0m
+[2mto the contig end. In this step, Trycycler rotates each contig such that it[0m
+[2mbegins with the starting sequence, ensuring that all contigs begin and end[0m
+[2mtogether so they can be aligned to each other.[0m
+
+A_Utg1222: rotating by 175,904 bp
+   ATGACGAGCGAAAATAACAG...GATAACCGTTGAGGATCAAG (193,143 bp)
+
+B_Utg1220: rotating by 114,065 bp
+   ATGACGAGCGAAAATAACAG...GATAACCGTTGAGGATCAAG (192,492 bp)
+
+C_Utg1266: rotating by 112,051 bp
+   ATGACGAGCGAAAATAACAG...GATAACCGTTGAGGATCAAG (190,863 bp)
+
+D_Utg1178: rotating by 114,171 bp
+   ATGACGAGCGAAAATAACAG...GATAACCGTTGAGGATCAAG (192,600 bp)
+
+E_Utg1180: rotating by 81,527 bp
+   ATGACGAGCGAAAATAACAG...GATAACCGTTGAGGATCAAG (192,869 bp)
+
+F_contig_4: rotating by 88,580 bp
+   ATGACGAGCGAAAATAACAG...GATAACCGTTGAGGATCAAG (193,160 bp)
+
+G_contig_3: rotating by 174,636 bp
+   ATGACGAGCGAAAATAACAG...GATAACCGTTGAGGATCAAG (193,158 bp)
+
+H_contig_5: rotating by 174,639 bp
+   ATGACGAGCGAAAATAACAG...GATAACCGTTGAGGATCAAG (193,162 bp)
+
+I_contig_2: rotating by 43,852 bp
+   ATGACGAGCGAAAATAACAG...GATAACCGTTGAGGATCAAG (193,154 bp)
+
+J_contig_3: rotating by 177,650 bp
+   ATGACGAGCGAAAATAACAG...GATAACCGTTGAGGATCAAG (193,161 bp)
+
+K_contig_5: rotating by 93,305 bp
+   ATGACGAGCGAAAATAACAG...GATAACCGTTGAGGATCAAG (193,161 bp)
+
+L_utg000003c: rotating by 119,848 bp
+   ATGACGAGCGAAAATAACAG...GATAACCGTTGAGGATCAAG (193,171 bp)
+
+M_utg000003c: rotating by 29,593 bp
+   ATGACGAGCGAAAATAACAG...GATAACCGTTGAGGATCAAG (191,963 bp)
+
+N_utg000003c: rotating by 29,475 bp
+   ATGACGAGCGAAAATAACAG...GATAACCGTTGAGGATCAAG (191,577 bp)
+
+O_utg000002c: rotating by 31,486 bp
+   ATGACGAGCGAAAATAACAG...GATAACCGTTGAGGATCAAG (193,333 bp)
+
+P_utg000003c: rotating by 164,206 bp
+   ATGACGAGCGAAAATAACAG...GATAACCGTTGAGGATCAAG (193,162 bp)
+
+
+[93m[1m[4mPairwise global alignments[0m [2m(2024-07-06 08:17:25)[0m
+[2m    Trycycler uses the edlib aligner to get global alignments between all pairs[0m
+[2mof sequences. This can help you to spot any problematic sequences that should[0m
+[2mbe excluded before continuing. If you see any sequences with notably worse[0m
+[2midentities, you can remove them (delete the contig's FASTA) and run this[0m
+[2mcommand again.[0m
+
+   A_Utg1222 vs B_Utg1220...    99.592% overall identity, 50.1% worst-1kbp identity
+   A_Utg1222 vs C_Utg1266...    98.707% overall identity, 23.8% worst-1kbp identity
+   A_Utg1222 vs D_Utg1178...    99.653% overall identity, 59.3% worst-1kbp identity
+   A_Utg1222 vs E_Utg1180...    99.807% overall identity, 81.8% worst-1kbp identity
+   A_Utg1222 vs F_contig_4...   99.955% overall identity, 99.0% worst-1kbp identity
+   A_Utg1222 vs G_contig_3...   99.958% overall identity, 99.0% worst-1kbp identity
+   A_Utg1222 vs H_contig_5...   99.960% overall identity, 99.1% worst-1kbp identity
+   A_Utg1222 vs I_contig_2...   99.955% overall identity, 99.1% worst-1kbp identity
+   A_Utg1222 vs J_contig_3...   99.959% overall identity, 99.0% worst-1kbp identity
+   A_Utg1222 vs K_contig_5...   99.960% overall identity, 99.0% worst-1kbp identity
+   A_Utg1222 vs L_utg000003c... 99.960% overall identity, 99.1% worst-1kbp identity
+   A_Utg1222 vs M_utg000003c... 99.026% overall identity, 46.6% worst-1kbp identity
+   A_Utg1222 vs N_utg000003c... 98.942% overall identity, 42.8% worst-1kbp identity
+   A_Utg1222 vs O_utg000002c... 99.850% overall identity, 79.1% worst-1kbp identity
+   A_Utg1222 vs P_utg000003c... 99.962% overall identity, 99.1% worst-1kbp identity
+   B_Utg1220 vs C_Utg1266...    98.830% overall identity, 23.8% worst-1kbp identity
+   B_Utg1220 vs D_Utg1178...    99.876% overall identity, 90.7% worst-1kbp identity
+   B_Utg1220 vs E_Utg1180...    99.721% overall identity, 68.3% worst-1kbp identity
+   B_Utg1220 vs F_contig_4...   99.598% overall identity, 50.1% worst-1kbp identity
+   B_Utg1220 vs G_contig_3...   99.600% overall identity, 50.1% worst-1kbp identity
+   B_Utg1220 vs H_contig_5...   99.599% overall identity, 50.1% worst-1kbp identity
+   B_Utg1220 vs I_contig_2...   99.599% overall identity, 50.1% worst-1kbp identity
+   B_Utg1220 vs J_contig_3...   99.600% overall identity, 50.1% worst-1kbp identity
+   B_Utg1220 vs K_contig_5...   99.601% overall identity, 50.1% worst-1kbp identity
+   B_Utg1220 vs L_utg000003c... 99.600% overall identity, 50.1% worst-1kbp identity
+   B_Utg1220 vs M_utg000003c... 98.668% overall identity, 46.6% worst-1kbp identity
+   B_Utg1220 vs N_utg000003c... 98.582% overall identity, 42.8% worst-1kbp identity
+   B_Utg1220 vs O_utg000002c... 99.510% overall identity, 33.0% worst-1kbp identity
+   B_Utg1220 vs P_utg000003c... 99.604% overall identity, 50.1% worst-1kbp identity
+   C_Utg1266 vs D_Utg1178...    98.897% overall identity, 11.2% worst-1kbp identity
+   C_Utg1266 vs E_Utg1180...    98.835% overall identity, 12.1% worst-1kbp identity
+   C_Utg1266 vs F_contig_4...   98.711% overall identity, 12.8% worst-1kbp identity
+   C_Utg1266 vs G_contig_3...   98.716% overall identity, 12.9% worst-1kbp identity
+   C_Utg1266 vs H_contig_5...   98.718% overall identity, 12.9% worst-1kbp identity
+   C_Utg1266 vs I_contig_2...   98.715% overall identity, 12.9% worst-1kbp identity
+   C_Utg1266 vs J_contig_3...   98.717% overall identity, 12.9% worst-1kbp identity
+   C_Utg1266 vs K_contig_5...   98.716% overall identity, 12.9% worst-1kbp identity
+   C_Utg1266 vs L_utg000003c... 98.715% overall identity, 21.5% worst-1kbp identity
+   C_Utg1266 vs M_utg000003c... 98.787% overall identity, 50.9% worst-1kbp identity
+   C_Utg1266 vs N_utg000003c... 98.874% overall identity, 52.6% worst-1kbp identity
+   C_Utg1266 vs O_utg000002c... 98.620% overall identity, 13.3% worst-1kbp identity
+   C_Utg1266 vs P_utg000003c... 98.717% overall identity, 12.9% worst-1kbp identity
+   D_Utg1178 vs E_Utg1180...    99.782% overall identity, 77.5% worst-1kbp identity
+   D_Utg1178 vs F_contig_4...   99.664% overall identity, 59.3% worst-1kbp identity
+   D_Utg1178 vs G_contig_3...   99.665% overall identity, 59.3% worst-1kbp identity
+   D_Utg1178 vs H_contig_5...   99.668% overall identity, 59.3% worst-1kbp identity
+   D_Utg1178 vs I_contig_2...   99.663% overall identity, 59.3% worst-1kbp identity
+   D_Utg1178 vs J_contig_3...   99.667% overall identity, 59.3% worst-1kbp identity
+   D_Utg1178 vs K_contig_5...   99.667% overall identity, 59.3% worst-1kbp identity
+   D_Utg1178 vs L_utg000003c... 99.669% overall identity, 59.3% worst-1kbp identity
+   D_Utg1178 vs M_utg000003c... 98.735% overall identity, 46.6% worst-1kbp identity
+   D_Utg1178 vs N_utg000003c... 98.647% overall identity, 42.8% worst-1kbp identity
+   D_Utg1178 vs O_utg000002c... 99.581% overall identity, 42.1% worst-1kbp identity
+   D_Utg1178 vs P_utg000003c... 99.668% overall identity, 59.3% worst-1kbp identity
+   E_Utg1180 vs F_contig_4...   99.816% overall identity, 81.8% worst-1kbp identity
+   E_Utg1180 vs G_contig_3...   99.818% overall identity, 81.8% worst-1kbp identity
+   E_Utg1180 vs H_contig_5...   99.820% overall identity, 81.8% worst-1kbp identity
+   E_Utg1180 vs I_contig_2...   99.816% overall identity, 81.8% worst-1kbp identity
+   E_Utg1180 vs J_contig_3...   99.821% overall identity, 81.8% worst-1kbp identity
+   E_Utg1180 vs K_contig_5...   99.821% overall identity, 81.8% worst-1kbp identity
+   E_Utg1180 vs L_utg000003c... 99.818% overall identity, 81.8% worst-1kbp identity
+   E_Utg1180 vs M_utg000003c... 98.887% overall identity, 46.6% worst-1kbp identity
+   E_Utg1180 vs N_utg000003c... 98.799% overall identity, 42.8% worst-1kbp identity
+   E_Utg1180 vs O_utg000002c... 99.709% overall identity, 60.9% worst-1kbp identity
+   E_Utg1180 vs P_utg000003c... 99.820% overall identity, 81.8% worst-1kbp identity
+  F_contig_4 vs G_contig_3...   99.992% overall identity, 99.6% worst-1kbp identity
+  F_contig_4 vs H_contig_5...   99.989% overall identity, 99.6% worst-1kbp identity
+  F_contig_4 vs I_contig_2...   99.986% overall identity, 99.6% worst-1kbp identity
+  F_contig_4 vs J_contig_3...   99.990% overall identity, 99.6% worst-1kbp identity
+  F_contig_4 vs K_contig_5...   99.991% overall identity, 99.6% worst-1kbp identity
+  F_contig_4 vs L_utg000003c... 99.980% overall identity, 99.6% worst-1kbp identity
+  F_contig_4 vs M_utg000003c... 99.049% overall identity, 46.6% worst-1kbp identity
+  F_contig_4 vs N_utg000003c... 98.966% overall identity, 42.8% worst-1kbp identity
+  F_contig_4 vs O_utg000002c... 99.877% overall identity, 79.1% worst-1kbp identity
+  F_contig_4 vs P_utg000003c... 99.987% overall identity, 99.7% worst-1kbp identity
+  G_contig_3 vs H_contig_5...   99.989% overall identity, 99.8% worst-1kbp identity
+  G_contig_3 vs I_contig_2...   99.987% overall identity, 99.7% worst-1kbp identity
+  G_contig_3 vs J_contig_3...   99.990% overall identity, 99.8% worst-1kbp identity
+  G_contig_3 vs K_contig_5...   99.993% overall identity, 99.8% worst-1kbp identity
+  G_contig_3 vs L_utg000003c... 99.980% overall identity, 99.6% worst-1kbp identity
+  G_contig_3 vs M_utg000003c... 99.050% overall identity, 46.6% worst-1kbp identity
+  G_contig_3 vs N_utg000003c... 98.967% overall identity, 42.8% worst-1kbp identity
+  G_contig_3 vs O_utg000002c... 99.876% overall identity, 79.1% worst-1kbp identity
+  G_contig_3 vs P_utg000003c... 99.986% overall identity, 99.8% worst-1kbp identity
+  H_contig_5 vs I_contig_2...   99.987% overall identity, 99.7% worst-1kbp identity
+  H_contig_5 vs J_contig_3...   99.994% overall identity, 99.8% worst-1kbp identity
+  H_contig_5 vs K_contig_5...   99.994% overall identity, 99.9% worst-1kbp identity
+  H_contig_5 vs L_utg000003c... 99.982% overall identity, 99.6% worst-1kbp identity
+  H_contig_5 vs M_utg000003c... 99.053% overall identity, 46.6% worst-1kbp identity
+  H_contig_5 vs N_utg000003c... 98.968% overall identity, 42.8% worst-1kbp identity
+  H_contig_5 vs O_utg000002c... 99.877% overall identity, 79.1% worst-1kbp identity
+  H_contig_5 vs P_utg000003c... 99.988% overall identity, 99.8% worst-1kbp identity
+  I_contig_2 vs J_contig_3...   99.989% overall identity, 99.7% worst-1kbp identity
+  I_contig_2 vs K_contig_5...   99.991% overall identity, 99.7% worst-1kbp identity
+  I_contig_2 vs L_utg000003c... 99.976% overall identity, 99.5% worst-1kbp identity
+  I_contig_2 vs M_utg000003c... 99.047% overall identity, 46.6% worst-1kbp identity
+  I_contig_2 vs N_utg000003c... 98.962% overall identity, 42.8% worst-1kbp identity
+  I_contig_2 vs O_utg000002c... 99.871% overall identity, 79.1% worst-1kbp identity
+  I_contig_2 vs P_utg000003c... 99.982% overall identity, 99.7% worst-1kbp identity
+  J_contig_3 vs K_contig_5...   99.996% overall identity, 99.9% worst-1kbp identity
+  J_contig_3 vs L_utg000003c... 99.981% overall identity, 99.6% worst-1kbp identity
+  J_contig_3 vs M_utg000003c... 99.052% overall identity, 46.6% worst-1kbp identity
+  J_contig_3 vs N_utg000003c... 98.966% overall identity, 42.8% worst-1kbp identity
+  J_contig_3 vs O_utg000002c... 99.877% overall identity, 79.1% worst-1kbp identity
+  J_contig_3 vs P_utg000003c... 99.988% overall identity, 99.8% worst-1kbp identity
+  K_contig_5 vs L_utg000003c... 99.982% overall identity, 99.6% worst-1kbp identity
+  K_contig_5 vs M_utg000003c... 99.054% overall identity, 46.6% worst-1kbp identity
+  K_contig_5 vs N_utg000003c... 98.968% overall identity, 42.8% worst-1kbp identity
+  K_contig_5 vs O_utg000002c... 99.878% overall identity, 79.1% worst-1kbp identity
+  K_contig_5 vs P_utg000003c... 99.989% overall identity, 99.8% worst-1kbp identity
+L_utg000003c vs M_utg000003c... 99.055% overall identity, 46.6% worst-1kbp identity
+L_utg000003c vs N_utg000003c... 98.969% overall identity, 42.8% worst-1kbp identity
+L_utg000003c vs O_utg000002c... 99.880% overall identity, 79.1% worst-1kbp identity
+L_utg000003c vs P_utg000003c... 99.987% overall identity, 99.6% worst-1kbp identity
+M_utg000003c vs N_utg000003c... 99.784% overall identity, 74.1% worst-1kbp identity
+M_utg000003c vs O_utg000002c... 98.948% overall identity, 46.2% worst-1kbp identity
+M_utg000003c vs P_utg000003c... 99.054% overall identity, 46.2% worst-1kbp identity
+N_utg000003c vs O_utg000002c... 98.865% overall identity, 40.2% worst-1kbp identity
+N_utg000003c vs P_utg000003c... 98.971% overall identity, 40.2% worst-1kbp identity
+O_utg000002c vs P_utg000003c... 99.881% overall identity, 79.1% worst-1kbp identity
+
+Overall pairwise identities:
+  A_Utg1222:    [2m100.000%[0m   99.592%   98.707%   99.653%   99.807%   99.955%   99.958%   99.960%   99.955%   99.959%   99.960%   99.960%   99.026%   98.942%   99.850%   99.962%
+  B_Utg1220:     99.592%  [2m100.000%[0m   98.830%   99.876%   99.721%   99.598%   99.600%   99.599%   99.599%   99.600%   99.601%   99.600%   98.668%   98.582%   99.510%   99.604%
+  C_Utg1266:     98.707%   98.830%  [2m100.000%[0m   98.897%   98.835%   98.711%   98.716%   98.718%   98.715%   98.717%   98.716%   98.715%   98.787%   98.874%   98.620%   98.717%
+  D_Utg1178:     99.653%   99.876%   98.897%  [2m100.000%[0m   99.782%   99.664%   99.665%   99.668%   99.663%   99.667%   99.667%   99.669%   98.735%   98.647%   99.581%   99.668%
+  E_Utg1180:     99.807%   99.721%   98.835%   99.782%  [2m100.000%[0m   99.816%   99.818%   99.820%   99.816%   99.821%   99.821%   99.818%   98.887%   98.799%   99.709%   99.820%
+  F_contig_4:    99.955%   99.598%   98.711%   99.664%   99.816%  [2m100.000%[0m   99.992%   99.989%   99.986%   99.990%   99.991%   99.980%   99.049%   98.966%   99.877%   99.987%
+  G_contig_3:    99.958%   99.600%   98.716%   99.665%   99.818%   99.992%  [2m100.000%[0m   99.989%   99.987%   99.990%   99.993%   99.980%   99.050%   98.967%   99.876%   99.986%
+  H_contig_5:    99.960%   99.599%   98.718%   99.668%   99.820%   99.989%   99.989%  [2m100.000%[0m   99.987%   99.994%   99.994%   99.982%   99.053%   98.968%   99.877%   99.988%
+  I_contig_2:    99.955%   99.599%   98.715%   99.663%   99.816%   99.986%   99.987%   99.987%  [2m100.000%[0m   99.989%   99.991%   99.976%   99.047%   98.962%   99.871%   99.982%
+  J_contig_3:    99.959%   99.600%   98.717%   99.667%   99.821%   99.990%   99.990%   99.994%   99.989%  [2m100.000%[0m   99.996%   99.981%   99.052%   98.966%   99.877%   99.988%
+  K_contig_5:    99.960%   99.601%   98.716%   99.667%   99.821%   99.991%   99.993%   99.994%   99.991%   99.996%  [2m100.000%[0m   99.982%   99.054%   98.968%   99.878%   99.989%
+  L_utg000003c:  99.960%   99.600%   98.715%   99.669%   99.818%   99.980%   99.980%   99.982%   99.976%   99.981%   99.982%  [2m100.000%[0m   99.055%   98.969%   99.880%   99.987%
+  M_utg000003c:  99.026%   98.668%   98.787%   98.735%   98.887%   99.049%   99.050%   99.053%   99.047%   99.052%   99.054%   99.055%  [2m100.000%[0m   99.784%   98.948%   99.054%
+  N_utg000003c:  98.942%   98.582%   98.874%   98.647%   98.799%   98.966%   98.967%   98.968%   98.962%   98.966%   98.968%   98.969%   99.784%  [2m100.000%[0m   98.865%   98.971%
+  O_utg000002c:  99.850%   99.510%   98.620%   99.581%   99.709%   99.877%   99.876%   99.877%   99.871%   99.877%   99.878%   99.880%   98.948%   98.865%  [2m100.000%[0m   99.881%
+  P_utg000003c:  99.962%   99.604%   98.717%   99.668%   99.820%   99.987%   99.986%   99.988%   99.982%   99.988%   99.989%   99.987%   99.054%   98.971%   99.881%  [2m100.000%[0m
+
+Worst-1kbp pairwise identities:
+  A_Utg1222:    [2m100.0%[0m   50.1%  [31m 23.8%[0m   59.3%   81.8%   99.0%   99.0%   99.1%   99.1%   99.0%   99.0%   99.1%   46.6%   42.8%   79.1%   99.1%
+  B_Utg1220:     50.1%  [2m100.0%[0m  [31m 23.8%[0m   90.7%   68.3%   50.1%   50.1%   50.1%   50.1%   50.1%   50.1%   50.1%   46.6%   42.8%   33.0%   50.1%
+  C_Utg1266:    [31m 23.8%[0m  [31m 23.8%[0m  [2m100.0%[0m  [31m 11.2%[0m  [31m 12.1%[0m  [31m 12.8%[0m  [31m 12.9%[0m  [31m 12.9%[0m  [31m 12.9%[0m  [31m 12.9%[0m  [31m 12.9%[0m  [31m 21.5%[0m   50.9%   52.6%  [31m 13.3%[0m  [31m 12.9%[0m
+  D_Utg1178:     59.3%   90.7%  [31m 11.2%[0m  [2m100.0%[0m   77.5%   59.3%   59.3%   59.3%   59.3%   59.3%   59.3%   59.3%   46.6%   42.8%   42.1%   59.3%
+  E_Utg1180:     81.8%   68.3%  [31m 12.1%[0m   77.5%  [2m100.0%[0m   81.8%   81.8%   81.8%   81.8%   81.8%   81.8%   81.8%   46.6%   42.8%   60.9%   81.8%
+  F_contig_4:    99.0%   50.1%  [31m 12.8%[0m   59.3%   81.8%  [2m100.0%[0m   99.6%   99.6%   99.6%   99.6%   99.6%   99.6%   46.6%   42.8%   79.1%   99.7%
+  G_contig_3:    99.0%   50.1%  [31m 12.9%[0m   59.3%   81.8%   99.6%  [2m100.0%[0m   99.8%   99.7%   99.8%   99.8%   99.6%   46.6%   42.8%   79.1%   99.8%
+  H_contig_5:    99.1%   50.1%  [31m 12.9%[0m   59.3%   81.8%   99.6%   99.8%  [2m100.0%[0m   99.7%   99.8%   99.9%   99.6%   46.6%   42.8%   79.1%   99.8%
+  I_contig_2:    99.1%   50.1%  [31m 12.9%[0m   59.3%   81.8%   99.6%   99.7%   99.7%  [2m100.0%[0m   99.7%   99.7%   99.5%   46.6%   42.8%   79.1%   99.7%
+  J_contig_3:    99.0%   50.1%  [31m 12.9%[0m   59.3%   81.8%   99.6%   99.8%   99.8%   99.7%  [2m100.0%[0m   99.9%   99.6%   46.6%   42.8%   79.1%   99.8%
+  K_contig_5:    99.0%   50.1%  [31m 12.9%[0m   59.3%   81.8%   99.6%   99.8%   99.9%   99.7%   99.9%  [2m100.0%[0m   99.6%   46.6%   42.8%   79.1%   99.8%
+  L_utg000003c:  99.1%   50.1%  [31m 21.5%[0m   59.3%   81.8%   99.6%   99.6%   99.6%   99.5%   99.6%   99.6%  [2m100.0%[0m   46.6%   42.8%   79.1%   99.6%
+  M_utg000003c:  46.6%   46.6%   50.9%   46.6%   46.6%   46.6%   46.6%   46.6%   46.6%   46.6%   46.6%   46.6%  [2m100.0%[0m   74.1%   46.2%   46.2%
+  N_utg000003c:  42.8%   42.8%   52.6%   42.8%   42.8%   42.8%   42.8%   42.8%   42.8%   42.8%   42.8%   42.8%   74.1%  [2m100.0%[0m   40.2%   40.2%
+  O_utg000002c:  79.1%   33.0%  [31m 13.3%[0m   42.1%   60.9%   79.1%   79.1%   79.1%   79.1%   79.1%   79.1%   79.1%   46.2%   40.2%  [2m100.0%[0m   79.1%
+  P_utg000003c:  99.1%   50.1%  [31m 12.9%[0m   59.3%   81.8%   99.7%   99.8%   99.8%   99.7%   99.8%   99.8%   99.6%   46.2%   40.2%   79.1%  [2m100.0%[0m
+
+
+Error: some pairwise worst-1kbp identities are below the minimum allowed value
+of 25.0%. Please remove offending sequences or lower the --min_1kbp_identity
+threshold and try again.
+
+
+[93m[1m[4mStarting Trycycler reconcile[0m [2m(2024-07-06 08:17:40)[0m
+[2m    Trycycler reconcile is a tool for reconciling multiple alternative contigs[0m
+[2mwith each other.[0m
+
+Input reads: data/ont/CAA8N9_0.fastq.gz
+  size = 284,436,473 bytes
+
+Input contigs:
+  results/clusters/CAA8N9/cluster_003/1_contigs/F_contig_1.fasta (7,641 bp)
+  results/clusters/CAA8N9/cluster_003/1_contigs/G_contig_1.fasta (7,641 bp)
+  results/clusters/CAA8N9/cluster_003/1_contigs/H_contig_2.fasta (15,280 bp)
+  results/clusters/CAA8N9/cluster_003/1_contigs/H_contig_3.fasta (11,623 bp)
+  results/clusters/CAA8N9/cluster_003/1_contigs/I_contig_4.fasta (7,640 bp)
+  results/clusters/CAA8N9/cluster_003/1_contigs/K_contig_4.fasta (7,640 bp)
+
+Checking required software:
+  minimap2: v2.24-r1122
+
+
+[93m[1m[4mInitial check of contigs[0m [2m(2024-07-06 08:17:40)[0m
+[2m    Before proceeding, Trycycler ensures that the input contigs appear[0m
+[2msufficiently close to each other to make a consensus. If not, the program will[0m
+[2mquit and the user must fix the input contigs (make them more similar to each[0m
+[2mother) or exclude some before trying again.[0m
+
+Relative sequence lengths:
+  F_contig_1: [2m1.000[0m  1.000  [31m0.500[0m  [31m0.657[0m  1.000  1.000
+  G_contig_1: 1.000  [2m1.000[0m  [31m0.500[0m  [31m0.657[0m  1.000  1.000
+  H_contig_2: [31m2.000[0m  [31m2.000[0m  [2m1.000[0m  [31m1.315[0m  [31m2.000[0m  [31m2.000[0m
+  H_contig_3: [31m1.521[0m  [31m1.521[0m  [31m0.761[0m  [2m1.000[0m  [31m1.521[0m  [31m1.521[0m
+  I_contig_4: 1.000  1.000  [31m0.500[0m  [31m0.657[0m  [2m1.000[0m  1.000
+  K_contig_4: 1.000  1.000  [31m0.500[0m  [31m0.657[0m  1.000  [2m1.000[0m
+
+
+Error: there is too much length difference between contigs. You must either
+exclude or repair the offending contig sequences and then try running trycycler
+reconcile again. If one of the sequences is too long, it could be due to
+excessive circularisation overlap, and trimming that overlap may allow
+trycycler reconcile to continue.
+
+
+[93m[1m[4mStarting Trycycler reconcile[0m [2m(2024-07-06 08:17:40)[0m
+[2m    Trycycler reconcile is a tool for reconciling multiple alternative contigs[0m
+[2mwith each other.[0m
+
+Input reads: data/ont/CAA8N9_0.fastq.gz
+  size = 284,436,473 bytes
+
+Input contigs:
+  results/clusters/CAA8N9/cluster_006/1_contigs/H_contig_1.fasta (4,479 bp)
+  results/clusters/CAA8N9/cluster_006/1_contigs/I_contig_3.fasta (4,480 bp)
+  results/clusters/CAA8N9/cluster_006/1_contigs/K_contig_1.fasta (4,479 bp)
+
+Checking required software:
+  minimap2: v2.24-r1122
+
+
+[93m[1m[4mInitial check of contigs[0m [2m(2024-07-06 08:17:40)[0m
+[2m    Before proceeding, Trycycler ensures that the input contigs appear[0m
+[2msufficiently close to each other to make a consensus. If not, the program will[0m
+[2mquit and the user must fix the input contigs (make them more similar to each[0m
+[2mother) or exclude some before trying again.[0m
+
+Relative sequence lengths:
+  H_contig_1: [2m1.000[0m  1.000  1.000
+  I_contig_3: 1.000  [2m1.000[0m  1.000
+  K_contig_1: 1.000  1.000  [2m1.000[0m
+
+Mash distances:
+  H_contig_1: [2m0.000[0m  0.000  0.000
+  I_contig_3: 0.000  [2m0.000[0m  0.000
+  K_contig_1: 0.000  0.000  [2m0.000[0m
+
+Contigs have passed the initial check - they seem sufficiently close to reconcile.
+
+
+[93m[1m[4mNormalising strands[0m [2m(2024-07-06 08:17:40)[0m
+[2m    In this step, Trycycler ensures that all sequences are on the same strand.[0m
+[2mIt does this by first finding a sequence that occurs once in each contig and[0m
+[2mthen flipping any of the contigs (converting to their reverse complement[0m
+[2msequence) which have this sequence on the negative strand.[0m
+
+Randomly-chosen common sequence:
+  GAAGCATAAACCAATTATTCAAGTCGAAAATTACGACCGCATTGACGGCC
+  CACACGCAGATGACACTGATGCTATGGGGCTATCTGTAGGTATTGCTCAA
+  TGGAACACTCCTGGATGGACTGAGCTTTCGGCAAAGGTTTGGCGAAACAC
+  AGGAGAAAAATGGTCAAGACAATCAGAAGAGCTGCCTCTTCATAGGGTAA
+  TCGACCTTGCAACTCTGATCTGTATCACCATGGACTACAGTAAAAATGGG
+
+H_contig_1: + strand (using original sequence)
+I_contig_3: - strand (using reverse complement)
+K_contig_1: + strand (using original sequence)
+
+
+[93m[1m[4mCircularisation[0m [2m(2024-07-06 08:17:40)[0m
+[2m    Trycycler now compares the contigs to each other to repair any[0m
+[2mcircularisation issues. After this step, each sequence should be cleanly[0m
+[2mcircularised - i.e. the first base in the contig immediately follows the last[0m
+[2mbase. Each contig will be circularised by looking for the position of its start[0m
+[2mand end in the other contigs. If necessary, additional sequence will be added[0m
+[2mor duplicated sequence will be removed. If there are multiple possible ways to[0m
+[2mfix a contig's circularisation, then Trycycler will use read alignments to[0m
+[2mchoose the best one.[0m
+
+Circularising H_contig_1:
+  using I_contig_3:
+    unable to circularise: H_contig_1's start/end is the same as I_contig_3's start/end
+  using K_contig_1:
+    unable to circularise: H_contig_1's start/end is the same as K_contig_1's start/end
+
+Error: failed to circularise sequence H_contig_1 because it had the same
+start/end as the other sequences. I.e. the circularisations were not different
+and therefore could not reconcile each other.
+
