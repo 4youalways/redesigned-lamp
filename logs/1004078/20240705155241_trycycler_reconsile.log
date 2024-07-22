@@ -1,0 +1,329 @@
+
+[93m[1m[4mStarting Trycycler reconcile[0m [2m(2024-07-05 15:52:41)[0m
+[2m    Trycycler reconcile is a tool for reconciling multiple alternative contigs[0m
+[2mwith each other.[0m
+
+Input reads: data/ont/1004078_0.fastq.gz
+  size = 243,197,721 bytes
+
+Input contigs:
+  results/clusters/1004078/cluster_001/1_contigs/A_Utg996.fasta (5,337,410 bp)
+  results/clusters/1004078/cluster_001/1_contigs/B_Utg1032.fasta (5,337,094 bp)
+  results/clusters/1004078/cluster_001/1_contigs/C_Utg1014.fasta (5,334,266 bp)
+  results/clusters/1004078/cluster_001/1_contigs/D_Utg1018.fasta (5,335,428 bp)
+  results/clusters/1004078/cluster_001/1_contigs/E_Utg998.fasta (5,338,200 bp)
+  results/clusters/1004078/cluster_001/1_contigs/F_contig_1.fasta (5,337,226 bp)
+  results/clusters/1004078/cluster_001/1_contigs/G_contig_1.fasta (5,337,234 bp)
+  results/clusters/1004078/cluster_001/1_contigs/H_contig_3.fasta (5,337,240 bp)
+  results/clusters/1004078/cluster_001/1_contigs/I_contig_2.fasta (5,337,240 bp)
+  results/clusters/1004078/cluster_001/1_contigs/J_contig_2.fasta (5,337,237 bp)
+  results/clusters/1004078/cluster_001/1_contigs/K_contig_1.fasta (5,337,231 bp)
+  results/clusters/1004078/cluster_001/1_contigs/L_utg000002c.fasta (5,338,629 bp)
+  results/clusters/1004078/cluster_001/1_contigs/M_utg000002c.fasta (5,337,376 bp)
+  results/clusters/1004078/cluster_001/1_contigs/N_utg000002c.fasta (5,337,357 bp)
+  results/clusters/1004078/cluster_001/1_contigs/O_utg000002c.fasta (5,337,644 bp)
+  results/clusters/1004078/cluster_001/1_contigs/P_utg000002c.fasta (5,339,152 bp)
+
+Checking required software:
+  minimap2: v2.24-r1122
+
+
+[93m[1m[4mInitial check of contigs[0m [2m(2024-07-05 15:52:41)[0m
+[2m    Before proceeding, Trycycler ensures that the input contigs appear[0m
+[2msufficiently close to each other to make a consensus. If not, the program will[0m
+[2mquit and the user must fix the input contigs (make them more similar to each[0m
+[2mother) or exclude some before trying again.[0m
+
+Relative sequence lengths:
+  A_Utg996:     [2m1.000[0m  1.000  1.001  1.000  1.000  1.000  1.000  1.000  1.000  1.000  1.000  1.000  1.000  1.000  1.000  1.000
+  B_Utg1032:    1.000  [2m1.000[0m  1.001  1.000  1.000  1.000  1.000  1.000  1.000  1.000  1.000  1.000  1.000  1.000  1.000  1.000
+  C_Utg1014:    0.999  0.999  [2m1.000[0m  1.000  0.999  0.999  0.999  0.999  0.999  0.999  0.999  0.999  0.999  0.999  0.999  0.999
+  D_Utg1018:    1.000  1.000  1.000  [2m1.000[0m  0.999  1.000  1.000  1.000  1.000  1.000  1.000  0.999  1.000  1.000  1.000  0.999
+  E_Utg998:     1.000  1.000  1.001  1.001  [2m1.000[0m  1.000  1.000  1.000  1.000  1.000  1.000  1.000  1.000  1.000  1.000  1.000
+  F_contig_1:   1.000  1.000  1.001  1.000  1.000  [2m1.000[0m  1.000  1.000  1.000  1.000  1.000  1.000  1.000  1.000  1.000  1.000
+  G_contig_1:   1.000  1.000  1.001  1.000  1.000  1.000  [2m1.000[0m  1.000  1.000  1.000  1.000  1.000  1.000  1.000  1.000  1.000
+  H_contig_3:   1.000  1.000  1.001  1.000  1.000  1.000  1.000  [2m1.000[0m  1.000  1.000  1.000  1.000  1.000  1.000  1.000  1.000
+  I_contig_2:   1.000  1.000  1.001  1.000  1.000  1.000  1.000  1.000  [2m1.000[0m  1.000  1.000  1.000  1.000  1.000  1.000  1.000
+  J_contig_2:   1.000  1.000  1.001  1.000  1.000  1.000  1.000  1.000  1.000  [2m1.000[0m  1.000  1.000  1.000  1.000  1.000  1.000
+  K_contig_1:   1.000  1.000  1.001  1.000  1.000  1.000  1.000  1.000  1.000  1.000  [2m1.000[0m  1.000  1.000  1.000  1.000  1.000
+  L_utg000002c: 1.000  1.000  1.001  1.001  1.000  1.000  1.000  1.000  1.000  1.000  1.000  [2m1.000[0m  1.000  1.000  1.000  1.000
+  M_utg000002c: 1.000  1.000  1.001  1.000  1.000  1.000  1.000  1.000  1.000  1.000  1.000  1.000  [2m1.000[0m  1.000  1.000  1.000
+  N_utg000002c: 1.000  1.000  1.001  1.000  1.000  1.000  1.000  1.000  1.000  1.000  1.000  1.000  1.000  [2m1.000[0m  1.000  1.000
+  O_utg000002c: 1.000  1.000  1.001  1.000  1.000  1.000  1.000  1.000  1.000  1.000  1.000  1.000  1.000  1.000  [2m1.000[0m  1.000
+  P_utg000002c: 1.000  1.000  1.001  1.001  1.000  1.000  1.000  1.000  1.000  1.000  1.000  1.000  1.000  1.000  1.000  [2m1.000[0m
+
+Mash distances:
+  A_Utg996:     [2m0.000[0m  0.000  0.000  0.000  0.000  0.000  0.000  0.000  0.000  0.000  0.000  0.000  0.000  0.000  0.000  0.000
+  B_Utg1032:    0.000  [2m0.000[0m  0.000  0.000  0.000  0.000  0.000  0.000  0.000  0.000  0.000  0.000  0.000  0.000  0.000  0.000
+  C_Utg1014:    0.000  0.000  [2m0.000[0m  0.000  0.000  0.000  0.000  0.000  0.000  0.000  0.000  0.000  0.000  0.000  0.000  0.000
+  D_Utg1018:    0.000  0.000  0.000  [2m0.000[0m  0.000  0.000  0.000  0.000  0.000  0.000  0.000  0.000  0.000  0.000  0.000  0.000
+  E_Utg998:     0.000  0.000  0.000  0.000  [2m0.000[0m  0.000  0.000  0.000  0.000  0.000  0.000  0.000  0.000  0.000  0.000  0.000
+  F_contig_1:   0.000  0.000  0.000  0.000  0.000  [2m0.000[0m  0.000  0.000  0.000  0.000  0.000  0.000  0.000  0.000  0.000  0.000
+  G_contig_1:   0.000  0.000  0.000  0.000  0.000  0.000  [2m0.000[0m  0.000  0.000  0.000  0.000  0.000  0.000  0.000  0.000  0.000
+  H_contig_3:   0.000  0.000  0.000  0.000  0.000  0.000  0.000  [2m0.000[0m  0.000  0.000  0.000  0.000  0.000  0.000  0.000  0.000
+  I_contig_2:   0.000  0.000  0.000  0.000  0.000  0.000  0.000  0.000  [2m0.000[0m  0.000  0.000  0.000  0.000  0.000  0.000  0.000
+  J_contig_2:   0.000  0.000  0.000  0.000  0.000  0.000  0.000  0.000  0.000  [2m0.000[0m  0.000  0.000  0.000  0.000  0.000  0.000
+  K_contig_1:   0.000  0.000  0.000  0.000  0.000  0.000  0.000  0.000  0.000  0.000  [2m0.000[0m  0.000  0.000  0.000  0.000  0.000
+  L_utg000002c: 0.000  0.000  0.000  0.000  0.000  0.000  0.000  0.000  0.000  0.000  0.000  [2m0.000[0m  0.000  0.000  0.000  0.000
+  M_utg000002c: 0.000  0.000  0.000  0.000  0.000  0.000  0.000  0.000  0.000  0.000  0.000  0.000  [2m0.000[0m  0.000  0.000  0.000
+  N_utg000002c: 0.000  0.000  0.000  0.000  0.000  0.000  0.000  0.000  0.000  0.000  0.000  0.000  0.000  [2m0.000[0m  0.000  0.000
+  O_utg000002c: 0.000  0.000  0.000  0.000  0.000  0.000  0.000  0.000  0.000  0.000  0.000  0.000  0.000  0.000  [2m0.000[0m  0.000
+  P_utg000002c: 0.000  0.000  0.000  0.000  0.000  0.000  0.000  0.000  0.000  0.000  0.000  0.000  0.000  0.000  0.000  [2m0.000[0m
+
+Contigs have passed the initial check - they seem sufficiently close to reconcile.
+
+
+[93m[1m[4mNormalising strands[0m [2m(2024-07-05 15:52:55)[0m
+[2m    In this step, Trycycler ensures that all sequences are on the same strand.[0m
+[2mIt does this by first finding a sequence that occurs once in each contig and[0m
+[2mthen flipping any of the contigs (converting to their reverse complement[0m
+[2msequence) which have this sequence on the negative strand.[0m
+
+Randomly-chosen common sequence:
+  CTGTCCGTAGCAGATGAACTATCGCGGCATCATGTTAATCAACTGGTTGA
+  TCTGTACTGCGCATTAAGCACTCAGGAAATGGAGCCTGCCGATGATCAAT
+  GATTTCAATATTGAGGGCGTTTTTGTACCCGGTCTACTGTTAATTTCCCT
+  CGTCGCGCTCACCTGTACGCTATTACTCGTGCAGCTTTTCTCGCTAAGCA
+  AGGGTTACCGTCGCTTGCCGTTTCGCCCGATGATCGATTTTTCCATCTTT
+
+A_Utg996:     - strand (using reverse complement)
+B_Utg1032:    - strand (using reverse complement)
+C_Utg1014:    + strand (using original sequence)
+D_Utg1018:    + strand (using original sequence)
+E_Utg998:     + strand (using original sequence)
+F_contig_1:   + strand (using original sequence)
+G_contig_1:   + strand (using original sequence)
+H_contig_3:   + strand (using original sequence)
+I_contig_2:   + strand (using original sequence)
+J_contig_2:   - strand (using reverse complement)
+K_contig_1:   + strand (using original sequence)
+L_utg000002c: + strand (using original sequence)
+M_utg000002c: + strand (using original sequence)
+N_utg000002c: + strand (using original sequence)
+O_utg000002c: + strand (using original sequence)
+P_utg000002c: + strand (using original sequence)
+
+
+[93m[1m[4mCircularisation[0m [2m(2024-07-05 15:53:06)[0m
+[2m    Trycycler now compares the contigs to each other to repair any[0m
+[2mcircularisation issues. After this step, each sequence should be cleanly[0m
+[2mcircularised - i.e. the first base in the contig immediately follows the last[0m
+[2mbase. Each contig will be circularised by looking for the position of its start[0m
+[2mand end in the other contigs. If necessary, additional sequence will be added[0m
+[2mor duplicated sequence will be removed. If there are multiple possible ways to[0m
+[2mfix a contig's circularisation, then Trycycler will use read alignments to[0m
+[2mchoose the best one.[0m
+
+Circularising A_Utg996:
+  using B_Utg1032:
+    unable to circularise: A_Utg996's start could not be found in B_Utg1032
+  using C_Utg1014:
+    no adjustment needed (A_Utg996 is already circular)
+  using D_Utg1018:
+    no adjustment needed (A_Utg996 is already circular)
+  using E_Utg998:
+    no adjustment needed (A_Utg996 is already circular)
+  using F_contig_1:
+    no adjustment needed (A_Utg996 is already circular)
+  using G_contig_1:
+    no adjustment needed (A_Utg996 is already circular)
+  using H_contig_3:
+    no adjustment needed (A_Utg996 is already circular)
+  using I_contig_2:
+    no adjustment needed (A_Utg996 is already circular)
+  using J_contig_2:
+    no adjustment needed (A_Utg996 is already circular)
+  using K_contig_1:
+    no adjustment needed (A_Utg996 is already circular)
+  using L_utg000002c:
+    no adjustment needed (A_Utg996 is already circular)
+  using M_utg000002c:
+    no adjustment needed (A_Utg996 is already circular)
+  using N_utg000002c:
+    no adjustment needed (A_Utg996 is already circular)
+  using O_utg000002c:
+    no adjustment needed (A_Utg996 is already circular)
+  using P_utg000002c:
+    no adjustment needed (A_Utg996 is already circular)
+  circularisation complete (5,337,410 bp)
+
+Circularising B_Utg1032:
+  using A_Utg996:
+    unable to circularise: B_Utg1032's end could not be found in A_Utg996
+  using C_Utg1014:
+    no adjustment needed (B_Utg1032 is already circular)
+  using D_Utg1018:
+    no adjustment needed (B_Utg1032 is already circular)
+  using E_Utg998:
+    no adjustment needed (B_Utg1032 is already circular)
+  using F_contig_1:
+    no adjustment needed (B_Utg1032 is already circular)
+  using G_contig_1:
+    no adjustment needed (B_Utg1032 is already circular)
+  using H_contig_3:
+    no adjustment needed (B_Utg1032 is already circular)
+  using I_contig_2:
+    no adjustment needed (B_Utg1032 is already circular)
+  using J_contig_2:
+    no adjustment needed (B_Utg1032 is already circular)
+  using K_contig_1:
+    no adjustment needed (B_Utg1032 is already circular)
+  using L_utg000002c:
+    no adjustment needed (B_Utg1032 is already circular)
+  using M_utg000002c:
+    no adjustment needed (B_Utg1032 is already circular)
+  using N_utg000002c:
+    no adjustment needed (B_Utg1032 is already circular)
+  using O_utg000002c:
+    no adjustment needed (B_Utg1032 is already circular)
+  using P_utg000002c:
+    no adjustment needed (B_Utg1032 is already circular)
+  circularisation complete (5,337,094 bp)
+
+Circularising C_Utg1014:
+  using A_Utg996:
+    circularising C_Utg1014 by adding 2949 bp of sequence from A_Utg996 (2318567-2321516)
+  using B_Utg1032:
+    circularising C_Utg1014 by adding 2950 bp of sequence from B_Utg1032 (2318646-2321596)
+  using D_Utg1018:
+    unable to circularise: C_Utg1014's start/end is the same as D_Utg1018's start/end
+  using E_Utg998:
+    unable to circularise: C_Utg1014 requires 3054 bp to be added but settings only allow 3000 bp
+  using F_contig_1:
+    circularising C_Utg1014 by adding 2949 bp of sequence from F_contig_1 (3235841-3238790)
+  using G_contig_1:
+    circularising C_Utg1014 by adding 2949 bp of sequence from G_contig_1 (913407-916356)
+  using H_contig_3:
+    circularising C_Utg1014 by adding 2949 bp of sequence from H_contig_3 (3828629-3831578)
+  using I_contig_2:
+    circularising C_Utg1014 by adding 2950 bp of sequence from I_contig_2 (3172496-3175446)
+  using J_contig_2:
+    circularising C_Utg1014 by adding 2949 bp of sequence from J_contig_2 (4337772-4340721)
+  using K_contig_1:
+    circularising C_Utg1014 by adding 2950 bp of sequence from K_contig_1 (3781354-3784304)
+  using L_utg000002c:
+    unable to circularise: C_Utg1014 requires 3159 bp to be added but settings only allow 3000 bp
+  using M_utg000002c:
+    circularising C_Utg1014 by adding 2950 bp of sequence from M_utg000002c (3193855-3196805)
+  using N_utg000002c:
+    circularising C_Utg1014 by adding 2950 bp of sequence from N_utg000002c (3193423-3196373)
+  using O_utg000002c:
+    circularising C_Utg1014 by adding 2948 bp of sequence from O_utg000002c (4651701-4654649)
+  using P_utg000002c:
+    circularising C_Utg1014 by adding 2950 bp of sequence from P_utg000002c (4868070-4871020)
+  choosing best circularisation of 2 alternatives
+    alternative 1 (5,337,216 bp): score = 396,412,145
+    alternative 2 (5,337,215 bp): score = 396,412,137
+    best alternative: 1
+  circularisation complete (5,337,216 bp)
+
+Circularising D_Utg1018:
+  using A_Utg996:
+    circularising D_Utg1018 by adding 2095 bp of sequence from A_Utg996 (2319421-2321516)
+  using B_Utg1032:
+    circularising D_Utg1018 by adding 2095 bp of sequence from B_Utg1032 (2319501-2321596)
+  using C_Utg1014:
+    unable to circularise: D_Utg1018's end could not be found in C_Utg1014
+  using E_Utg998:
+    circularising D_Utg1018 by adding 2199 bp of sequence from E_Utg998 (2911932-2914131)
+  using F_contig_1:
+    circularising D_Utg1018 by adding 2095 bp of sequence from F_contig_1 (3236695-3238790)
+  using G_contig_1:
+    circularising D_Utg1018 by adding 2094 bp of sequence from G_contig_1 (914262-916356)
+  using H_contig_3:
+    circularising D_Utg1018 by adding 2095 bp of sequence from H_contig_3 (3829483-3831578)
+  using I_contig_2:
+    circularising D_Utg1018 by adding 2095 bp of sequence from I_contig_2 (3173351-3175446)
+  using J_contig_2:
+    circularising D_Utg1018 by adding 2095 bp of sequence from J_contig_2 (4338626-4340721)
+  using K_contig_1:
+    circularising D_Utg1018 by adding 2095 bp of sequence from K_contig_1 (3782209-3784304)
+  using L_utg000002c:
+    circularising D_Utg1018 by adding 2304 bp of sequence from L_utg000002c (4867149-4869453)
+  using M_utg000002c:
+    circularising D_Utg1018 by adding 2095 bp of sequence from M_utg000002c (3194710-3196805)
+  using N_utg000002c:
+    circularising D_Utg1018 by adding 2095 bp of sequence from N_utg000002c (3194278-3196373)
+  using O_utg000002c:
+    circularising D_Utg1018 by adding 2093 bp of sequence from O_utg000002c (4652556-4654649)
+  using P_utg000002c:
+    circularising D_Utg1018 by adding 2095 bp of sequence from P_utg000002c (4868925-4871020)
+  choosing most common circularisation
+  circularisation complete (5,337,523 bp)
+
+Circularising E_Utg998:
+  using A_Utg996:
+    no adjustment needed (E_Utg998 is already circular)
+  using B_Utg1032:
+    no adjustment needed (E_Utg998 is already circular)
+  using C_Utg1014:
+    no adjustment needed (E_Utg998 is already circular)
+  using D_Utg1018:
+    circularising E_Utg998 by adding 1 bp of sequence from D_Utg1018 (2423975-2423976)
+  using F_contig_1:
+    no adjustment needed (E_Utg998 is already circular)
+  using G_contig_1:
+    no adjustment needed (E_Utg998 is already circular)
+  using H_contig_3:
+    no adjustment needed (E_Utg998 is already circular)
+  using I_contig_2:
+    no adjustment needed (E_Utg998 is already circular)
+  using J_contig_2:
+    no adjustment needed (E_Utg998 is already circular)
+  using K_contig_1:
+    no adjustment needed (E_Utg998 is already circular)
+  using L_utg000002c:
+    no adjustment needed (E_Utg998 is already circular)
+  using M_utg000002c:
+    no adjustment needed (E_Utg998 is already circular)
+  using N_utg000002c:
+    no adjustment needed (E_Utg998 is already circular)
+  using O_utg000002c:
+    no adjustment needed (E_Utg998 is already circular)
+  using P_utg000002c:
+    no adjustment needed (E_Utg998 is already circular)
+  choosing most common circularisation
+  circularisation complete (5,338,200 bp)
+
+Circularising F_contig_1:
+  using A_Utg996:
+    no adjustment needed (F_contig_1 is already circular)
+  using B_Utg1032:
+    no adjustment needed (F_contig_1 is already circular)
+  using C_Utg1014:
+    no adjustment needed (F_contig_1 is already circular)
+  using D_Utg1018:
+    no adjustment needed (F_contig_1 is already circular)
+  using E_Utg998:
+    no adjustment needed (F_contig_1 is already circular)
+  using G_contig_1:
+    no adjustment needed (F_contig_1 is already circular)
+  using H_contig_3:
+    no adjustment needed (F_contig_1 is already circular)
+  using I_contig_2:
+    no adjustment needed (F_contig_1 is already circular)
+  using J_contig_2:
+Traceback (most recent call last):
+  File "/usr/local/bin/trycycler", line 8, in <module>
+    sys.exit(main())
+  File "/usr/local/lib/python3.10/dist-packages/trycycler/__main__.py", line 48, in main
+    reconcile(args)
+  File "/usr/local/lib/python3.10/dist-packages/trycycler/reconcile.py", line 36, in reconcile
+    seqs = circularise(seqs, args)
+  File "/usr/local/lib/python3.10/dist-packages/trycycler/circularisation.py", line 33, in circularise
+    circularised_seq = circularise_seq_with_others(name, seqs, args)
+  File "/usr/local/lib/python3.10/dist-packages/trycycler/circularisation.py", line 47, in circularise_seq_with_others
+    circularise_seq_with_another(seq_a, seq_b, name_a, name_b, args)
+  File "/usr/local/lib/python3.10/dist-packages/trycycler/circularisation.py", line 117, in circularise_seq_with_another
+    find_end_and_start(seq_a, seq_b, name_a, name_b, args)
+  File "/usr/local/lib/python3.10/dist-packages/trycycler/circularisation.py", line 211, in find_end_and_start
+    start_alignments = align_a_to_b(start_seq, seq_b, preset='map-ont')
+  File "/usr/local/lib/python3.10/dist-packages/trycycler/alignment.py", line 73, in align_a_to_b
+    out = subprocess.check_output(['minimap2', '--eqx', '-c', '-x', preset,
+  File "/usr/lib/python3.10/subprocess.py", line 420, in check_output
+    return run(*popenargs, stdout=PIPE, timeout=timeout, check=True,
+  File "/usr/lib/python3.10/subprocess.py", line 503, in run
+    stdout, stderr = process.communicate(input, timeout=timeout)
+  File "/usr/lib/python3.10/subprocess.py", line 1139, in communicate
+    stdout = self.stdout.read()
+KeyboardInterrupt
