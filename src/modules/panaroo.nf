@@ -1,8 +1,7 @@
 
 process PANAROO {
 
-    cpus 20
-    maxForks 2
+    cpus 60
     errorStrategy 'finish'
     
     container 'staphb/panaroo:1.5.0'
@@ -13,10 +12,11 @@ process PANAROO {
 
     output:
     path "panaroo"
+    path "panaroo/core_gene_alignment.aln", emit: core_gene_alignment
  
     script :
     """
     mkdir panaroo
-    panaroo -i ${gff} -o panaroo --clean-mode strict -t $task.cpus
+    panaroo -i ${gff} -o panaroo --clean-mode strict -t $task.cpus -a core
     """
 }
