@@ -1,0 +1,90 @@
+---
+title: "assembly_stats"
+author: "Allan Zuza"
+date: "`r Sys.Date()`"
+output: html_document
+editor_options: 
+  chunk_output_type: inline
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+```
+
+```{r load_packages}
+library(janitor)
+library(kableExtra)
+library(tidyverse)
+
+
+```
+
+```{r load_data}
+data <- read.table("/Users/zuza/repos/redesigned-lamp/results/panaroo/gene_presence_absence.Rtab",
+                   header = TRUE)
+head(data)
+```
+```{r}
+rownames(data) <- data$Gene
+data %>% select(!c(Gene)) %>% ggplot() + geom_tile(aes(colnames, rownames()))
+
+data %>% ggplot() + geom_tile(aes(Gene,ERR8574956 , fill = value)) + scale_fill_gradient()
+
+```
+
+
+```{r}
+library(data.table)
+library(reshape2)
+
+head(data)
+
+transposed_df <- data.table::transpose(data, make.names = "Gene")
+
+head(transposed_df)
+x <- reshape2::melt(data)
+
+ggplot(x, aes(y = Gene, x = variable, fill = value)) +
+  geom_tile() +
+  theme(axis.text.x = element_text(angle = 90))
+
+```
+
+```{r}
+kleb_metadata <- read_csv("/Users/zuza/repos/redesigned-lamp/docs/kleb_metadata.csv")
+date_data <- select(kleb_metadata, LaneAcc, DATE)
+
+
+y <- transpose(date_data, make.names = "LaneAcc")
+
+merge(data, y)
+head(data)
+
+head(date_data)
+date_data <- column_to_rownames(date_data, var = "LaneAcc")
+head(date_data)
+
+
+
+
+merged_data <- merge(transposed_df, date_data) 
+head(merged_data)
+
+data.table:transpose(merged_data)
+
+x <- reshape2::melt(merged_data)
+
+ggplot(x, aes(y = Gene, x = variable, fill = value)) +
+  geom_tile() +
+  theme(axis.text.x = element_text(angle = 90))
+
+```
+```{r}
+
+pdf("~/repos/redesigned-lamp/test1.pdf", width = 300, height = 20)
+pivot %>% ggplot(aes(Gene, count)) + geom_tile(color = "red") +
+  theme(axis.text.x = element_text(angle = 90))
+
+dev.off()
+```
+
