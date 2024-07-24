@@ -1,0 +1,123 @@
+---
+title: "AssemblyQc"
+author: "Allan Zuza"
+date: "`r Sys.Date()`"
+output: html_document
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+```
+
+
+## Collect spades assembly stats from Quast
+```{r load_packages, message=FALSE}
+library(tidyverse)
+library(janitor)
+library(patchwork)
+library(viridisLite)
+
+'%notin%' <- Negate('%in%')
+
+```
+
+```{r message=FALSE}
+shovil_quast <-
+  read_csv(file = "./results/Qc/quast/spades_assemblies/transposed_report.csv") %>%
+  filter(Assembly %notin% c("CAA8N9", "CAAUE8")) %>%
+  clean_names()
+
+shovil_quast
+
+hybrid_quast <-
+  read_csv(file = "./results/Qc/quast/hybrid_assemblies/transposed_report.csv") %>%
+  clean_names()
+
+hybrid_quast
+
+quast_output <- 
+  rbind(hybrid_quast, shovil_quast)
+head(quast_output)
+
+colnames(quast_output)
+
+
+# create violin plots with Assembly stats
+
+length <-
+  shovil_quast %>% select(total_length) %>%
+  gather(key="MesureType", value="Val") %>%
+  ggplot( aes(x=MesureType, y=Val, fill=MesureType)) +
+    geom_violin(
+                show.legend = FALSE,
+                draw_quantiles = TRUE) + 
+    scale_fill_viridis_d() +
+    theme_minimal() +
+    ylab("Total Assembly Length") +
+   xlab("")
+
+
+
+gc <-
+  shovil_quast %>% select(gc_percent) %>%
+  gather(key="MesureType", value="Val") %>%
+  ggplot( aes(x=MesureType, y=Val, fill=MesureType)) +
+    geom_violin(
+                show.legend = FALSE,
+                draw_quantiles = TRUE) + 
+    scale_fill_viridis_d() +
+    theme_minimal() +
+    ylab("% GC content") +
+   xlab("")
+  
+
+contigs <-
+  shovil_quast %>% select(number_contigs) %>%
+  gather(key="MesureType", value="Val") %>%
+  ggplot( aes(x=MesureType, y=Val, fill=MesureType)) +
+    geom_violin(
+                show.legend = FALSE,
+                draw_quantiles = TRUE) + 
+    scale_fill_viridis_d() +
+  theme_minimal() +
+    ylab("Number of Contigs") +
+    xlab("")
+
+
+fraction_covered <-
+  shovil_quast %>% select(genome_fraction_percent) %>%
+  gather(key="MesureType", value="Val") %>%
+  ggplot( aes(x=MesureType, y=Val, fill=MesureType)) +
+    geom_violin(
+                show.legend = FALSE,
+                draw_quantiles = TRUE) + 
+    scale_fill_viridis_d() +
+  theme_minimal() +
+    ylab("Fraction of Reference Genome Covered (%)") +
+    xlab("")
+
+p <- 
+  length + contigs + fraction_covered + gc +
+    plot_annotation(tag_levels = "A",
+                    title = "Basic Assembly stats produced by QUAST",
+                    theme = theme(plot.title =
+                                    element_text(hjust = 0.5)))
+p
+
+```
+
+```{r save_the_plots, eval=FALSE}
+#save the qc data
+plotting_dir <- file.path("results/plots/r", Sys.Date())
+plot_name <- file.path(plotting_dir, "illumina_assembly_stats.jpeg")
+
+if (!dir.exists(plotting_dir)) {dir.create(plotting_dir, recursive = TRUE)}
+
+ggsave(filename =  plot_name,
+      plot =  p,
+      scale = .7,
+      width = 14,
+      height = 8)
+
+```
+
