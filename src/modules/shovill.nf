@@ -9,8 +9,9 @@ process SHOVILL {
     tuple val(sample_id), path(reads)
 
     output:
-    tuple val(sample_id), path("${sample_id}/contigs.fa")
- 
+    tuple val(sample_id), path("${sample_id}/contigs.fa"), emit: normal
+    path("${sample_id}/contigs.fa"), emit: assembly
+
     script :
     """
     shovill --outdir ${sample_id} --R1 ${reads[0]} --R2 ${reads[1]} \

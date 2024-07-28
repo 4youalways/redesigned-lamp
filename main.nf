@@ -63,17 +63,24 @@ reference = channel.fromPath(params.ref)
 // using BKREGE as a ref seq for phylogenetic analysis
 st39_ref = channel.fromPath(params.st39_ref)
 
+// channel for bakta database. the download was done seperatesly
+// but this can later be encorporated into the workflwow
+bakta_db_ch = channel.fromPath(params.bakta_database)
+genus_ch = channel.fromPath(params.genus)
+species_ch = channel.fromPath(params.species)
+//gram_stain_ch = channel.fromPath(params.gram_stain) // requires an extra dependancey
+
 
 workflow ASSEMBLY {
     INITIAL_ASSEMBLY(reads_ch)
 }
 
 workflow  POLISH {
-    POLISH_TRYCYCLER(polishing_ch)
+    POLISH_TRYCYCLER(polishing_ch,  bakta_db_ch, genus_ch, species_ch)
 }
 
 workflow  SHOVILL_WORKFLOW {
-    ILLUMINA_ASSEMBLER(short_read_ch, reference)
+    ILLUMINA_ASSEMBLER(short_read_ch, reference, bakta_db_ch, genus_ch, species_ch)
     ABRICATE_WF(ILLUMINA_ASSEMBLER.out.assemblies)
     MLST_CHECK(ILLUMINA_ASSEMBLER.out.assemblies)
 }

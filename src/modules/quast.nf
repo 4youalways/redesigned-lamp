@@ -4,16 +4,16 @@ process QUAST {
     container 'quay.io/biocontainers/quast:5.0.2--py37pl526hb5aa323_2'
 
     input:
-    tuple val(sample_id), path(fasta)
+    path(fasta)
     each path(reference)
 
 
     output:
-    path("${sample_id}")
+    path("quast")
 
     script:
     """
-    quast.py ${fasta} -r  ${reference} -o ${sample_id}
+    quast.py ${fasta} -r  ${reference} -o quast
     """
 }
 
