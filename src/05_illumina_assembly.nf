@@ -9,6 +9,8 @@ include { PANAROO } from './modules/panaroo.nf'
 include { QUAST } from './modules/quast.nf'
 include { QUAST_MULTIQC } from './modules/quast.nf'
 include { CORE_GENE_TREE } from './modules/iqtree.nf'
+include { RENAME_SHOVIL_ASSEMBLY } from './modules/kleborate.nf'
+include { KLEBORATE } from './modules/kleborate.nf'
 
 workflow ILLUMINA_ASSEMBLER {
     take:
@@ -26,6 +28,8 @@ workflow ILLUMINA_ASSEMBLER {
     PANAROO(PROKKA.out.gff.collect())
     //QUAST(SHOVILL.out.assembly.collect(), reference) the prosess functions but it will need to modify the assembly process to implement in the current workflow. just rename the oontigs!
     CORE_GENE_TREE(PANAROO.out.core_gene_alignment)
+    RENAME_SHOVIL_ASSEMBLY(SHOVILL.out.normal)
+    KLEBORATE(RENAME_SHOVIL_ASSEMBLY.out.collect())
 
     emit:
     assemblies = SHOVILL.out.normal
