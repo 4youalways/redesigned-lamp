@@ -28,7 +28,7 @@ workflow ILLUMINA_ASSEMBLER {
     PANAROO(PROKKA.out.gff.collect())
     //QUAST(SHOVILL.out.assembly.collect(), reference) the prosess functions but it will need to modify the assembly process to implement in the current workflow. just rename the oontigs!
     CORE_GENE_TREE(PANAROO.out.core_gene_alignment)
-    RENAME_SHOVIL_ASSEMBLY(SHOVILL.out.normal)
+    RENAME_SHOVIL_ASSEMBLY(SHOVILL.out.normal) //adresses the renaming of fasta files from shovil
     KLEBORATE(RENAME_SHOVIL_ASSEMBLY.out.collect())
 
     emit:
