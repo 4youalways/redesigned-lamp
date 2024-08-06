@@ -23,7 +23,7 @@ library(reshape2)
 library(ggtree) 
 library(phangorn)
 library(ggnewscale)
-
+library(patchwork)
 '%notin%' <- Negate('%in%')
 ```
 
@@ -35,7 +35,7 @@ datecol <- c("Other" = "#f0f0f0", "2016" = "#cccccc",
              "2017" = "#969696", "2018" = "#636363",
              "2019" = "#252525" )
 
-presence <- c("0" = "#f0f0f0", "1" = "#7570b3")
+binnary_colors <- c("0" = "#f0f0f0", "1" = "#7570b3")
 
 character_presence_absence <- presence <- c("no" = "#f0f0f0", "yes" = "#7570b3")
 
@@ -49,7 +49,7 @@ outdir <- "./results/plots/r/"
 # the Panaroo gene presence-absence matrix
 data <- read.table("/Users/zuza/repos/redesigned-lamp/results/panaroo/gene_presence_absence.Rtab",
                    header = TRUE)
-head(data)
+#head(data)
 
 # load core gene tree from panaroo
 tree <-
@@ -76,8 +76,8 @@ ariba <-
   remove_constant()
 
 plasmidfinder <-
-  read_tsv("./docs/plamidfinder_summary.txt") %>%
-  clean_names()
+  read_tsv("./docs/plamidfinder_summary.txt")
+head(plasmidfinder)
 ```
 
 
@@ -122,6 +122,8 @@ summary(meta3$date)
 ```
 
 ## annotation for the core_gene tree
+the dataframe from panaroo represents binary values as characters. there is a need
+to convert them to numeric values then to binnary for optimal annotation
 ```{r create_heatmap_columns}
 
 # filter the gene-presence-absense matrix to get genes in node 4196
@@ -143,62 +145,59 @@ restructured_df <- transposed_df[rownames(transposed_df) %notin% c("Gene"), ]
 segment_genes <- as.data.frame(restructured_df)
 
 head(rownames(segment_genes))
-head(segment_genes)
+
+genes <-
+  segment_genes %>%
+  mutate(across(where(is.character), as.factor))
 
 
 ```
 
 ## annotations for the snp-based tree
-```{r}
+```{r snp_based_tree_annotations}
 amr_df <-
   ariba %>%
-  as.data.frame()
+  as.data.frame() 
 
 rownames(amr_df) <-
   amr_df$name
 
 amr_df1 <- select(amr_df, !c(name))
 
-amr_df1
+head(amr_df1)
 
 # plasmid data
 plasmids <-
   plasmidfinder %>%
   as.data.frame()
 
+# this column has extra characters which mess with parsing to subset the values
+plasmids$`Col(pHAD28)_1` <-
+  substr(plasmids$`Col(pHAD28)_1`, 1,4)
+
 rownames(plasmids) <-
-  plasmids$number_file
+  plasmids$`#FILE`
 
 plasmid_data <-
-  select(plasmids, !c(number_file, num_found))
+  select(plasmids, !c(`#FILE`, NUM_FOUND))
 
+# replace all numeric to binary by matching the missing values
 for (i in colnames(plasmid_data)) {
-  plasmid_data[ ,i] <- if_else(plasmid_data[ ,i] %in% ".", 1, 0)
+  plasmid_data[ ,i] <- if_else(plasmid_data[ ,i] %in% ".", 0, 1)
 }
 
-plasmid_data
+# plasmid_data_1 <-
+#   plasmid_data %>%
+#    mutate(across(where(is.character), as.integer))
+# 
+# for (i in colnames(plasmid_data_1)) {
+#   plasmid_data_1[ ,i] <- if_else(!is.na(plasmid_data_1[ ,i]), 1, 0)
+# }
 
 plasmid_data_1 <-
   plasmid_data %>%
-   mutate(across(where(is.character), as.integer))
-plasmid_data$col_p_had28_1 %in% "."
+  mutate(across(where(is.numeric), as.factor))
 
-for (i in colnames(plasmid_data_1)) {
-  plasmid_data_1[ ,i] <- if_else(!is.na(plasmid_data_1[ ,i]), 1, 0)
-}
-
-plasmid_data_2 <-
-  plasmid_data_1 %>%
-  mutate(across(where(is.numeric), as.character))
-
-str(plasmid_data_2)
-plasmid_data_2
-
-
-check <-
-  select(plasmids, c(num_found)) %>%
-  mutate(across(where(is.numeric), as.character))
-check
 ```
 
 
@@ -233,7 +232,7 @@ h1
 
 h2 <- h1 + new_scale_fill()
 
-h3 <- gheatmap(h2, segment_genes,
+h3 <- gheatmap(h2, genes,
          offset = 0.00004,
          width = 0.14,
            colnames_position = "top",
@@ -264,9 +263,9 @@ dev.off()
 
 
 # plot the snp based tree
-```{r plot_core_gene_tree, message=FALSE}
+```{r plot_core_snp_tree, message=FALSE}
 #set local plot attributes
-font_size <- 1
+font_size <- 2
 
 # root the tree at midpoint
 tree_2 <- midpoint(snp_tree) # from library phangorn
@@ -298,7 +297,7 @@ h1
 
 h2 <- h1 + new_scale_fill()
 
-h3 <- 
+h3_amr <- 
   gheatmap(h2, amr_df1,
          offset = 0.01,
          width = 0.4,
@@ -307,13 +306,13 @@ h3 <-
         colnames_offset_y = 4,
         hjust = 0.5,
         font.size = font_size) +
-  scale_fill_manual(values = character_presence_absence ,
+  scale_fill_manual(values = character_presence_absence,
                        labels = c("Absent", "Present"),
                     na.translate = FALSE) +
   labs(fill = "Gene Presence/Absence") +
   vexpand(0.02)
 
-h3
+h3_amr
 ```
 
 ```{r write_plot-with-AMR-TO-file, eval=FALSE}
@@ -326,7 +325,7 @@ png(plot_name,
     width = 800,
     height = 800)
 
-h3
+h3_amr
 
 dev.off() 
 ```
@@ -354,8 +353,8 @@ h1
 
 h2 <- h1 + new_scale_fill()
 
-h3 <- 
-  gheatmap(h2, plasmid_data_2,
+h3_plasmid <- 
+  gheatmap(h2, plasmid_data_1,
          offset = 0.01,
          width = 0.2,
            colnames_position = "top",
@@ -363,25 +362,51 @@ h3 <-
         colnames_offset_y = 4,
         hjust = 0.5,
         font.size = font_size) +
- scale_fill_discrete() +
-  labs(fill = "Gene Presence/Absence") +
+      scale_fill_manual(values = binnary_colors,
+                    na.translate = FALSE,
+                    labels = c("Absent", "Present"),
+                    guide = guide_legend(order = 3)) +
+  labs(fill = "Presence/Absence") +
   vexpand(0.02)
 
-h4 <- h3 + new_scale_fill()
-h5 #<- 
-  gheatmap(h4, check,
-         offset = 0.14,
-         width = 0.01,
-           colnames_position = "top",
-        colnames_angle = angle,
-        colnames_offset_y = 4,
-        hjust = 0.5,
-        font.size = font_size) +
- scale_fill_discrete() +
-  labs(fill = "Gene Presence/Absence") +
-  vexpand(0.02)
+h3_plasmid
+```
 
-  plasmid_data[ ,4]
+```{r write_plot-with-PLASMIDS-TO-file, eval=FALSE}
+plotting_dir <- file.path(outdir, Sys.Date())
+plot_name <- file.path(plotting_dir, "snp_based_with_plasmids.png")
+
+if (!dir.exists(plotting_dir)) {dir.create(plotting_dir, recursive = TRUE)}
+
+png(plot_name,
+    width = 800,
+    height = 800)
+
+h3_plasmid
+
+dev.off() 
+```
+
+
+```{r collect_the_trees_and_save_them, eval=FALSE}
+amr_plot <- 
+  h3_amr + theme(legend.position = "none")
+
+grid.arrange(amr_plot, h3_plasmid, nrow = 1)
+
+plotting_dir <- file.path(outdir, Sys.Date())
+plot_name <- file.path(plotting_dir, "snp_based_trees.png")
+
+if (!dir.exists(plotting_dir)) {dir.create(plotting_dir, recursive = TRUE)}
+
+png(plot_name,
+    width = 1600,
+    height = 1100)
+
+grid.arrange(amr_plot, h3_plasmid, nrow = 1)
+
+dev.off() 
+
 ```
 
 
