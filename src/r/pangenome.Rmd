@@ -2,57 +2,424 @@
 title: "assembly_stats"
 author: "Allan Zuza"
 date: "`r Sys.Date()`"
-output: html_document
+output: 
+  html_document:
+    toc: true
+    number_sections: true
 editor_options: 
-  chunk_output_type: inline
+  chunk_output_type: console
 ---
 
-```{r setup, include=FALSE}
+```{r setup, include=FALSE, eval=FALSE}
 knitr::opts_chunk$set(echo = TRUE)
 ```
-
-```{r load_packages}
+# load packages and set functions
+```{r load_packages, message=FALSE}
 library(janitor)
 library(kableExtra)
 library(tidyverse)
-
-
-```
-
-```{r load_data}
-data <- read.table("/Users/zuza/repos/redesigned-lamp/results/panaroo/gene_presence_absence.Rtab",
-                   header = TRUE)
-head(data)
-```
-```{r}
-rownames(data) <- data$Gene
-data %>% select(!c(Gene)) %>% ggplot() + geom_tile(aes(colnames, rownames()))
-
-data %>% ggplot() + geom_tile(aes(Gene,ERR8574956 , fill = value)) + scale_fill_gradient()
-
-```
-
-
-```{r}
 library(data.table)
 library(reshape2)
+library(ggtree) 
+library(phangorn)
+library(ggnewscale)
+library(patchwork)
+'%notin%' <- Negate('%in%')
+```
 
-head(data)
+# plot attributes
+```{r set_plot_atributes}
+# set date colors
 
-transposed_df <- data.table::transpose(data, make.names = "Gene")
+datecol <- c("Other" = "#f0f0f0", "2016" = "#cccccc",
+             "2017" = "#969696", "2018" = "#636363",
+             "2019" = "#252525" )
+
+binnary_colors <- c("0" = "#f0f0f0", "1" = "#7570b3")
+
+character_presence_absence <- presence <- c("no" = "#f0f0f0", "yes" = "#7570b3")
+
+# saving directory
+outdir <- "./results/plots/r/"
+```
+
+# load data frames for plot annotation
+```{r load_data, message=FALSE}
+
+# the Panaroo gene presence-absence matrix
+data <- read.table("/Users/zuza/repos/redesigned-lamp/results/panaroo/gene_presence_absence.Rtab",
+                   header = TRUE)
+#head(data)
+
+# load core gene tree from panaroo
+tree <-
+  read.tree("results/core_gene_tree/core_tree.treefile")
+
+
+# load the snp based tree
+snp_tree <-
+  ape::read.tree("./results/iqtree/phylo.aln.treefile")
+
+# read metadata from the Genome paper
+tip_metadata <- 
+  read_csv("docs/kleb_metadata.csv",
+           show_col_types = FALSE) %>%
+  clean_names() %>%
+  filter(main_st == "ST39") %>%
+  select(reference, strain, sample_acc, lane_acc, supplier_name,
+         study_accession, supplier_sample_name, date, neonate, major_wards)
+
+head(tip_metadata)
+
+ariba <-
+  read_csv("./docs/clean_ariba_amr.csv") %>%
+  remove_constant()
+
+plasmidfinder <-
+  read_tsv("./docs/plamidfinder_summary.txt")
+head(plasmidfinder)
+```
+
+
+# process data frames for plot annotation
+
+```{r common_annotation_files}
+# load date information from metadata file
+date_data <- 
+  tip_metadata %>%
+  select(c(lane_acc, date, major_wards)) %>%
+  filter(lane_acc %in% tree$tip.label)
+
+date_data$year <-
+  case_when(date_data$date == 2016 ~ "2016",
+            date_data$date == 2017 ~ "2017",
+            date_data$date == 2018 ~ "2018",
+            date_data$date == 2019 ~ "2019",
+            TRUE ~ "Other") 
+
+date_data$wards <-
+  case_when(date_data$major_wards ==
+              "CHATINKHA NURSERY" ~ "CHATINKHA NURSERY",
+            TRUE ~ "Other wards")
+
+# again convert to a data.frame object
+meta1 <- as.data.frame(date_data)
+
+# assign rows
+rownames(meta1) <- meta1$lane_acc
+
+meta2 <- meta1 %>% select(year)
+
+meta3 <- meta2 %>%
+  mutate(year = as.factor(year))
+
+
+head(date_data)
+
+summary(as_factor(date_data$date))
+summary(as_factor(date_data$major_wards))
+summary(meta3$date)
+```
+
+## annotation for the core_gene tree
+the dataframe from panaroo represents binary values as characters. there is a need
+to convert them to numeric values then to binnary for optimal annotation
+```{r create_heatmap_columns}
+
+# filter the gene-presence-absense matrix to get genes in node 4196
+df1 <-
+  data %>% filter(Gene %in% c("rep_1", "xerC_1", "intA_3", "recF_1", "dam_2",
+                              "xerC_4", "xerC_2", "pknD", "pknH")) 
+
+# transpose the filtered matrix
+transposed_df <- t(df1)
+
+colnames(transposed_df) <-transposed_df[1,]
 
 head(transposed_df)
-x <- reshape2::melt(data)
 
-ggplot(x, aes(y = Gene, x = variable, fill = value)) +
-  geom_tile() +
-  theme(axis.text.x = element_text(angle = 90))
+# filter out the gene column
+restructured_df <- transposed_df[rownames(transposed_df) %notin% c("Gene"), ]
+
+# convert to a data.frame object because tibble handles rownames in a wierd way!
+segment_genes <- as.data.frame(restructured_df)
+
+head(rownames(segment_genes))
+
+genes <-
+  segment_genes %>%
+  mutate(across(where(is.character), as.factor))
+
 
 ```
 
-```{r}
-kleb_metadata <- read_csv("/Users/zuza/repos/redesigned-lamp/docs/kleb_metadata.csv")
-date_data <- select(kleb_metadata, LaneAcc, DATE)
+## annotations for the snp-based tree
+```{r snp_based_tree_annotations}
+amr_df <-
+  ariba %>%
+  as.data.frame() 
+
+rownames(amr_df) <-
+  amr_df$name
+
+amr_df1 <- select(amr_df, !c(name))
+
+head(amr_df1)
+
+# plasmid data
+plasmids <-
+  plasmidfinder %>%
+  as.data.frame()
+
+# this column has extra characters which mess with parsing to subset the values
+plasmids$`Col(pHAD28)_1` <-
+  substr(plasmids$`Col(pHAD28)_1`, 1,4)
+
+rownames(plasmids) <-
+  plasmids$`#FILE`
+
+plasmid_data <-
+  select(plasmids, !c(`#FILE`, NUM_FOUND))
+
+# replace all numeric to binary by matching the missing values
+for (i in colnames(plasmid_data)) {
+  plasmid_data[ ,i] <- if_else(plasmid_data[ ,i] %in% ".", 0, 1)
+}
+
+# plasmid_data_1 <-
+#   plasmid_data %>%
+#    mutate(across(where(is.character), as.integer))
+# 
+# for (i in colnames(plasmid_data_1)) {
+#   plasmid_data_1[ ,i] <- if_else(!is.na(plasmid_data_1[ ,i]), 1, 0)
+# }
+
+plasmid_data_1 <-
+  plasmid_data %>%
+  mutate(across(where(is.numeric), as.factor))
+
+```
+
+
+# plot the core gene trees
+```{r plot_core_gene_tree, message=FALSE}
+# root the tree at midpoint
+tree <- midpoint(tree) # from library phangorn
+
+y <-
+  tree %>%
+  ggtree() %<+%
+  date_data +
+    geom_tippoint(aes(color=wards), size = 1.5) +
+     scale_color_viridis_d(na.translate = FALSE,
+                        guide = guide_legend(order = 1))
+y
+
+h1 <- 
+  gheatmap(y, meta3,
+               width = 0.02,
+         colnames_position = "top",
+        colnames_angle = 90,
+        colnames_offset_y = 3,
+        hjust = 0.5) +
+  scale_fill_manual(values = datecol,
+                    na.translate = FALSE,
+                        guide = guide_legend(order = 1)) +
+  labs(fill = "Year")
+  vexpand(0.01)
+
+h1
+
+h2 <- h1 + new_scale_fill()
+
+h3 <- gheatmap(h2, genes,
+         offset = 0.00004,
+         width = 0.14,
+           colnames_position = "top",
+        colnames_angle = 90,
+        colnames_offset_y = 4,
+        hjust = 0.5) +
+  scale_fill_manual(values = presence,
+                       labels = c("Absent", "Present")) +
+  labs(fill = "Gene Presence/Absence") +
+  vexpand(0.02)
+
+h3
+```
+```{r write_plot-TO-file, eval=FALSE}
+plotting_dir <- file.path(outdir, Sys.Date())
+plot_name <- file.path(plotting_dir, "core_gene_with_genes.png")
+
+if (!dir.exists(plotting_dir)) {dir.create(plotting_dir, recursive = TRUE)}
+
+png(plot_name,
+    width = 800,
+    height = 800)
+
+h3
+
+dev.off() 
+```
+
+
+# plot the snp based tree
+```{r plot_core_snp_tree, message=FALSE}
+#set local plot attributes
+font_size <- 2
+
+# root the tree at midpoint
+tree_2 <- midpoint(snp_tree) # from library phangorn
+
+y <-
+  tree_2 %>%
+  ggtree() %<+%
+  date_data +
+    geom_tippoint(aes(color=wards), size = 1.5) +
+     scale_color_viridis_d(na.translate = FALSE,
+                        guide = guide_legend(order = 1))
+y
+
+h1 <- 
+  gheatmap(y, meta3,
+               width = 0.01,
+         colnames_position = "top",
+        colnames_angle = 90,
+        colnames_offset_y = 3,
+        hjust = 0.5,
+        font.size = font_size) +
+  scale_fill_manual(values = datecol,
+                    na.translate = FALSE,
+                        guide = guide_legend(order = 1)) +
+  labs(fill = "Year") +
+  vexpand(0.025)
+
+h1
+
+h2 <- h1 + new_scale_fill()
+
+h3_amr <- 
+  gheatmap(h2, amr_df1,
+         offset = 0.01,
+         width = 0.4,
+           colnames_position = "top",
+        colnames_angle = 90,
+        colnames_offset_y = 4,
+        hjust = 0.5,
+        font.size = font_size) +
+  scale_fill_manual(values = character_presence_absence,
+                       labels = c("Absent", "Present"),
+                    na.translate = FALSE) +
+  labs(fill = "Gene Presence/Absence") +
+  vexpand(0.02)
+
+h3_amr
+```
+
+```{r write_plot-with-AMR-TO-file, eval=FALSE}
+plotting_dir <- file.path(outdir, Sys.Date())
+plot_name <- file.path(plotting_dir, "snp_based_with_amr.png")
+
+if (!dir.exists(plotting_dir)) {dir.create(plotting_dir, recursive = TRUE)}
+
+png(plot_name,
+    width = 800,
+    height = 800)
+
+h3_amr
+
+dev.off() 
+```
+
+```{r Add_plasmid_data}
+#set local plot attributes
+font_size <- 2
+angle <- 90
+
+h1 <- 
+  gheatmap(y, meta3,
+               width = 0.01,
+         colnames_position = "top",
+        colnames_angle = angle,
+        colnames_offset_y = 3,
+        hjust = 0.5,
+        font.size = font_size) +
+  scale_fill_manual(values = datecol,
+                    na.translate = FALSE,
+                        guide = guide_legend(order = 1)) +
+  labs(fill = "Year") +
+  vexpand(0.025)
+
+h1
+
+h2 <- h1 + new_scale_fill()
+
+h3_plasmid <- 
+  gheatmap(h2, plasmid_data_1,
+         offset = 0.01,
+         width = 0.2,
+           colnames_position = "top",
+        colnames_angle = angle,
+        colnames_offset_y = 4,
+        hjust = 0.5,
+        font.size = font_size) +
+      scale_fill_manual(values = binnary_colors,
+                    na.translate = FALSE,
+                    labels = c("Absent", "Present"),
+                    guide = guide_legend(order = 3)) +
+  labs(fill = "Presence/Absence") +
+  vexpand(0.02)
+
+h3_plasmid
+```
+
+```{r write_plot-with-PLASMIDS-TO-file, eval=FALSE}
+plotting_dir <- file.path(outdir, Sys.Date())
+plot_name <- file.path(plotting_dir, "snp_based_with_plasmids.png")
+
+if (!dir.exists(plotting_dir)) {dir.create(plotting_dir, recursive = TRUE)}
+
+png(plot_name,
+    width = 800,
+    height = 800)
+
+h3_plasmid
+
+dev.off() 
+```
+
+
+```{r collect_the_trees_and_save_them, eval=FALSE}
+amr_plot <- 
+  h3_amr + theme(legend.position = "none")
+
+grid.arrange(amr_plot, h3_plasmid, nrow = 1)
+
+plotting_dir <- file.path(outdir, Sys.Date())
+plot_name <- file.path(plotting_dir, "snp_based_trees.png")
+
+if (!dir.exists(plotting_dir)) {dir.create(plotting_dir, recursive = TRUE)}
+
+png(plot_name,
+    width = 1600,
+    height = 1100)
+
+grid.arrange(amr_plot, h3_plasmid, nrow = 1)
+
+dev.off() 
+
+```
+
+
+
+
+
+# miscellanious
+
+```{r, eval=FALSE}
+kleb_metadata <-
+  read_csv("/Users/zuza/repos/redesigned-lamp/docs/kleb_metadata.csv")
+date_data <-
+  select(kleb_metadata, LaneAcc, DATE)
 
 
 y <- transpose(date_data, make.names = "LaneAcc")
@@ -79,12 +446,97 @@ ggplot(x, aes(y = Gene, x = variable, fill = value)) +
   theme(axis.text.x = element_text(angle = 90))
 
 ```
-```{r}
+
+
+```{r, eval=FALSE}
 
 pdf("~/repos/redesigned-lamp/test1.pdf", width = 300, height = 20)
 pivot %>% ggplot(aes(Gene, count)) + geom_tile(color = "red") +
   theme(axis.text.x = element_text(angle = 90))
 
 dev.off()
+```
+
+
+### attribute results from Graphia
+Using Graphia, I extract the attribute data after clustering the nodes using the
+Louvain Clusterring algorithym.
+```{r load_graphia_results, message=FALSE, eval=FALSE}
+library(tidyverse)
+clusters <- 
+  read_csv("./results/graphia/full_final_graph-attributes.csv") %>% clean_names()
+
+# save objects to Rdata
+save(clusters,
+     file = "data/r/pangenomeClusters.RData")
+```
+```{r}
+load("data/r/pangenomeClusters.RData")
+clusters
+
+summary(clusters)
+str(clusters)
+
+clusters %>% filter(louvain_cluster_size <= 118)
+clusters %>%
+  filter(node_members != 134) %>%
+  filter(!str_detect(node_name_2, "group")) %>%
+  #group_by(louvain_cluster) %>%
+  ggplot() +
+  geom_col(aes(node_members, x = node_name_2)) +
+  theme(axis.text.x = element_text(angle = 90))
+
+
+clusters %>%
+  filter(node_members != 134) %>%
+  filter(node_members >= 100) %>%
+  filter(!str_detect(node_name_2, "group")) %>%
+  #group_by(louvain_cluster) %>%
+  ggplot() +
+  geom_col(aes(node_members, x = node_name_2)) +
+  theme(axis.text.x = element_text(angle = 90))
+
+genes_to_check <- clusters %>%
+  filter(node_members < 134) %>%
+  #filter(node_members >= 100) %>%
+  filter(!str_detect(node_name_2, "group"))
+
+#genes_to_check$node_name_2
+```
+
+
+### check genes from graphia output
+```{r eval=FALSE}
+# check genes from graphia output
+genes <- genes_to_check$node_name_2
+genes
+
+
+df1 <- data %>% filter(str_detect(Gene, paste(genes, collapse = "|"))) %>%
+  filter(!str_detect(Gene, "~"))
+
+transposed_df <- t(df1)
+
+colnames(transposed_df) <-transposed_df[1,]
+
+head(transposed_df)
+
+restructured_df <- transposed_df[rownames(transposed_df) %notin% c("Gene"), ]
+
+x <- as.data.frame(restructured_df)
+
+#rownames(x)
+
+tree <- midpoint(tree)
+y <- tree %>% ggtree() %<+% x
+
+gheatmap(y, x,
+              # width = 0.02,
+         colnames_position = "top",
+        colnames_angle = 90,
+        colnames_offset_y = 14,
+        hjust = 0.5) +
+  scale_fill_viridis_d(direction = -1) +
+  vexpand(0.1)
 ```
 
