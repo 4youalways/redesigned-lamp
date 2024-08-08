@@ -57,6 +57,10 @@ short_read_ch = channel.fromPath(params.sample_sheet, checkIfExists:true)
         ]]
     }
 
+// date info for running gubbins
+date_ch = channel.fromPath(params.dates, checkIfExists:true)
+
+
 //using AP006725.1 Klebsiella pneumoniae subsp. pneumoniae NTUH-K2044 DNA, complete genome refrence genome
 reference = channel.fromPath(params.ref)
 
@@ -86,7 +90,7 @@ workflow  SHOVILL_WORKFLOW {
 }
 
 workflow TREES {
-    SNIPPY_WORKFLOW(st39_ref, short_read_ch)
+    SNIPPY_WORKFLOW(st39_ref, short_read_ch, date_ch)
 }
 
 workflow {
