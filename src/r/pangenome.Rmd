@@ -24,6 +24,9 @@ library(ggtree)
 library(phangorn)
 library(ggnewscale)
 library(patchwork)
+library(ape)
+library(rPinecone)
+library(gridExtra)
 '%notin%' <- Negate('%in%')
 ```
 
@@ -39,9 +42,25 @@ binnary_colors <- c("0" = "#f0f0f0", "1" = "#7570b3")
 
 character_presence_absence <- presence <- c("no" = "#f0f0f0", "yes" = "#7570b3")
 
+genotype_cols <- c("4.1.1" = "#EECC66", "4.3.1.1" = "#EE99AA",
+                   "4.3.1.1.EA1" = "#6699CC", "4.3.1.2" = "#997700",
+                   "4.3.1.2.EA2" = "#994455", "4.3.1.2.EA3" = "#004488")
+
+yersinabactin_st_cols <-
+  c("145-2LV" = "#EECC66", "151" = "#EE99AA", "277" = "#6699CC",
+    "294" = "#997700", "327" = "#994455", "327-1LV" = "#004488", "78" = "#DDDDDD")
+
+# rpinecone output
+lineage_col <- c("0" = "#77AADD", "1" = "#EE8866")
+
+sub_lineage_col <- c("7" = "#EEDD88", "8" = "#FFAABB", "Other" = "#99DDFF",
+                    "6" = "#44BB99", "4" = "#BBCC33",  "#AAAA00", "#DDDDDD")
+
+
 # saving directory
 outdir <- "./results/plots/r/"
 ```
+
 
 # load data frames for plot annotation
 ```{r load_data, message=FALSE}
@@ -59,6 +78,10 @@ tree <-
 # load the snp based tree
 snp_tree <-
   ape::read.tree("./results/iqtree/phylo.aln.treefile")
+
+#load tree produced from gubbins
+gubbins_tree <-
+  ape::read.tree("./results/gubbins/ST39.final_tree.tre")
 
 # read metadata from the Genome paper
 tip_metadata <- 
@@ -78,8 +101,46 @@ ariba <-
 plasmidfinder <-
   read_tsv("./docs/plamidfinder_summary.txt")
 head(plasmidfinder)
+
+# kleborate results
+kleborate <-
+  read_tsv("./results/kleborate/kleborate_results.txt")
+
+kleborate
 ```
 
+
+# lineage annotation files
+```{r}
+#install.packages("devtools")
+#devtools::install_github("alexwailan/rpinecone")
+
+results <- pinecone(gubbins_tree, 2, 3)
+
+lineage_1 <- results$table %>% as.data.frame()
+
+rownames(lineage_1) <- lineage_1$Taxa
+
+
+lineage_1 <- lineage_1 %>% select(!c(Taxa))
+lineage_1$sub_lineage <-
+  case_when(grepl("singleton", lineage_1$`Sub-lineage`) ~ "Other",
+                                   TRUE ~ lineage_1$`Sub-lineage`)
+
+
+major_lineages <-
+  lineage_1 %>%
+  select(`Major.Sub-lineage`) %>%
+  mutate(across(where(is.character), as.factor))
+
+
+sub_lineages <-
+  lineage_1 %>%
+  select(sub_lineage) %>%
+  mutate(across(where(is.character), as.factor))
+
+summary(sub_lineages$sub_lineage)
+```
 
 # process data frames for plot annotation
 
@@ -200,6 +261,48 @@ plasmid_data_1 <-
 
 ```
 
+## Kleborate output as annotations for phylogenetic trees
+```{r}
+unique_kleborate <-
+  kleborate %>% remove_constant()
+
+
+df1 <-
+  unique_kleborate %>%
+  select(strain, YbST, ybtS, ybtX, ybtQ, ybtA, irp2, irp1, ybtU, ybtT, ybtE, fyuA)
+
+df1<- 
+  df1 %>%
+  mutate(across(where(is.character), as.factor))
+
+df1[2:12] %>% summary()
+df2 <- as.data.frame(df1)
+rownames(df2) <- df2$strain
+
+df3 <-
+  df2 %>%
+  select(!c(strain))
+
+ybst <-
+  df3 %>%
+  select(YbST)
+
+
+yb_genotype <-
+  df3 %>%
+  select(!c(YbST))
+
+
+
+colnames(unique_kleborate)
+unique_kleborate %>%
+  mutate(across(where(is.double), as.factor)) %>%
+  summary
+
+unique_kleborate %>% group_by(iroD) %>% summary()
+
+```
+
 
 # plot the core gene trees
 ```{r plot_core_gene_tree, message=FALSE}
@@ -263,13 +366,103 @@ dev.off()
 
 
 # plot the snp based tree
-```{r plot_core_snp_tree, message=FALSE}
+## lineages
+```{r plot_core_snp_tree_with_clane_data, message=FALSE}
 #set local plot attributes
 font_size <- 2
 
 # root the tree at midpoint
-tree_2 <- midpoint(snp_tree) # from library phangorn
+tree_2 <- gubbins_tree
+y <-
+  tree_2 %>%
+  ggtree() %<+%
+  date_data +
+    geom_tippoint(aes(color=wards), size = 1.5) +
+     scale_color_viridis_d(na.translate = FALSE,
+                        guide = guide_legend(order = 1)) +
+  geom_treescale(label = "snps",
+                 y = 130,
+                 x  = 10) +
+    geom_tiplab(align = TRUE,
+                size = 1.5,
+                linesize = 0.2) +
+    hexpand(0.001)
+y 
 
+h1 <- 
+  gheatmap(y, meta3,
+               width = 0.01,
+           offset = 100,
+         colnames_position = "top",
+        colnames_angle = 90,
+        colnames_offset_y = 3,
+        hjust = 0.5,
+        font.size = font_size) +
+  scale_fill_manual(values = datecol,
+                    na.translate = FALSE,
+                        guide = guide_legend(order = 1)) +
+  labs(fill = "Year") +
+  vexpand(0.025)
+
+h1
+
+h2 <- h1 + new_scale_fill()
+
+
+lineage <- 
+  gheatmap(h2, major_lineages,
+         offset = 113,
+         width = 0.01,
+           colnames_position = "top",
+        colnames_angle = 90,
+        colnames_offset_y = 4,
+        hjust = 0.5,
+        font.size = font_size) +
+  scale_fill_manual(values = lineage_col,
+                       #labels = c("Absent", "Present"),
+                    na.translate = FALSE) +
+  labs(fill = "Major Sub lineages") +
+  vexpand(0.02)
+
+lineage
+sublineage <- lineage + new_scale_fill()
+
+sub_lineage <- 
+  gheatmap(sublineage, sub_lineages,
+         offset = 122,
+         width = 0.01,
+           colnames_position = "top",
+        colnames_angle = 90,
+        colnames_offset_y = 4,
+        hjust = 0.5,
+        font.size = font_size) +
+  scale_fill_manual(values = sub_lineage_col,
+                       #labels = c("Absent", "Present"),
+                    na.translate = FALSE) +
+  labs(fill = "Major Sub lineages") +
+  vexpand(0.02)
+
+sub_lineage
+
+```
+
+```{r write_plot-with-lineages-TO-file, eval=FALSE}
+plotting_dir <- file.path(outdir, Sys.Date())
+plot_name <- file.path(plotting_dir, "snp_based_with_lineage.png")
+
+if (!dir.exists(plotting_dir)) {dir.create(plotting_dir, recursive = TRUE)}
+
+png(plot_name,
+    width = 800,
+    height = 800)
+
+sub_lineage
+
+dev.off() 
+```
+
+## AMR data
+```{r AMR_data}
 y <-
   tree_2 %>%
   ggtree() %<+%
@@ -277,7 +470,8 @@ y <-
     geom_tippoint(aes(color=wards), size = 1.5) +
      scale_color_viridis_d(na.translate = FALSE,
                         guide = guide_legend(order = 1))
-y
+  
+y 
 
 h1 <- 
   gheatmap(y, meta3,
@@ -294,12 +488,11 @@ h1 <-
   vexpand(0.025)
 
 h1
-
 h2 <- h1 + new_scale_fill()
 
-h3_amr <- 
+h3_amr <-
   gheatmap(h2, amr_df1,
-         offset = 0.01,
+         offset = 13,
          width = 0.4,
            colnames_position = "top",
         colnames_angle = 90,
@@ -330,6 +523,7 @@ h3_amr
 dev.off() 
 ```
 
+## plasmids
 ```{r Add_plasmid_data}
 #set local plot attributes
 font_size <- 2
@@ -355,7 +549,7 @@ h2 <- h1 + new_scale_fill()
 
 h3_plasmid <- 
   gheatmap(h2, plasmid_data_1,
-         offset = 0.01,
+         offset = 13,
          width = 0.2,
            colnames_position = "top",
         colnames_angle = angle,
@@ -387,27 +581,93 @@ h3_plasmid
 dev.off() 
 ```
 
+## Virulence factors
+
+```{r virulence_factors_to_tree}
+#set local plot attributes
+font_size <- 2
+
+# root the tree at midpoint
+tree_2 <- midpoint(gubbins_tree) # from library phangorn
+
+y <-
+  tree_2 %>%
+  ggtree() %<+%
+  date_data +
+    geom_tippoint(aes(color=wards), size = 1.5) +
+     scale_color_viridis_d(na.translate = FALSE,
+                        guide = guide_legend(order = 1)) 
+y
+
+h1 <- 
+  gheatmap(y, meta3,
+               width = 0.01,
+         colnames_position = "top",
+        colnames_angle = 90,
+        colnames_offset_y = 3,
+        hjust = 0.5,
+        font.size = font_size) +
+  scale_fill_manual(values = datecol,
+                    na.translate = FALSE,
+                        guide = guide_legend(order = 1)) +
+  labs(fill = "Year") +
+  vexpand(0.025)
+
+h1
+
+h2 <- h1 + new_scale_fill()
+
+h3_yb <- 
+  gheatmap(h2, ybst,
+         offset = 13,
+         width = 0.01,
+           colnames_position = "top",
+        colnames_angle = 90,
+        colnames_offset_y = 4,
+        hjust = 0.5,
+        font.size = font_size) +
+  scale_fill_manual(values = yersinabactin_st_cols,
+                    na.translate = FALSE) +
+  labs(fill = "ybST") +
+  vexpand(0.02)
+
+h3_yb
+```
+
 
 ```{r collect_the_trees_and_save_them, eval=FALSE}
 amr_plot <- 
   h3_amr + theme(legend.position = "none")
 
-grid.arrange(amr_plot, h3_plasmid, nrow = 1)
+clade_plot <-
+  sub_lineage + theme(legend.position = "none") 
+  
+plasmid_plot<-
+  h3_plasmid + theme(legend.position = "none") + xlim(NA, 1265)
+
+yb_plot<-
+  h3_yb + theme(legend.position = "none") + xlim(NA, 1265)
+
+grid.arrange(clade_plot, arrangeGrob(amr_plot, plasmid_plot, yb_plot), ncol = 2)
+
 
 plotting_dir <- file.path(outdir, Sys.Date())
-plot_name <- file.path(plotting_dir, "snp_based_trees.png")
+plot_name <- file.path(plotting_dir, "snp_based_trees.pdf")
 
 if (!dir.exists(plotting_dir)) {dir.create(plotting_dir, recursive = TRUE)}
 
-png(plot_name,
-    width = 1600,
-    height = 1100)
+pdf(plot_name,
+    width = 32,
+    height = 18,
+    pointsize = 24)
 
-grid.arrange(amr_plot, h3_plasmid, nrow = 1)
+grid.arrange(clade_plot, arrangeGrob(amr_plot, plasmid_plot, yb_plot), ncol = 2)
 
 dev.off() 
 
 ```
+
+
 
 
 
