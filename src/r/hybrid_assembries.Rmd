@@ -4,8 +4,8 @@ author: "Allan Zuza"
 date: "`r Sys.Date()`"
 output:
   html_document:
-  toc: true
-  number_sections: true
+    toc: true
+    number_sections: true
 editor_options: 
   chunk_output_type: console
 ---
@@ -27,7 +27,7 @@ pacman::p_load(janitor,
 ```
 
 
-### import assembly statistics
+# import assembly statistics
 ```{r}
 
 assembly_headers <- read.table("results/assembly-stats/colnames_100478.tsv",
@@ -43,7 +43,7 @@ colnames(assembly_stats) <- c(colnames(assembly_headers), "assembler")
 head(assembly_stats)
 ```
 
-### summarise the stats
+## summarise the stats
 ```{r, message=FALSE, eval=FALSE, echo=FALSE}
 assembly_stats %>%
   group_by(assembler) %>%
@@ -59,7 +59,7 @@ assembly_stats %>%
 
 ```
 
-### comparing the hybrid assemblies
+## comparing the hybrid assemblies
 the assemblies have differing numbers and types of plasmids. using pubmlst online
 platform the plamids are distributed as below in the hybrid assemblies
 ```{r}
@@ -92,7 +92,7 @@ table_1
 ```
 
 
-### save Table 1 to file
+## save Table 1 to file
 ```{r, eval=FALSE}
 outdir <- "results/plots/r"
 plotting_dir <- file.path(outdir, Sys.Date())
@@ -110,7 +110,7 @@ save_kable(table_1, file = plot_name,
 the assemblies look quite similar in mauve. plasmids are responsible for most of the variation seen
 
 
-### load the annotated genbank and blast comparison files
+## load the annotated genbank and blast comparison files
 ```{r eval=FALSE}
 # load prokka annotated genbank files
 dna_seg1 <- read_dna_seg_from_genbank(file = "results/mauve/fasta/prokka_chromosome/1004078.gbk")
@@ -147,7 +147,7 @@ save(comparison_1, comparison_2, comparison_3, comparison_4,
 ```
 
 
-### regions with gaps in assemblies
+## regions with gaps in assemblies
 
 ```{r}
 # region names
@@ -157,7 +157,7 @@ region_num <- c("insertion_4", "insertion_3", "insertion_2", "one", "two", "thre
 starts <- c("mug", "mdoC", "yedJ", "cpxR", "ahr", "pknK", "ppiB", "phoH", "ves", "dcuS", "lcfB", "budC", "ychF", "yedJ", "fadL", "nadK", "cysD", "ureG", "pagL", "smpB", "sapB", "hiuH", "menA")
 
 # end gene in annotation
-ends <- c("evgA", "phoH", "baeR", "fieF" ,"xynB", "proB", "cadC", "gpx1", "nifJ", "ynfM", "yjhB", "ccmF", "ais", "ddpB", "gltX", "bepF", "casC", "glpF_2", "ycnE", "bepF", "ribA", "folD", "cpxA" )
+ends <- c("evgA", "phoH", "yeeO", "fieF" ,"xynB", "proB", "cadC", "gpx1", "nifJ", "ynfM", "yjhB", "ccmF", "ais", "ddpB", "gltX", "bepF", "casC", "glpF_2", "ycnE", "bepF", "ribA", "folD", "cpxA" )
 
 regions <- tibble(region_num, starts, ends)
 
@@ -166,7 +166,7 @@ regions
 ```
 
 
-### create functions to use for dna segment visualisation
+## create functions to use for dna segment visualisation
 ```{r functions_for_the_regions}
 load(file = "data/r/dnaSegments.RData")
 load(file = "data/r/comparisonFiles.RData")
@@ -188,6 +188,17 @@ create_annotation <- function(segment) {
                          rot = 30)
 }
 
+# function to extract the dna segment data frame
+get_seg <-
+  function(region) {
+    
+  x <- regions[regions$region_num == region, ]$starts
+  y <- regions[regions$region_num == region, ]$ends
+  
+  seg <- create_segment(dna_seg2, x, y)
+  
+  return(seg)
+  }
 
 # function to plot the region in all the assemblies
 plot_region <- 
@@ -199,7 +210,7 @@ plot_region <-
   
   seg1 <- create_segment(dna_seg1, x, y)
   seg1_annotation <- create_annotation(dna_seg1)
-  
+
   seg2 <- create_segment(dna_seg2, x, y)
   seg2_annotation <- create_annotation(dna_seg2)
   
@@ -231,7 +242,8 @@ plot_region <-
 ```
 
 
-### plotting regions of the chromosome with rearrangements
+## plotting regions of the chromosome with rearrangements
+### The nodes with ~100 isolates as observed from Graphia
 
 ```{r plot_the_dna_segments}
 
@@ -278,6 +290,30 @@ plot_region("insertion_4", "cluster in 105 to 107 isolates")
 this region has been reducing in size from. this region has lost te traR gene which
 is crutial for regulating conjugative plasmid transfer. this region might also
 have a prophage since it has the pgFl gene which encodes a prophage tail shealth gene
+
+
+```{r, echo=FALSE, eval=FALSE}
+
+insertion1 <- get_seg("insertion_1")
+insertion1$region <- "One"
+
+insertion2 <- get_seg("insertion_2")
+insertion2$region <- "Two"
+
+insertion3 <- get_seg("insertion_3")
+insertion3$region <- "Three"
+
+insertion4 <- get_seg("insertion_4")
+insertion4$region <- "Four"
+
+insertions <-
+  rbind(insertion1, insertion2, insertion3, insertion4) 
+
+# remove hypothetical genes and save to Rdata
+cds <- insertions %>%
+  filter(gene != "-")
+save(cds, file = "data/r/outbreakCDSs.RData")
+```
 
 
 ### Create Phage region annotations
