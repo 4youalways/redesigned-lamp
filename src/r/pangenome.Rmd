@@ -14,7 +14,7 @@ editor_options:
 knitr::opts_chunk$set(echo = TRUE)
 ```
 # load packages and set functions
-```{r load_packages, message=FALSE}
+```{r load_packages, message=FALSE, warning=FALSE}
 library(janitor)
 library(kableExtra)
 library(tidyverse)
@@ -27,16 +27,40 @@ library(patchwork)
 library(ape)
 library(rPinecone)
 library(gridExtra)
+library(khroma) # for managing colors
 '%notin%' <- Negate('%in%')
 ```
 
 # plot attributes
 ```{r set_plot_atributes}
-# set date colors
+# set plot colors
+
+# ward colors
+ward_col <- c("CHATINKHA NURSERY" = "#CC6677",
+              "PAEDIATRIC SPECIAL CARE WARD" = "#332288",
+              "PAEDIATRIC MOYO WARD" = "#ddcc77",
+              "4A FEMALE MEDICAL WARD" = "#117733",
+              "3B MALE MEDICAL WARD" = "#88ccee",
+              "PAEDIATRIC ONCOLOGY" = "#882255",
+              "INTENSIVE CARE UNIT" = "#44aa99",
+              "PAEDIATRIC A&E" = "#999933",
+              "PAEDIATRIC SURGICAL WARD" = "#aa4499",
+               "PICU/HDU" = "#f0f0f0",
+              "unknown" = "#555555",
+              "Other wards" = "#555555")
+  
 
 datecol <- c("Other" = "#f0f0f0", "2016" = "#cccccc",
              "2017" = "#969696", "2018" = "#636363",
              "2019" = "#252525" )
+
+one_col <- c("0" = "#f0f0f0", "1" = "#CC6677")
+
+two_col <- c("0" = "#f0f0f0", "1" = "#7570b3")
+
+three_col <- c("0" = "#f0f0f0", "1" = "#ddcc77")
+
+four_col <- c("0" = "#f0f0f0", "1" = "#117733")
 
 binnary_colors <- c("0" = "#f0f0f0", "1" = "#7570b3")
 
@@ -62,13 +86,15 @@ outdir <- "./results/plots/r/"
 ```
 
 
-# load data frames for plot annotation
+# load data 
 ```{r load_data, message=FALSE}
 
 # the Panaroo gene presence-absence matrix
 data <- read.table("/Users/zuza/repos/redesigned-lamp/results/panaroo/gene_presence_absence.Rtab",
                    header = TRUE)
-#head(data)
+
+# load the genes inserted into outbreak isolates
+load(file = "data/r/outbreakCDSs.RData")
 
 # load core gene tree from panaroo
 tree <-
@@ -84,14 +110,20 @@ gubbins_tree <-
   ape::read.tree("./results/gubbins/ST39.final_tree.tre")
 
 # read metadata from the Genome paper
-tip_metadata <- 
-  read_csv("docs/kleb_metadata.csv",
+metadata <- 
+    read_csv("docs/kleb_metadata.csv",
            show_col_types = FALSE) %>%
   clean_names() %>%
-  filter(main_st == "ST39") %>%
+  filter(main_st == "ST39")
+
+tip_metadata <-
+  metadata %>%
   select(reference, strain, sample_acc, lane_acc, supplier_name,
          study_accession, supplier_sample_name, date, neonate, major_wards)
 
+tip_metadata %>%
+  select(!c(study_accession, supplier_name)) %>%
+  write_csv(file = "docs/appendix1.csv")
 head(tip_metadata)
 
 ariba <-
@@ -106,7 +138,28 @@ head(plasmidfinder)
 kleborate <-
   read_tsv("./results/kleborate/kleborate_results.txt")
 
-kleborate
+```
+
+# metadata for introduction
+```{r}
+
+    metadata %>% mutate(year = factor(date)) %>%
+    mutate(ward = factor(major_wards)) %>%
+    ggplot(aes(x = year, fill = ward)) +
+    geom_bar() +
+    scale_fill_manual(values = ward_col) +
+  labs(y = "Number of Genomes",
+       x = "Year of Isolation",
+       fill = "Ward") +
+  theme(axis.text = element_text(size = 13,
+                                 face = "bold"),
+        axis.text.x = element_text(angle = 30,
+                                   vjust = 0.5),
+        axis.title = element_text(face = "bold",
+                                  size = "15"),
+        legend.title = element_text(size = 15,
+                                    face = "bold"))
+
 ```
 
 
@@ -188,29 +241,58 @@ to convert them to numeric values then to binnary for optimal annotation
 ```{r create_heatmap_columns}
 
 # filter the gene-presence-absense matrix to get genes in node 4196
-df1 <-
-  data %>% filter(Gene %in% c("rep_1", "xerC_1", "intA_3", "recF_1", "dam_2",
-                              "xerC_4", "xerC_2", "pknD", "pknH")) 
+# df1 <-
+#   data %>% filter(Gene %in% c("rep_1", "xerC_1", "intA_3", "recF_1", "dam_2",
+#                               "xerC_4", "xerC_2", "pknD", "pknH")) 
 
-# transpose the filtered matrix
-transposed_df <- t(df1)
+all_genes <- c(cds$gene, "gpFI", "xerC_1", "traR", "pknD", "pknH",
+                     "dnaB_1", "capE", "cdnE", "capV", "dncV")
 
-colnames(transposed_df) <-transposed_df[1,]
+# backbone genes for the regions
+backbone_genes <-
+  c("evgA", "hdeB_2", "mug", "bepF", "rob_1", "pgrR_2", "smpB", "ratA",
+    "dmlR", "ycaC", "dsbA", "phoH", "efeB", "galF", "gnd", "ugd", "wbgU",
+    "tagG", "hisI", "hisF", "hisA", "hisB", "hisC_1", "hisD", "hisG", "yeeZ" ,
+    "yhaJ_2", "plaP", "fusA_2", "sbcB", "dacD",
+    "sbmC", "yeeA", "cobS", "cobT_2", "ahcY", "dmlR_8", "abaF_1",
+    "yeaR_1", "gcvA_2", "cpo", "nimR_2", "aaeB_2", "aaeA_2", "fabG_3",
+    "sotB_1", "intA_2", "yeeO", "amn", "pmrD", "menH_3", "acuI", "acuR")
 
-head(transposed_df)
+# function to create gene annotation files
 
-# filter out the gene column
-restructured_df <- transposed_df[rownames(transposed_df) %notin% c("Gene"), ]
-
-# convert to a data.frame object because tibble handles rownames in a wierd way!
-segment_genes <- as.data.frame(restructured_df)
-
-head(rownames(segment_genes))
-
-genes <-
+make_heatmap <-
+  function(genes) {
+  df1 <-
+    data %>% 
+    filter(Gene %in% genes$gene) #%>%
+    #filter(Gene %notin% backbone_genes)
+  
+  #transpose the filtered matrix
+  transposed_df <- t(df1)
+  
+  colnames(transposed_df) <-transposed_df[1,]
+  
+  # filter out the gene column
+  restructured_df <- transposed_df[rownames(transposed_df) %notin% c("Gene"), ]
+  
+  # convert to a data.frame object because tibble handles rownames in a wierd way!
+  segment_genes <- as.data.frame(restructured_df)
+  
+  genes <-
   segment_genes %>%
   mutate(across(where(is.character), as.factor))
+  
+  return(genes)
+  }
 
+# dataframes for heatmaps of the regions identified using graphia
+one <- make_heatmap(cds %>% filter(region == "One"))
+
+two <- make_heatmap(cds %>% filter(region == "Two"))
+
+three <- make_heatmap(cds %>% filter(region == "Three"))
+
+four <- make_heatmap(cds %>% filter(region == "Four"))
 
 ```
 
@@ -315,8 +397,9 @@ y <-
   date_data +
     geom_tippoint(aes(color=wards), size = 1.5) +
      scale_color_viridis_d(na.translate = FALSE,
-                        guide = guide_legend(order = 1))
-y
+                        guide = guide_legend(order = 1)) +
+  geom_treescale()
+y 
 
 h1 <- 
   gheatmap(y, meta3,
@@ -335,31 +418,93 @@ h1
 
 h2 <- h1 + new_scale_fill()
 
-h3 <- gheatmap(h2, genes,
+h3 <- 
+  gheatmap(h2, one,
          offset = 0.00004,
-         width = 0.14,
+         width = 0.15,
            colnames_position = "top",
         colnames_angle = 90,
         colnames_offset_y = 4,
-        hjust = 0.5) +
-  scale_fill_manual(values = presence,
+        hjust = 0.5,
+        font.size = 3) +
+  scale_fill_manual(values = one_col,
                        labels = c("Absent", "Present")) +
-  labs(fill = "Gene Presence/Absence") +
+  labs(fill = "Region One CDS") +
   vexpand(0.02)
 
 h3
+
+h4 <- h3 + new_scale_fill()
+
+h5 <- 
+  gheatmap(h4, two,
+         offset = 0.00028,
+         width = 2,
+           colnames_position = "top",
+        colnames_angle = 90,
+        colnames_offset_y = 4,
+        hjust = 0.5,
+        font.size = 3) +
+  scale_fill_manual(values = two_col,
+                       labels = c("Absent", "Present")) +
+  labs(fill = "Region Two CDS") +
+  vexpand(0.02)
+h5
+
+h6 <- h5 + new_scale_fill()
+
+h7 <- 
+  gheatmap(h6, three,
+         offset = 0.0032,
+         width = 1,
+           colnames_position = "top",
+        colnames_angle = 90,
+        colnames_offset_y = 4,
+        hjust = 0.5,
+        font.size = 3) +
+  scale_fill_manual(values = three_col,
+                       labels = c("Absent", "Present")) +
+  labs(fill = "Region Three CDS") +
+  vexpand(0.02) + theme_light()
+
+h7
+
+h8 <- h7 + new_scale_fill()
+
+h9 <- 
+  gheatmap(h8, four,
+         offset = 0.00468,
+         width = 0.1,
+           colnames_position = "top",
+        colnames_angle = 90,
+        colnames_offset_y = 4,
+        hjust = 0.5,
+        font.size = 3) +
+  scale_fill_manual(values = four_col,
+                       labels = c("Absent", "Present")) +
+  labs(fill = "Region Four CDS") +
+  vexpand(0.02) + theme(
+    legend.position = c(.05, .90),
+    legend.justification = c("left", "top"),
+    legend.box.just = "left",
+    legend.margin = margin(6, 6, 6, 6)
+    )
+
+h9
 ```
+
+
 ```{r write_plot-TO-file, eval=FALSE}
 plotting_dir <- file.path(outdir, Sys.Date())
-plot_name <- file.path(plotting_dir, "core_gene_with_genes.png")
+plot_name <- file.path(plotting_dir, "core_gene_with_genes.pdf")
 
 if (!dir.exists(plotting_dir)) {dir.create(plotting_dir, recursive = TRUE)}
 
-png(plot_name,
-    width = 800,
-    height = 800)
+pdf(plot_name,
+    width = 20,
+    height = 15)
 
-h3
+h9
 
 dev.off() 
 ```
@@ -371,8 +516,17 @@ dev.off()
 #set local plot attributes
 font_size <- 2
 
-# root the tree at midpoint
 tree_2 <- gubbins_tree
+
+# experiment with different tree layouts
+tree_2 %>% ggtree(layout = "circular") %<+%
+  date_data +
+    geom_tippoint(aes(color=year), size = 1.5) +
+     scale_color_viridis_d(na.translate = FALSE,
+                        guide = guide_legend(order = 1))
+
+
+
 y <-
   tree_2 %>%
   ggtree() %<+%
