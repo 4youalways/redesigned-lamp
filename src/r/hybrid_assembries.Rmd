@@ -1,8 +1,11 @@
 ---
-title: "assembly_stats"
+title: "Assessing Hybrid Assemblies"
 author: "Allan Zuza"
 date: "`r Sys.Date()`"
-output: html_document
+output:
+  html_document:
+  toc: true
+  number_sections: true
 editor_options: 
   chunk_output_type: console
 ---
@@ -12,17 +15,20 @@ knitr::opts_chunk$set(echo = TRUE)
 ```
 
 ```{r load_packages}
-library(janitor)
-library(kableExtra)
-library(tidyverse)
-library(gridExtra)
+# install.packages("pacman")
+
+pacman::p_load(janitor,
+               kableExtra,
+               tidyverse,
+               gridExtra,
+               genoPlotR,
+               patchwork)
 
 ```
 
 
-## import assembly statistics
+### import assembly statistics
 ```{r}
-library()
 
 assembly_headers <- read.table("results/assembly-stats/colnames_100478.tsv",
            header = TRUE)
@@ -31,15 +37,14 @@ assembly_headers
 
 assembly_stats <- read.table("results/assembly-stats/100478.tsv",
            header = FALSE)
-
-assembly_stats
-
+# add column names from the assembly header df
 colnames(assembly_stats) <- c(colnames(assembly_headers), "assembler")
-assembly_stats
+
+head(assembly_stats)
 ```
 
-## summarise the stats
-```{r, message=FALSE}
+### summarise the stats
+```{r, message=FALSE, eval=FALSE, echo=FALSE}
 assembly_stats %>%
   group_by(assembler) %>%
   summarise(number_of_contigs = mean(number), total_length = mean(total_length), longest = mean(longest), shortest = mean(shortest), n50 = mean(N50))
@@ -54,21 +59,23 @@ assembly_stats %>%
 
 ```
 
-# comparing the hybrid assemblies
+### comparing the hybrid assemblies
 the assemblies have differing numbers and types of plasmids. using pubmlst online
 platform the plamids are distributed as below in the hybrid assemblies
 ```{r}
-
+# information of the hybrid genomes
 final_assembly_stats <- read_csv("docs/assembly_statistics.csv")
 
 final_assembly_stats
 summary(final_assembly_stats)
 
+# clean column names for table rendering
 column_names <- final_assembly_stats %>%
   names() %>%
   str_replace_all("_", " ") %>%
   str_to_title()
 
+# create and format table 
 table_1 <- final_assembly_stats %>%
   knitr::kable(col.names =
                  linebreak(column_names, align = "l"),
@@ -85,8 +92,8 @@ table_1
 ```
 
 
-#save table 1
-```{r}
+### save Table 1 to file
+```{r, eval=FALSE}
 outdir <- "results/plots/r"
 plotting_dir <- file.path(outdir, Sys.Date())
 plot_name <- file.path(plotting_dir, "Table1.html")
@@ -99,47 +106,58 @@ save_kable(table_1, file = plot_name,
 ```
 
 
-## mauve comparisons
+# Genome comparisons and plotting using genoPlotR
 the assemblies look quite similar in mauve. plasmids are responsible for most of the variation seen
 
-```{r}
 
-#knitr::include_graphics("results/plots/r/2024-07-09/distribution_of_isolates.pdf")
-getwd()
-```
-
-## compare the genomes
-### load the libraries
-```{r}
-library(genoPlotR)
-```
-
-
-### load the genomes and comparisons
+### load the annotated genbank and blast comparison files
 ```{r eval=FALSE}
-
+# load prokka annotated genbank files
 dna_seg1 <- read_dna_seg_from_genbank(file = "results/mauve/fasta/prokka_chromosome/1004078.gbk")
 dna_seg2 <- read_dna_seg_from_genbank(file = "results/mauve/fasta/prokka_chromosome/BKREGE.gbk")
 dna_seg3 <- read_dna_seg_from_genbank(file = "results/mauve/fasta/prokka_chromosome/CAA8N9.gbk")
 dna_seg4 <- read_dna_seg_from_genbank(file = "results/mauve/fasta/prokka_chromosome/CAAUE8.gbk")
 dna_seg5 <- read_dna_seg_from_genbank(file = "results/mauve/fasta/prokka_chromosome/CHI11E.gbk")
 
+# save objects to Rdata
 save(dna_seg1, dna_seg2, dna_seg3, dna_seg4, dna_seg5,
      file = "data/r/dnaSegments.RData")
 
+
+# load files with manually curated annotations
+curated_dna_seg1 <- read_dna_seg_from_genbank(file = "results/gbk/chromosome/1004078.gbk")
+curated_dna_seg2 <- read_dna_seg_from_genbank(file = "results/gbk/chromosome/BKREGE.gbk")
+curated_dna_seg3 <- read_dna_seg_from_genbank(file = "results/gbk/chromosome/CAA8N9.gbk")
+curated_dna_seg4 <- read_dna_seg_from_genbank(file = "results/gbk/chromosome/CAAUE8.gbk")
+curated_dna_seg5 <- read_dna_seg_from_genbank(file = "results/gbk/chromosome/CHI11E.gbk")
+
+# save objects to Rdata
+save(curated_dna_seg1, curated_dna_seg2, curated_dna_seg3, curated_dna_seg4, curated_dna_seg5,
+     file = "data/r/curatedDnaSegments.RData")
+
+#load comparison files created by blast
 comparison_1 <- read_comparison_from_blast("docs/blast_comparisons/1004078-BKREGE.txt")
 comparison_2 <- read_comparison_from_blast("docs/blast_comparisons/BKREGE-CAA8N9.txt")
 comparison_3 <- read_comparison_from_blast("docs/blast_comparisons/CAA8N9-CAAUE8.txt")
 comparison_4 <- read_comparison_from_blast("docs/blast_comparisons/CAAUE8-CHI11E.txt")
+
+# save comparisons to file
+save(comparison_1, comparison_2, comparison_3, comparison_4,
+     file = "data/r/comparisonFiles.RData")
 ```
 
 
-```{r}
-load(file = "data/r/dnaSegments.RData")
+### regions with gaps in assemblies
 
-region_num <- c("one", "two", "three", "four", "five", "six", "seven", "eight", "nine", "ten", "eleven", "twelve", "thirteen", "fourteen", "fifteen", "sixteen")
-starts <- c("cpxR", "ahr", "pknK", "ppiB", "phoH", "ves", "dcuS", "lcfB", "budC", "ychF", "yedJ", "fadL", "nadK", "cysD", "tsaD", "pagL")
-ends <- c("fieF" ,"xynB", "proB", "cadC", "gpx1", "nifJ", "ynfM", "yjhB", "ccmF", "ais", "ddpB", "gltX", "bepF", "casC", "hdeD", "ycnE" )
+```{r}
+# region names
+region_num <- c("insertion_4", "insertion_3", "insertion_2", "one", "two", "three", "four", "five", "six", "seven", "eight", "nine", "ten", "eleven", "twelve", "thirteen", "fourteen", "phage_region_1", "sixteen", "insertion_1", "phage_region_2", "phage_region_3", "phage_region_4")
+
+# start gene in annotation
+starts <- c("mug", "mdoC", "yedJ", "cpxR", "ahr", "pknK", "ppiB", "phoH", "ves", "dcuS", "lcfB", "budC", "ychF", "yedJ", "fadL", "nadK", "cysD", "ureG", "pagL", "smpB", "sapB", "hiuH", "menA")
+
+# end gene in annotation
+ends <- c("evgA", "phoH", "baeR", "fieF" ,"xynB", "proB", "cadC", "gpx1", "nifJ", "ynfM", "yjhB", "ccmF", "ais", "ddpB", "gltX", "bepF", "casC", "glpF_2", "ycnE", "bepF", "ribA", "folD", "cpxA" )
 
 regions <- tibble(region_num, starts, ends)
 
@@ -148,8 +166,11 @@ regions
 ```
 
 
-### draw the segments
+### create functions to use for dna segment visualisation
 ```{r functions_for_the_regions}
+load(file = "data/r/dnaSegments.RData")
+load(file = "data/r/comparisonFiles.RData")
+
 
 # a function for creating the segments for specific regions
 create_segment <- function(segment, x, y){
@@ -170,7 +191,7 @@ create_annotation <- function(segment) {
 
 # function to plot the region in all the assemblies
 plot_region <- 
-  function(region, title) {
+  function(region, title) { # takes in the region to plot and the title for the plot
   main = title
     
   x <- regions[regions$region_num == region, ]$starts
@@ -198,7 +219,8 @@ plot_region <-
                                  seg3_annotation, seg4_annotation,
                                  seg5_annotation),
               annotation_height = 2,
-              comparisons = list(comparison_1, comparison_2, comparison_3, comparison_4),
+              comparisons = list(comparison_1, comparison_2,
+                                 comparison_3, comparison_4),
               dna_seg_labels = list("1004078", "BKREGE",
                                     "CAA8N9", "CAAUE8", "CHI11E"),
               main = main,
@@ -206,13 +228,74 @@ plot_region <-
   
   }
 
-
-# plotting the regions
-plot_region("two", " Region 2")
-
-plot_region("one", "Gap 17")
-
-
-plot_region("two") + plot_region("two") + plot_region("two")
 ```
+
+
+### plotting regions of the chromosome with rearrangements
+
+```{r plot_the_dna_segments}
+
+plot_region("insertion_2", "Region present in 114 isolates")
+
+```
+This region has 144 node (might be in 144 isolates). the region shows a gain in
+CDSs in the 2017 isolartes and an immediate loss of the region in the
+2019 iisolates. the isolate from october 2019 (CAAUE8) gained some additional
+CDSs but the structure was slighly diffeent from that of the 2017 isolates.
+the isolate from december 2019 had lost most of this region and maintained a region
+smaller than the one in the 2010 isolate
+
+```{r}
+
+# the insertion into outbreak isolates
+plot_region("insertion_1", "Region in Outbreak Isolates")
+
+
+```
+
+The region has a rep gene next to an intA, recF and xerC genes.
+This is not typical behaviour as these genes have very different functions.
+Genes in bacteria usually cluster into regions of similar function[salmonella paper].
+Having genes responsible for controling DNA repair close to the rep gen which
+is used to control plasmid DNA replication might have a suynergy by
+allowing centralised control of these genes in the outbreak isolates. 
+
+```{r}
+
+# the insertion into outbreak isolates
+plot_region("insertion_3", "cluster in 105 isolates")
+
+
+```
+
+
+```{r}
+
+# the insertion into outbreak isolates
+plot_region("insertion_4", "cluster in 105 to 107 isolates")
+
+```
+this region has been reducing in size from. this region has lost te traR gene which
+is crutial for regulating conjugative plasmid transfer. this region might also
+have a prophage since it has the pgFl gene which encodes a prophage tail shealth gene
+
+
+### Create Phage region annotations
+```{r Phage_annotation}
+# these plots have the vPathPath type of obect and I have not found a way of 
+# combining them into a grid using R
+plot_region("phage_region_1", "Phage region 1")
+
+plot_region("phage_region_2", "Phage region 2")
+
+plot_region("phage_region_3", "Phage region 3")
+
+plot_region("phage_region_4", "Phage region 4")
+  
+```
+### repeate the phage drawing. but this time use the manually curated annotations
+Prokka anotations miss insertion elements and do not prperly annotate AMR genes.
+To fix this I use ncbi serches of the nucleotide sequences to get proper annotations
+for the coding sequences
+
 
