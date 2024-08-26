@@ -168,7 +168,7 @@ regions
 
 ## create functions to use for dna segment visualisation
 ```{r functions_for_the_regions}
-load(file = "data/r/dnaSegments.RData")
+load(file = "data/r/curatedDnaSegments.RData")
 load(file = "data/r/comparisonFiles.RData")
 
 
@@ -247,7 +247,7 @@ plot_region <-
 
 ```{r plot_the_dna_segments}
 
-plot_region("insertion_2", "Region present in 114 isolates")
+plot_region("insertion_2", "Region Two")
 
 ```
 This region has 144 node (might be in 144 isolates). the region shows a gain in
@@ -260,7 +260,7 @@ smaller than the one in the 2010 isolate
 ```{r}
 
 # the insertion into outbreak isolates
-plot_region("insertion_1", "Region in Outbreak Isolates")
+plot_region("insertion_1", "Region One")
 
 
 ```
@@ -275,7 +275,7 @@ allowing centralised control of these genes in the outbreak isolates.
 ```{r}
 
 # the insertion into outbreak isolates
-plot_region("insertion_3", "cluster in 105 isolates")
+plot_region("insertion_3", "Region Three")
 
 
 ```
@@ -284,7 +284,7 @@ plot_region("insertion_3", "cluster in 105 isolates")
 ```{r}
 
 # the insertion into outbreak isolates
-plot_region("insertion_4", "cluster in 105 to 107 isolates")
+plot_region("insertion_4", "Region_4")
 
 ```
 this region has been reducing in size from. this region has lost te traR gene which
@@ -333,5 +333,81 @@ plot_region("phage_region_4", "Phage region 4")
 Prokka anotations miss insertion elements and do not prperly annotate AMR genes.
 To fix this I use ncbi serches of the nucleotide sequences to get proper annotations
 for the coding sequences
+
+## Chromosomap amr insertion region
+
+```{r chromosmal_insertion_region}
+
+amr <- c("tet(A)", "Sul1",  "dfrA7", "CatA1")
+transposases <- c( "IS1R", "ISEcl3",  "ISPrst2", "ISPrst3", "IS1R",
+                   "TnAs3", "IS26", "tetR")
+mercury_resistance <-  c("merT", "merP", "merC", "merA")
+
+
+outbreak_insertion <-
+  curated_dna_seg3 %>% filter(start >= 3359021 & end <= 3411255)
+
+outbreak_insertion
+
+annotate_seg <-
+  function(dna_seg) {
+    dna_seg$fill <-
+        case_when(dna_seg$gene %in% mercury_resistance ~ "#1f78b4",
+            TRUE ~ dna_seg$fill)
+    
+    dna_seg$fill <-
+        case_when(dna_seg$gene %in% amr ~ "#a6cee3",
+            TRUE ~ dna_seg$fill)
+    
+     dna_seg$fill <-
+        case_when(dna_seg$gene %in% transposases ~ "#b2df8a",
+            TRUE ~ dna_seg$fill)
+     
+     dna_seg$fill <-
+        case_when(dna_seg$gene %in% "-" ~ "gray",
+            TRUE ~ dna_seg$fill)
+     
+    #color the segments
+    dna_seg$col <-
+        case_when(dna_seg$gene %in% mercury_resistance ~ "#1f78b4",
+            TRUE ~ dna_seg$fill)
+    
+    dna_seg$col <-
+        case_when(dna_seg$gene %in% amr ~ "#a6cee3",
+            TRUE ~ dna_seg$fill)
+    
+     dna_seg$col <-
+        case_when(dna_seg$gene %in% transposases ~ "#b2df8a",
+            TRUE ~ dna_seg$fill)
+     
+     dna_seg$col <-
+        case_when(dna_seg$gene %in% "-" ~ "gray",
+            TRUE ~ dna_seg$fill)
+     
+     return(dna_seg)
+
+  }
+
+
+
+outbreak_segment <-
+  curated_dna_seg3 %>% filter(start >= 3359021 & end <= 3639516)
+
+
+outbreak <- annotate_seg(outbreak_segment)
+
+plot_gene_map(dna_segs = list(outbreak))
+#plot the gene map
+
+plot_gene_map(dna_segs = list(chromsomal_amr_integration),
+                              gene_type = "arrows",
+              annotations = annotation(text = chromsomal_amr_integration$gene,
+                                          x1 = middle(chromsomal_amr_integration),
+                                       rot = 45),
+                                       annotation_height = 4,
+              annotation_cex = 1,
+              main = "chromosomal integration site in strain CHI11E",
+              dna_seg_scale = TRUE)
+```
 
 
