@@ -79,11 +79,17 @@ yersinabactin_st_cols <-
     "294" = "#997700", "327" = "#994455", "327-1LV" = "#004488", "78" = "#DDDDDD")
 
 # rpinecone output
-lineage_col <- c("0" = "#77AADD", "1" = "#EE8866")
+lineage_col <- c("1" = "#EE8866")
 
-sub_lineage_col <- c("7" = "#EEDD88", "8" = "#FFAABB", "Other" = "#99DDFF",
-                    "6" = "#44BB99", "4" = "#BBCC33",  "#AAAA00", "#DDDDDD")
 
+sub_lineage_col <- c(1 = "#CC6677",
+              "2" = "#332288",
+              "3" = "#ddcc77",
+              "4" = "#117733",
+              "5" = "#88ccee",
+              "6" = "#882255",
+              "7" = "#44aa99",
+              "8" = "#999933")
 
 # saving directory
 outdir <- "./results/plots/r/"
@@ -134,6 +140,9 @@ ariba <-
   read_csv("./docs/clean_ariba_amr.csv") %>%
   remove_constant()
 
+argannot <-
+  read_table("./docs/cleaned_argannot.txt")
+
 plasmidfinder <-
   read_tsv("./docs/plamidfinder_summary.txt")
 head(plasmidfinder)
@@ -172,16 +181,17 @@ kleborate <-
 #install.packages("devtools")
 #devtools::install_github("alexwailan/rpinecone")
 
-results <- pinecone(gubbins_tree, 2, 3)
-
+results <- pinecone(gubbins_tree, 5, 3)
+results
 lineage_1 <- results$table %>% as.data.frame()
 
 rownames(lineage_1) <- lineage_1$Taxa
-
+lineage_1
 
 lineage_1 <- lineage_1 %>% select(!c(Taxa))
+
 lineage_1$sub_lineage <-
-  case_when(grepl("singleton", lineage_1$`Sub-lineage`) ~ "Other",
+  case_when(grepl("singleton", lineage_1$`Sub-lineage`) ~ "singleton",
                                    TRUE ~ lineage_1$`Sub-lineage`)
 
 
@@ -196,6 +206,10 @@ sub_lineages <-
   select(sub_lineage) %>%
   mutate(across(where(is.character), as.factor))
 
+
+itol_labels_template(results)
+results$table
+str(sub_lineages)
 summary(sub_lineages$sub_lineage)
 ```
 
@@ -303,13 +317,26 @@ four <- make_heatmap(cds %>% filter(region == "Four"))
 ## annotations for the snp-based tree
 ```{r snp_based_tree_annotations}
 amr_df <-
-  ariba %>%
+  argannot %>%
   as.data.frame() 
 
 rownames(amr_df) <-
-  amr_df$name
+  amr_df$"#FILE"
 
-amr_df1 <- select(amr_df, !c(name))
+amr_df_num <- select(amr_df, !c("#FILE", "NUM_FOUND",
+                                "Penicillin_Binding_Protein_Ecoli",
+                                "ampH","ampH", "OqxA",
+                                "OqxBgb", "FosA6" ))
+
+colnames(amr_df_num)
+# replace all numeric to binary by matching the missing values
+for (i in colnames(amr_df_num)) {
+  amr_df_num[ ,i] <- if_else(amr_df_num[ ,i] %in% ".", 0, 1)
+}
+
+amr_df1 <-
+  amr_df_num %>%
+  mutate(across(where(is.numeric), as.factor))
 
 head(amr_df1)
 
@@ -333,13 +360,6 @@ for (i in colnames(plasmid_data)) {
   plasmid_data[ ,i] <- if_else(plasmid_data[ ,i] %in% ".", 0, 1)
 }
 
-# plasmid_data_1 <-
-#   plasmid_data %>%
-#    mutate(across(where(is.character), as.integer))
-# 
-# for (i in colnames(plasmid_data_1)) {
-#   plasmid_data_1[ ,i] <- if_else(!is.na(plasmid_data_1[ ,i]), 1, 0)
-# }
 
 plasmid_data_1 <-
   plasmid_data %>%
@@ -425,6 +445,26 @@ amr_genes <-
          Bla_ESBL_acquired, Bla_ESBL_inhR_acquired, Bla_Carb_acquired,SHV_mutations,
          Omp_mutations,Flq_mutations, Col_mutations) %>% remove_constant()
 
+
+
+amr_genes_df <- 
+  amr_genes %>%
+  as.data.frame()
+
+rownames(amr_genes_df) <-
+  amr_genes_df$strain
+
+amr_genes_df1 <-
+  select(amr_genes_df, !c(strain))
+
+amr_genes_df1
+
+amr_summary <-
+  amr_genes_df1 %>%
+  mutate(across(where(is.character), as.factor))
+
+levels(amr_summary$Phe_acquired)
+str(amr_summary)
 
 amr_genes %>% mutate(amr_genes[2:length(amr_genes)], as_factor)
 str(amr_genes
@@ -913,6 +953,7 @@ dev.off()
 
 # simplified tree
 ```{r}
+x = 1.5
 y <-
   tree_2 %>%
   ggtree() %<+%
@@ -932,7 +973,7 @@ y
 h1 <- 
   gheatmap(y, meta3,
                width = 0.01,
-           offset = 40,
+           offset = 40 * x,
          colnames_position = "top",
         colnames_angle = 90,
         colnames_offset_y = 3,
@@ -941,8 +982,7 @@ h1 <-
   scale_fill_manual(values = datecol,
                     na.translate = FALSE,
                         guide = guide_legend(order = 1)) +
-  labs(fill = "Year") #+
-  vexpand(0.025)
+  labs(fill = "Year")
 
 h1
 
@@ -951,7 +991,7 @@ h2 <- h1 + new_scale_fill()
 
 lineage <- 
   gheatmap(h2, major_lineages,
-         offset = 50,
+         offset = 50 * x,
          width = 0.01,
            colnames_position = "top",
         colnames_angle = 90,
@@ -959,17 +999,37 @@ lineage <-
         hjust = 0.5,
         font.size = font_size) +
   scale_fill_manual(values = lineage_col,
-                       #labels = c("Absent", "Present"),
-                    na.translate = FALSE) +
-  labs(fill = "Major Sub lineages") 
+                    na.translate = FALSE,
+                    guide = guide_legend(order = 2)) +
+  labs(fill = "rPinecone Major Lineages") 
 
 lineage
 
-ybt <- lineage + new_scale_fill()
+sublineage <- lineage + new_scale_fill()
+
+sub_lineage <- 
+  gheatmap(sublineage, sub_lineages,
+         offset = 60 * x,
+         width = 0.01,
+           colnames_position = "top",
+        colnames_angle = 90,
+        colnames_offset_y = 4,
+        hjust = 0.5,
+        font.size = font_size) +
+  scale_fill_manual(values = sub_lineage_col,
+                       #labels = c("Absent", "Present"),
+                    na.translate = FALSE,
+                    guide = guide_legend(order = 3)) +
+  labs(fill = "rPinecone Sub-lineages") +
+  vexpand(0.02)
+
+sub_lineage
+
+ybt <- sub_lineage + new_scale_fill()
 
 h3_yb <- 
   gheatmap(ybt, ybst,
-         offset = 60,
+         offset = 70 * x,
          width = 0.01,
            colnames_position = "top",
         colnames_angle = 90,
@@ -977,7 +1037,8 @@ h3_yb <-
         hjust = 0.5,
         font.size = font_size) +
   scale_fill_manual(values = yersinabactin_st_cols,
-                    na.translate = FALSE) +
+                    na.translate = FALSE,
+                    guide = guide_legend(order = 4)) +
   labs(fill = "ybST") 
 
 h3_yb
@@ -987,15 +1048,16 @@ amr <- h3_yb + new_scale_fill()
 
 h3_amr <-
   gheatmap(amr, amr_df1,
-         offset = 80,
+         offset = 90 * x,
          width = 0.4,
            colnames_position = "top",
         colnames_angle = 90,
         colnames_offset_y = 4,
         hjust = 0.5,
         font.size = font_size) +
-      scale_fill_manual(values = character_presence_absence,
-                    na.translate = FALSE) +
+      scale_fill_manual(values = binnary_colors,
+                    na.translate = FALSE,
+                    guide = guide_legend(order = 5)) +
   guides(fill = "none")
 
 h3_amr
@@ -1004,7 +1066,7 @@ plasmid <- h3_amr + new_scale_fill()
 
 h3_plasmid <- 
   gheatmap(plasmid, plasmid_data_1,
-         offset = 450,
+         offset = 500,
          width = 0.2,
            colnames_position = "top",
         colnames_angle = angle,
@@ -1014,17 +1076,16 @@ h3_plasmid <-
       scale_fill_manual(values = binnary_colors,
                     na.translate = FALSE,
                     labels = c("Absent", "Present"),
-                    guide = guide_legend(order = 3)) +
-  labs(fill = "Presence/Absence") +
+                    guide = guide_legend(order = 6)) +
+  labs(fill = "AMR/plasmid Presence/Absence") +
   vexpand(0.02)
 
-h3_plasmid #+ legend(ncol = 2)
 h3_plasmid + theme(
-    legend.position = c(.05, 0.9),
+    legend.position = c(0.1, 0.95),
     legend.justification = c("left", "top"),
-    legend.box.just = "top",
+    legend.box.just = "left",
     legend.margin = margin(6, 6, 6, 6),
-    legend.box = "horizontal"
+    #legend.box = "horizontal"
     ) #+ vexpand(-1.2)
 ```
 

@@ -66,28 +66,50 @@ platform the plamids are distributed as below in the hybrid assemblies
 # information of the hybrid genomes
 final_assembly_stats <- read_csv("docs/assembly_statistics.csv")
 
-final_assembly_stats
-summary(final_assembly_stats)
+plasmidfinder <- read_table("./docs/hybrid_assembly_plasmid_finder.txt") #%>%
+  #select(!c("NUM_FOUND"))
 
-# clean column names for table rendering
-column_names <- final_assembly_stats %>%
-  names() %>%
-  str_replace_all("_", " ") %>%
-  str_to_title()
+# plasmid data
+plasmids <-
+  plasmidfinder %>%
+  as.data.frame()
+
+
+rownames(plasmids) <-
+  plasmids$`#FILE`
+
+plasmid_data <-
+  select(plasmids, !c(`#FILE`, NUM_FOUND))
+
+# replace all numeric to binary by matching the missing values
+for (i in colnames(plasmid_data)) {
+  plasmid_data[ ,i] <- if_else(plasmid_data[ ,i] %in% ".", "No", "Yes")
+}
+
+
+plasmid_data_1 <-
+  plasmid_data %>%
+  mutate(across(where(is.numeric), as.factor))
+
+plasmid_data_1$strain <- rownames(plasmid_data_1)
+
+# combine contig info and plasmidfinder data
+table <-
+  merge(final_assembly_stats, plasmid_data_1) %>%
+  as_tibble() %>% rename("Strain" = "strain")
 
 # create and format table 
-table_1 <- final_assembly_stats %>%
-  knitr::kable(col.names =
-                 linebreak(column_names, align = "l"),
+table_1 #<- 
+  table %>%
+  knitr::kable(,
                caption = "Assembly Statistics Of Hybrid Assemblies") %>%
   kable_styling(latex_options = c("striped", "hover", "condensed", "responsive")) %>%
   column_spec(1, bold = TRUE) %>%
-  add_header_above(header = c(" " = 4, "Plasmid Replicons" = 9 ),
+  add_header_above(header = c(" " = 4, "Plasmid Replicons" = 6 ),
                    font_size = 17) %>%
   kable_classic_2(full_width = FALSE) %>%
-  row_spec(0, bold = TRUE) %>%
-  footnote(general = c("* Not an exact match"))
-
+  row_spec(0, bold = TRUE)
+dim(table)
 table_1
 ```
 
