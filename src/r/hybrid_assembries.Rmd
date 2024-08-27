@@ -98,19 +98,20 @@ table <-
   merge(final_assembly_stats, plasmid_data_1) %>%
   as_tibble() %>% rename("Strain" = "strain")
 
-# create and format table 
-table_1 #<- 
-  table %>%
-  knitr::kable(,
-               caption = "Assembly Statistics Of Hybrid Assemblies") %>%
+# add superscripts to the table 
+x <- table %>% as.data.frame()
+colnames(x)[3] <- paste0("Total Assembly Length", footnote_marker_symbol(1))
+colnames(x)[4] <- paste0("Chromosome Length", footnote_marker_symbol(1))
+
+# format the table
+knitr::kable(x, escape = FALSE) %>%
+  footnote(symbol = "Values in nucleotide basepairs") %>%
   kable_styling(latex_options = c("striped", "hover", "condensed", "responsive")) %>%
   column_spec(1, bold = TRUE) %>%
   add_header_above(header = c(" " = 4, "Plasmid Replicons" = 6 ),
-                   font_size = 17) %>%
-  kable_classic_2(full_width = FALSE) %>%
-  row_spec(0, bold = TRUE)
-dim(table)
-table_1
+                   font_size = 17) #%>%
+  kable_classic_2(full_width = FALSE)
+  
 ```
 
 
