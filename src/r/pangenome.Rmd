@@ -19,19 +19,31 @@ knitr::opts_chunk$set(echo = TRUE)
 ```
 # load packages and set functions
 ```{r load_packages, message=FALSE, warning=FALSE}
+# Load the janitor package for data cleaning
 library(janitor)
+# Load the kableExtra package for creating tables
 library(kableExtra)
+# Load the tidyverse package for data manipulation
 library(tidyverse)
-#library(data.table)
+# Load the reshape2 package for reshaping data
 library(reshape2)
+# Load the ggtree package for creating tree plots
 library(ggtree) 
+# Load the phangorn package for phylogenetic analysis
 library(phangorn)
+# Load the ggnewscale package for scaling plots
 library(ggnewscale)
+# Load the patchwork package for combining plots
 library(patchwork)
-#library(ape)
+# Load the rPinecone package for working with Pinecone
 library(rPinecone)
+# Load the gridExtra package for arranging plots
 library(gridExtra)
-library(khroma) # for managing colors
+# Load the khroma package for managing colors
+library(khroma) 
+# Load the adegenet package for converting MSA to DNAbin
+library(adegenet) 
+# Define a custom operator for negation
 '%notin%' <- Negate('%in%')
 ```
 
@@ -58,7 +70,7 @@ datecol <- c("Other" = "#f0f0f0", "2016" = "#cccccc",
              "2017" = "#969696", "2018" = "#636363",
              "2019" = "#252525" )
 
-one_col <- c("0" = "#f0f0f0", "1" = "#CC6677")
+one_col <- c("0" = "#f0f0f0", "1" = "#117733")
 
 two_col <- c("0" = "#f0f0f0", "1" = "#7570b3")
 
@@ -74,6 +86,31 @@ genotype_cols <- c("4.1.1" = "#EECC66", "4.3.1.1" = "#EE99AA",
                    "4.3.1.1.EA1" = "#6699CC", "4.3.1.2" = "#997700",
                    "4.3.1.2.EA2" = "#994455", "4.3.1.2.EA3" = "#004488")
 
+plasmid_type_cols <- c("Col type" = "#EECC66", "IncF type" = "#EE99AA",
+                       "IncH type" = "#6699CC", "IncR type" = "#997700",
+                       "IncX type" = "#004488")
+
+replicon_cols <- c("Col(pHAD28)" = "#71bc78", "Col440II" = "#93dfb8",
+                   "Col440I" = "#45cea2", "ColRNAI" = "#17806d",
+                   "FII(pBK30683)" ="#18a7b5",  "IncFIA(HI1)" = "#ace5ee",
+                   "IncFIB(K)(pCAV1099-114)" ="#0d98ba",
+                   "IncFIB(K)" = "#9aceeb", "IncFIB(pNDM-Mar)" = "#1164b4",
+                   "IncFIB(pQil)" = "#EE99AA", "IncFII(K)" = "#994455",
+                   "IncFII(pCRY)" = "#EECC66", "IncFII(pKP91)" = "#997700",
+                   "IncFII(pKPX1)" = "#1a4876", "IncHI1B(pNDM-MAR)" = "#a2add0",
+                   "IncR" = "#324ab2", "IncX1" = "#7366bd", "Other" = "#DDDDDD")
+
+
+amr_class_cols <- c("Aminoglycosides" = "#CC6677", "Other" = "#DDDDDD",
+                    "Beta-lactam" = "#332288", "Fosfomycin" = "#ddcc77",
+                    "Fluoroquinolones" = "#117733", "Phenicols" = "#88ccee",
+                    "Sulfonamides" = "#882255", "Tetracyclines" = "#44aa99",
+                    "Trimethoprim" = "#999933")
+
+beta_lactam_cols <- c("blaSHV" = "#848096", "blaOXA|TEM|LAP"  = "#6c658f",
+                      "CTX-M-15" = "#4e428a", "NDM-1" = "#332288")
+
+levels(as_factor(amr_4$beta_lactam_grp))
 yersinabactin_st_cols <-
   c("145-2LV" = "#EECC66", "151" = "#EE99AA", "277" = "#6699CC",
     "294" = "#997700", "327" = "#994455", "327-1LV" = "#004488", "78" = "#DDDDDD")
@@ -82,7 +119,7 @@ yersinabactin_st_cols <-
 lineage_col <- c("1" = "#EE8866")
 
 
-sub_lineage_col <- c(1 = "#CC6677",
+sub_lineage_col <- c("1" = "#CC6677",
               "2" = "#332288",
               "3" = "#ddcc77",
               "4" = "#117733",
@@ -107,7 +144,7 @@ data <- read.table("/Users/zuza/repos/redesigned-lamp/results/panaroo/gene_prese
 load(file = "data/r/outbreakCDSs.RData")
 
 # load core gene tree from panaroo
-tree <-
+core_gene_tree <-
   read.tree("results/core_gene_tree/core_tree.treefile")
 
 
@@ -131,10 +168,12 @@ tip_metadata <-
   select(reference, strain, sample_acc, lane_acc, supplier_name,
          study_accession, supplier_sample_name, date, neonate, major_wards)
 
-tip_metadata %>%
-  select(!c(study_accession, supplier_name)) %>%
-  write_csv(file = "docs/appendix1.csv")
-head(tip_metadata)
+
+
+# tip_metadata %>%
+#   select(!c(study_accession, supplier_name)) %>%
+#   write_csv(file = "docs/appendix1.csv")
+# head(tip_metadata)
 
 ariba <-
   read_csv("./docs/clean_ariba_amr.csv") %>%
@@ -145,15 +184,26 @@ argannot <-
 
 plasmidfinder <-
   read_tsv("./docs/plamidfinder_summary.txt")
+
+colnames(plasmidfinder) <- str_replace_all(colnames(plasmidfinder), "_1", "")
+
 head(plasmidfinder)
 
 # kleborate results
 kleborate <-
   read_tsv("./results/kleborate/kleborate_results.txt")
 
+# load panaroo summary file
+pangenome_summary <-
+  read_csv("./docs/pangenome_summary.csv",
+           col_names = c("Gene Type", "Gene Count"))
+
+pangenome_distribution <-
+  read_tsv("./results/panaroo/qc/ngenes.txt")
+
 ```
 
-# metadata for introduction
+# plot the isolate distribution
 ```{r}
 
     metadata %>% mutate(year = factor(date)) %>%
@@ -176,13 +226,54 @@ kleborate <-
 ```
 
 
-# lineage annotation files
+# Plot the pangenome summary
 ```{r}
-#install.packages("devtools")
-#devtools::install_github("alexwailan/rpinecone")
+summary <-
+  pangenome_summary %>%
+  clean_names() %>%
+  mutate(Group = ifelse(gene_type == "Total genes", "Total Genes", "Other")) %>%
+  ggplot(aes(x = reorder(gene_type, - gene_count), y = gene_count, fill = Group)) +
+  geom_bar(stat = "identity") +
+  geom_text(aes(label = gene_count), vjust = -0.5) +
+  scale_fill_manual(values = c("Total Genes" = "#332288")) +
+  labs(
+    x = "Gene Type",
+    y = "Gene Count"
+  ) +
+  guides(fill = "none") +
+  vexpand(0.01)
 
-results <- pinecone(gubbins_tree, 5, 3)
-results
+distribution <-
+  pangenome_distribution %>%
+  pivot_longer(cols = "no_genes") %>%
+  ggplot(aes(x = name, y = value, fill = name)) +
+  geom_violin(show.legend = FALSE) +
+  theme_minimal() +
+  labs(
+    x = "",
+    y = "Number of Genes"
+  ) +
+  scale_fill_viridis_d()
+distribution + theme(axis.text.x = element_blank())
+```
+
+
+# Prepare metadata for annotating heatmap
+
+## prepare lineage annotation
+```{r}
+
+#create DNAbin from alignment
+msa <- "./results/snp_sites/phylo.fasta"
+my_alignment <-
+  fasta2DNAbin(msa, chunkSize = 10, snpOnly = FALSE)
+
+# create a snp scaled tree
+snp_scaled_tree <- rPinecone::ace_scale_phylo(gubbins_tree, my_alignment)
+
+# perform lineage asignment
+results <- pinecone(snp_scaled_tree, 5, 3)
+
 lineage_1 <- results$table %>% as.data.frame()
 
 rownames(lineage_1) <- lineage_1$Taxa
@@ -193,7 +284,6 @@ lineage_1 <- lineage_1 %>% select(!c(Taxa))
 lineage_1$sub_lineage <-
   case_when(grepl("singleton", lineage_1$`Sub-lineage`) ~ "singleton",
                                    TRUE ~ lineage_1$`Sub-lineage`)
-
 
 major_lineages <-
   lineage_1 %>%
@@ -206,6 +296,7 @@ sub_lineages <-
   select(sub_lineage) %>%
   mutate(across(where(is.character), as.factor))
 
+sub_lineages$sub_lineage
 
 itol_labels_template(results)
 results$table
@@ -213,14 +304,14 @@ str(sub_lineages)
 summary(sub_lineages$sub_lineage)
 ```
 
-# process data frames for plot annotation
+## prepare date annotation
 
 ```{r common_annotation_files}
 # load date information from metadata file
 date_data <- 
   tip_metadata %>%
   select(c(lane_acc, date, major_wards)) %>%
-  filter(lane_acc %in% tree$tip.label)
+  filter(lane_acc %in% core_gene_tree$tip.label)
 
 date_data$year <-
   case_when(date_data$date == 2016 ~ "2016",
@@ -251,6 +342,48 @@ head(date_data)
 summary(as_factor(date_data$date))
 summary(as_factor(date_data$major_wards))
 summary(meta3$date)
+```
+
+## Prepare kleborate output
+```{r}
+unique_kleborate <-
+  kleborate %>% remove_constant()
+
+
+df1 <-
+  unique_kleborate %>%
+  select(strain, YbST, ybtS, ybtX, ybtQ, ybtA, irp2, irp1, ybtU, ybtT, ybtE, fyuA)
+
+df1<- 
+  df1 %>%
+  mutate(across(where(is.character), as.factor))
+
+df1[2:12] %>% summary()
+df2 <- as.data.frame(df1)
+rownames(df2) <- df2$strain
+
+df3 <-
+  df2 %>%
+  select(!c(strain))
+
+ybst <-
+  df3 %>%
+  select(YbST)
+
+
+yb_genotype <-
+  df3 %>%
+  select(!c(YbST))
+
+
+
+colnames(unique_kleborate)
+unique_kleborate %>%
+  mutate(across(where(is.double), as.factor)) %>%
+  summary
+
+unique_kleborate %>% group_by(iroD) %>% summary()
+
 ```
 
 ## annotation for the core_gene tree
@@ -324,9 +457,7 @@ rownames(amr_df) <-
   amr_df$"#FILE"
 
 amr_df_num <- select(amr_df, !c("#FILE", "NUM_FOUND",
-                                "Penicillin_Binding_Protein_Ecoli",
-                                "ampH","ampH", "OqxA",
-                                "OqxBgb", "FosA6" ))
+                                "Penicillin_Binding_Protein_Ecoli"))
 
 colnames(amr_df_num)
 # replace all numeric to binary by matching the missing values
@@ -346,8 +477,8 @@ plasmids <-
   as.data.frame()
 
 # this column has extra characters which mess with parsing to subset the values
-plasmids$`Col(pHAD28)_1` <-
-  substr(plasmids$`Col(pHAD28)_1`, 1,4)
+plasmids$`Col(pHAD28)` <-
+  substr(plasmids$`Col(pHAD28)`, 1,4)
 
 rownames(plasmids) <-
   plasmids$`#FILE`
@@ -366,169 +497,222 @@ plasmid_data_1 <-
   mutate(across(where(is.numeric), as.factor))
 
 ```
-
+# create summary plots
 ## summary plots of plasmid data
 ```{r}
 y <- plasmid_data
 
 y$genome <- rownames(y)
 
-
-
+y$raw_date <- case_when(y$genome %in% tip_metadata$lane_acc ~ tip_metadata$date)
 y$date <- case_when(y$genome %in% date_data$lane_acc ~ date_data$year,
                     TRUE ~ "Other")
-y$category <- case_when(y$date == "2017" ~ "2017",
-                        TRUE ~ "Other")
 
-y %>% group_by(category) %>% summarise(n())
+#y$category <- case_when(y$date == "2017" ~ "2017",
+#                        TRUE ~ "Other")
+
+#y %>% group_by(category) %>% summarise(n())
+
+piv1 <- y %>% pivot_longer(cols = `Col(pHAD28)`:IncX1,
+                   names_to = "replicon",
+                   values_to = "presence")
 
 
+piv1
 
-y <- y %>% select(!c(genome))
+piv1 %>% ggplot() + geom_col(aes(date, presence, fill = replicon))
+#y <- y %>% select(!c(genome))
 
-y
-
-
-x <- y %>%
-  pivot_longer('Col(pHAD28)_1':IncX1_1,
-               names_to = "plasmid", values_to = "counts")
-x
-
-x %>% group_by(plasmid) %>% summarise(total = sum(counts)) %>%
-  ggplot(aes(x = plasmid, y = total)) +
-  geom_col() + geom_text(aes(label = total), vjust = -0.5) +
-  theme_light() + theme_light() +
-  labs(y = "Number of Genomes",
-       x = "Plasmid Replicon") +
-    theme(axis.text = element_text(size = 13,
+# create a column plot with proportions vs date
+piv1 %>% ggplot(mapping = aes(x = date, y = presence, fill = replicon)) +
+  geom_col(position = "fill") +
+  theme_light() +
+  labs(y = "Proportion of Plasmid Replicon",
+       x = "Date",
+       fill = "Replicon Type") +
+  scale_fill_manual(values = replicon_cols) +
+  theme(axis.text = element_text(size = 13,
                                  face = "bold"),
-        axis.text.x = element_text(angle = 90,
+        axis.text.x = element_text(angle = 30,
                                    vjust = 0.5),
         axis.title = element_text(face = "bold",
                                   size = "15"),
         legend.title = element_text(size = 15,
-                                    face = "bold")) 
+                                    face = "bold"))
+
+# piv1 %>% ggplot(mapping = aes(x = date, y = presence, fill = replicon)) +
+#   geom_col() +
+#   #scale_fill_viridis_d() +
+#   theme_light() +
+#   labs(y = "Proportion of Plasmid Replicon",
+#        x = "Date",
+#        fill = "Replicon Type") +
+#   scale_fill_manual(values = replicon_cols)
+# 
+# x <- y %>%
+#   pivot_longer('Col(pHAD28)':IncX1,
+#                names_to = "plasmid", values_to = "counts")
+# x
+# 
+# 
+# plasmid_types <-
+#   x %>% group_by(plasmid) %>% summarise(total = sum(counts)) %>%
+#   mutate(replicon_type = case_when(grepl("Col", plasmid) ~ "Col type",
+#                                    grepl("IncF|FII", plasmid) ~ "IncF type",
+#                                    #grepl("FII", plasmid) ~ "FII type",
+#                                    grepl("IncH", plasmid) ~ "IncH type",
+#                                     grepl("IncR", plasmid) ~ "IncR type",
+#                                     grepl("IncX", plasmid) ~ "IncX type",
+#                                    TRUE ~"Other"))
+# 
+# plasmid_types
+# 
+# levels(as_factor(plasmid_types$replicon_type))
+
+# plasmid_types %>%
+#   ggplot(aes(x = reorder(plasmid, -total), y = total, fill = replicon_type)) +
+#   geom_col() + geom_text(aes(label = total), vjust = -0.5) +
+#   theme_light() + theme_light() +
+#   labs(y = "Number of Genomes",
+#        x = "Plasmid Replicon",
+#        fill = "Replicon Type") +
+#   scale_fill_manual(values = plasmid_type_cols) +
+#     theme(axis.text = element_text(size = 13,
+#                                  face = "bold"),
+#         axis.text.x = element_text(angle = 90,
+#                                    vjust = 0.5,
+#                                    hjust = 0.9),
+#         axis.title = element_text(face = "bold",
+#                                   size = "15"),
+#         legend.title = element_text(size = 15,
+#                                     face = "bold"),
+#         legend.position = c(0.90, 0.75)) +
+#   vexpand(0.02)
 
   
-x %>% group_by(plasmid) %>% 
-  ggplot(aes(x = plasmid, y = counts)) +
-  geom_col(aes(fill = date)) +
-#  scale_fill_manual(values = date_col) +
-  theme_light() +theme_light() +
-  labs(y = "Number of Genomes",
-       x = "Plasmid Replicon",
-       fill = "Year of Isolation") +
-    theme(axis.text = element_text(size = 13,
-                                 face = "bold"),
-        axis.text.x = element_text(angle = 90,
-                                   vjust = 0.5),
-        axis.title = element_text(face = "bold",
-                                  size = "15"),
-        legend.title = element_text(size = 15,
-                                    face = "bold")) +
-  vexpand(0.1) #+
-  vexpand(0.1) + facet_wrap(category ~ .)
-
-
 ```
 
 ## summary plots for the AMR data
 ```{r eval=FALSE}
-colnames(kleborate)
 
-amr_genes <-
-  kleborate %>%
-  select(strain, AGly_acquired, Col_acquired, Fcyn_acquired, Gly_acquired,
-         Phe_acquired, Flq_acquired, Rif_acquired, MLS_acquired, Tet_acquired,
-         Tmt_acquired,
-         Sul_acquired, Tgc_acquired, Tgc_acquired,Bla_acquired, Bla_inhR_acquired,
-         Bla_ESBL_acquired, Bla_ESBL_inhR_acquired, Bla_Carb_acquired,SHV_mutations,
-         Omp_mutations,Flq_mutations, Col_mutations) %>% remove_constant()
+amr_1 <- amr_df1
+
+# create a column with the accession numbers
+amr_1$genome <- rownames(amr_1)
+
+# remove the assemblies from the ONT data
+amr_2 <-
+  amr_1 %>%
+  filter(genome != c("CAA8N9")) %>%
+  filter(genome != c("CAAUE8"))
 
 
+# import the date information
+amr_2$date <-
+  case_when(amr_2$genome %in% date_data$lane_acc ~ date_data$year,
+            TRUE ~ "Other")
 
-amr_genes_df <- 
-  amr_genes %>%
-  as.data.frame()
+# the presence/absebce information is in factor format
+# direct conversion into numeric format is bringing unusal formating
+# convert them to characterfirst then into numeric
+amr_2_fct <-
+  amr_2 %>%
+  mutate(across(where(is.factor), as.character))
 
-rownames(amr_genes_df) <-
-  amr_genes_df$strain
+# convert into long formart
+amr_3 <- 
+  amr_2_fct %>% pivot_longer(cols = `aac3-IIa`:dhfr7,
+                   names_to = "gene",
+                   values_to = "presence")
 
-amr_genes_df1 <-
-  select(amr_genes_df, !c(strain))
+# classify the antibiotic genes acording to drug class
+amr_4 <- amr_3 %>%
+  mutate(class = case_when(grepl("aa|aph|str", amr_3$gene) ~ "Aminoglycosides",
+                           grepl("bla", amr_3$gene) ~ "Beta-lactam",
+                           grepl("tet", amr_3$gene) ~ "Tetracyclines",
+                           grepl("qnr", amr_3$gene) ~ "Fluoroquinolones",
+                           grepl("cat", amr_3$gene) ~ "Phenicols",
+                           grepl("sul", amr_3$gene) ~ "Sulfonamides",
+                           grepl("dfr|dhf", amr_3$gene) ~ "Trimethoprim",
+                           grepl("Fos", amr_3$gene) ~ "Fosfomycin",
+                           TRUE ~ "Other"),
+         beta_lactam_grp = case_when(grepl("SHV", amr_3$gene) ~ "blaSHV",
+                                     grepl("OXA|TEM|LAP", amr_3$gene) ~ "blaOXA|TEM|LAP",
+                                     grepl("CTX", amr_3$gene) ~ "CTX-M-15",
+                                     grepl("NDM", amr_3$gene) ~ "NDM-1",
+                                     TRUE ~ "Other"),
+         beta_lactam_fct = factor(beta_lactam_grp,
+                     levels = c("blaSHV", "blaOXA|TEM|LAP", "CTX-M-15", "NDM-1", "Other"), ordered = T),
+         num_presence = as.numeric(presence))
 
-amr_genes_df1
 
-amr_summary <-
-  amr_genes_df1 %>%
-  mutate(across(where(is.character), as.factor))
+# plot the proportions of each gene class for every year  
+all_amr <- amr_4 %>%
+  ggplot(mapping = aes(x = date, y = num_presence, fill = class)) +
+  geom_col(position = "fill") +
+  theme_light() +
+  labs(y = "Proportion of AMR gene class",
+       x = "Date",
+       fill = "AMR gene class") +
+  scale_fill_manual(values = amr_class_cols) +
+  theme(axis.text = element_text(size = 13,
+                                 face = "bold"),
+        axis.text.x = element_text(angle = 30,
+                                   vjust = 0.5),
+        axis.title = element_text(face = "bold",
+                                  size = "15"),
+        legend.title = element_text(size = 15,
+                                    face = "bold"))
 
-levels(amr_summary$Phe_acquired)
-str(amr_summary)
 
-amr_genes %>% mutate(amr_genes[2:length(amr_genes)], as_factor)
-str(amr_genes
-    )
+# subset the beta lactam genes
+beta_lactamse <- amr_4 %>%
+  filter(class == "Beta-lactam") %>%
+  ggplot(mapping = aes(x = date, y = num_presence, fill = beta_lactam_fct)) +
+  geom_col(position = "fill") +
+  theme_light() +
+  labs(y = "Proportion of Beta-lactamase",
+       x = "Date",
+       fill = "Bet-lactamase gene") +
+  scale_fill_manual(values = beta_lactam_cols) +
+  theme(axis.text = element_text(size = 13,
+                                 face = "bold"),
+        axis.text.x = element_text(angle = 30,
+                                   vjust = 0.5),
+        axis.title = element_text(face = "bold",
+                                  size = "15"),
+        legend.title = element_text(size = 15,
+                                    face = "bold"))
+
+all_amr + beta_lactamse + plot_layout(guides = "collect")
+
 ```
 
 
 
-## Kleborate output as annotations for phylogenetic trees
-```{r}
-unique_kleborate <-
-  kleborate %>% remove_constant()
-
-
-df1 <-
-  unique_kleborate %>%
-  select(strain, YbST, ybtS, ybtX, ybtQ, ybtA, irp2, irp1, ybtU, ybtT, ybtE, fyuA)
-
-df1<- 
-  df1 %>%
-  mutate(across(where(is.character), as.factor))
-
-df1[2:12] %>% summary()
-df2 <- as.data.frame(df1)
-rownames(df2) <- df2$strain
-
-df3 <-
-  df2 %>%
-  select(!c(strain))
-
-ybst <-
-  df3 %>%
-  select(YbST)
-
-
-yb_genotype <-
-  df3 %>%
-  select(!c(YbST))
-
-
-
-colnames(unique_kleborate)
-unique_kleborate %>%
-  mutate(across(where(is.double), as.factor)) %>%
-  summary
-
-unique_kleborate %>% group_by(iroD) %>% summary()
-
-```
 
 
 # plot the core gene trees
 ```{r plot_core_gene_tree, message=FALSE}
 # root the tree at midpoint
-tree <- midpoint(tree) # from library phangorn
+tree <- midpoint(gubbins_tree) # from library phangorn
+
+tree$tip.label <-
+  tree$tip.label %>%
+  str_replace_all( "Reference", "ERR12058301")
 
 y <-
   tree %>%
   ggtree() %<+%
   date_data +
-    geom_tippoint(aes(color=wards), size = 1.5) +
-     scale_color_viridis_d(na.translate = FALSE,
+    geom_tippoint(aes(color=wards), size = 2.5) +
+     scale_colour_manual(values = ward_col, na.translate = FALSE,
                         guide = guide_legend(order = 1)) +
-  geom_treescale()
+  geom_treescale(label = "point mutations",
+                 y = 12,
+                 x  = 500,
+                 fontsize = 7,
+                 linesize = 1.5)
 y 
 
 h1 <- 
@@ -540,9 +724,8 @@ h1 <-
         hjust = 0.5) +
   scale_fill_manual(values = datecol,
                     na.translate = FALSE,
-                        guide = guide_legend(order = 1)) +
+                        guide = guide_legend(order = 2)) +
   labs(fill = "Year")
-  vexpand(0.01)
 
 h1
 
@@ -550,15 +733,17 @@ h2 <- h1 + new_scale_fill()
 
 h3 <- 
   gheatmap(h2, one,
-         offset = 0.00004,
-         width = 0.15,
+         offset = 40,
+         width = 0.17,
            colnames_position = "top",
         colnames_angle = 90,
         colnames_offset_y = 4,
         hjust = 0.5,
-        font.size = 3) +
+        font.size = 3.5) +
   scale_fill_manual(values = one_col,
-                       labels = c("Absent", "Present")) +
+                    na.translate = FALSE,
+                       labels = c("Absent", "Present"),
+                    guide = guide_legend(order = 3)) +
   labs(fill = "Region One CDS") +
   vexpand(0.02)
 
@@ -568,15 +753,17 @@ h4 <- h3 + new_scale_fill()
 
 h5 <- 
   gheatmap(h4, two,
-         offset = 0.00028,
-         width = 1,
+         offset = 200,
+         width = 1.2,
            colnames_position = "top",
         colnames_angle = 90,
         colnames_offset_y = 4,
         hjust = 0.5,
-        font.size = 3) +
+        font.size = 3.5) +
   scale_fill_manual(values = two_col,
-                       labels = c("Absent", "Present")) +
+                    na.translate = FALSE,
+                       labels = c("Absent", "Present"),
+                    guide = guide_legend(order = 4)) +
   labs(fill = "Region Two CDS") +
   vexpand(0.02)
 h5
@@ -585,34 +772,21 @@ h6 <- h5 + new_scale_fill()
 
 h7 <- 
   gheatmap(h6, three,
-         offset = 0.00175,
+         offset = 1270,
          width = 1,
            colnames_position = "top",
         colnames_angle = 90,
         colnames_offset_y = 4,
         hjust = 0.5,
-        font.size = 3) +
+        font.size = 3.5) +
   scale_fill_manual(values = three_col,
-                       labels = c("Absent", "Present")) +
+                    na.translate = FALSE,
+                       labels = c("Absent", "Present"),
+                    guide = guide_legend(order = 5)) +
   labs(fill = "Region Three CDS") +
   vexpand(0.02) + theme_light()
 
-h7
-
-h8 <- h7 + new_scale_fill()
-
-h9 <- 
-  gheatmap(h8, four,
-         offset = 0.00325,
-         width = 0.1,
-           colnames_position = "top",
-        colnames_angle = 90,
-        colnames_offset_y = 4,
-        hjust = 0.5,
-        font.size = 3) +
-  scale_fill_manual(values = four_col,
-                       labels = c("Absent", "Present")) +
-  labs(fill = "Region Four CDS") +
+h7 +
   vexpand(0.02) + theme(
     legend.position = c(.05, .90),
     legend.justification = c("left", "top"),
@@ -620,7 +794,7 @@ h9 <-
     legend.margin = margin(6, 6, 6, 6)
     )
 
-h9
+
 ```
 
 
@@ -634,7 +808,15 @@ pdf(plot_name,
     width = 20,
     height = 15)
 
-h9
+h7 +
+  vexpand(0.02) + theme(
+    legend.position = c(.05, .90),
+    legend.justification = c("left", "top"),
+    legend.box.just = "left",
+    legend.margin = margin(6, 6, 6, 6),
+    text = element_text(size = 30),
+    axis.text = element_blank()
+    )
 
 dev.off() 
 ```
@@ -647,6 +829,12 @@ dev.off()
 font_size <- 2
 
 tree_2 <- gubbins_tree
+
+tree_2$tip.label <-
+  tree_2$tip.label %>%
+  str_replace_all( "Reference", "ERR12058301")
+
+#tree_2 <- snp_scaled_tree
 
 # experiment with different tree layouts
 tree_2 %>% ggtree(layout = "circular") %<+%
@@ -662,7 +850,8 @@ y <-
   ggtree() %<+%
   date_data +
     geom_tippoint(aes(color=wards), size = 1.5) +
-     scale_color_viridis_d(na.translate = FALSE,
+     scale_colour_manual(values = ward_col,
+                         na.translate = FALSE,
                         guide = guide_legend(order = 1)) +
   geom_treescale(label = "snps",
                  y = 130,
@@ -958,14 +1147,15 @@ y <-
   tree_2 %>%
   ggtree() %<+%
   date_data +
-    geom_tippoint(aes(color=wards), size = 1.5) +
-     scale_color_viridis_d(na.translate = FALSE,
+    geom_tippoint(aes(color=wards), size = 2.5) +
+     scale_color_manual(values = ward_col ,
+                        na.translate = FALSE,
                         guide = guide_legend(order = 1)) +
-  geom_treescale(label = "snps",
+  geom_treescale(label = "point mutations",
                  y = 20,
                  x  = 720) +
     geom_tiplab(align = TRUE,
-                size = 1.5,
+                size = 2,
                 linesize = 0.2) +
     hexpand(0.001)
 y 
@@ -1069,7 +1259,7 @@ h3_plasmid <-
          offset = 500,
          width = 0.2,
            colnames_position = "top",
-        colnames_angle = angle,
+        colnames_angle = 90,
         colnames_offset_y = 4,
         hjust = 0.5,
         font.size = font_size) +
@@ -1085,7 +1275,7 @@ h3_plasmid + theme(
     legend.justification = c("left", "top"),
     legend.box.just = "left",
     legend.margin = margin(6, 6, 6, 6),
-    #legend.box = "horizontal"
+    text = element_text(size = 20)
     ) #+ vexpand(-1.2)
 ```
 
@@ -1219,5 +1409,9 @@ gheatmap(y, x,
         hjust = 0.5) +
   scale_fill_viridis_d(direction = -1) +
   vexpand(0.1)
+```
+
+```{r}
+sessionInfo()
 ```
 

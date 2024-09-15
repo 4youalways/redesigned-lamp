@@ -66,12 +66,16 @@ platform the plamids are distributed as below in the hybrid assemblies
 # information of the hybrid genomes
 final_assembly_stats <- read_csv("docs/assembly_statistics.csv")
 
-plasmidfinder <- read_table("./docs/hybrid_assembly_plasmid_finder.txt") #%>%
+hybrid_plasmidfinder <- read_table("./docs/hybrid_assembly_plasmid_finder.txt") #%>%
   #select(!c("NUM_FOUND"))
+colnames(hybrid_plasmidfinder) <- 
+  str_replace_all(colnames(hybrid_plasmidfinder),
+                  "_1", "")
 
+hybrid_plasmidfinder
 # plasmid data
 plasmids <-
-  plasmidfinder %>%
+  hybrid_plasmidfinder %>%
   as.data.frame()
 
 
@@ -92,6 +96,10 @@ plasmid_data_1 <-
   mutate(across(where(is.numeric), as.factor))
 
 plasmid_data_1$strain <- rownames(plasmid_data_1)
+colnames(plasmid_data_1) <-
+  c("Col440I", "IncFIA(HI1)", "IncFIB(K)", "IncFIB(pQil)", "IncFII(pKP91)",
+    "IncR", "strain")
+
 
 # combine contig info and plasmidfinder data
 table <-
@@ -109,13 +117,12 @@ knitr::kable(x, escape = FALSE) %>%
   kable_styling(latex_options = c("striped", "hover", "condensed", "responsive")) %>%
   column_spec(1, bold = TRUE) %>%
   add_header_above(header = c(" " = 4, "Plasmid Replicons" = 6 ),
-                   font_size = 17) #%>%
-  kable_classic_2(full_width = FALSE)
+                   font_size = 17)
   
 ```
 
 
-## save Table 1 to file
+### save Table 1 to file
 ```{r, eval=FALSE}
 outdir <- "results/plots/r"
 plotting_dir <- file.path(outdir, Sys.Date())
