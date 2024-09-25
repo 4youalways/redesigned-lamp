@@ -120,14 +120,16 @@ lineage_col <- c("1" = "#EE8866")
 
 
 sub_lineage_col <- c("1" = "#CC6677",
-              "2" = "#332288",
-              "3" = "#ddcc77",
-              "4" = "#117733",
-              "5" = "#88ccee",
-              "6" = "#882255",
-              "7" = "#44aa99",
-              "8" = "#999933")
+              "10" = "#332288",
+              "11" = "#ddcc77",
+              "12" = "#117733",
+              "15" = "#88ccee",
+              "2" = "#882255",
+              "3" = "#44aa99",
+              "5" = "#999933")
 
+
+ont_col <- c("yes" = "black")
 # saving directory
 outdir <- "./results/plots/r/"
 ```
@@ -275,15 +277,17 @@ ids_with_ont <-
 ```{r}
 
 #create DNAbin from alignment
-msa <- "./results/snp_sites/phylo.fasta"
+#msa <- "./results/snp_sites/phylo.fasta"
+msa <- "./results/snippy/20240925_2/manual.filtered_polymorphic_sites.fasta"
+
 my_alignment <-
   fasta2DNAbin(msa, chunkSize = 10, snpOnly = FALSE)
 
 # create a snp scaled tree
-snp_scaled_tree <- rPinecone::ace_scale_phylo(gubbins_tree, my_alignment)
+snp_scaled_tree <- rPinecone::ace_scale_phylo(manual_tree, my_alignment)
 
 # perform lineage asignment
-results <- pinecone(snp_scaled_tree, 5, 3)
+results <- pinecone(snp_scaled_tree, 5, 5)
 
 lineage_1 <- results$table %>% as.data.frame()
 
@@ -325,20 +329,26 @@ date_data <-
   select(c(lane_acc, date, major_wards)) %>%
   filter(lane_acc %in% core_gene_tree$tip.label)
 
-date_data$year <-
-  case_when(date_data$date == 2016 ~ "2016",
+
+date_data_1 <-
+  date_data %>%
+  mutate(ont =
+           case_when(date_data$lane_acc %in% ids_with_ont ~ "yes",
+                         TRUE ~ ""),
+         year =
+           case_when(date_data$date == 2016 ~ "2016",
             date_data$date == 2017 ~ "2017",
             date_data$date == 2018 ~ "2018",
             date_data$date == 2019 ~ "2019",
-            TRUE ~ "Other") 
-
-date_data$wards <-
-  case_when(date_data$major_wards ==
+            TRUE ~ "Other"),
+         wards =
+           case_when(date_data$major_wards ==
               "CHATINKHA NURSERY" ~ "CHATINKHA NURSERY",
-            TRUE ~ "Other wards")
+            TRUE ~ "Other wards"))
+
 
 # again convert to a data.frame object
-meta1 <- as.data.frame(date_data)
+meta1 <- as.data.frame(date_data_1)
 
 # assign rows
 rownames(meta1) <- meta1$lane_acc
@@ -348,12 +358,9 @@ meta2 <- meta1 %>% select(year)
 meta3 <- meta2 %>%
   mutate(year = as.factor(year))
 
+# a column indicating isolates with ont data
+ont_df <- meta1 %>% select(ont)
 
-head(date_data)
-
-summary(as_factor(date_data$date))
-summary(as_factor(date_data$major_wards))
-summary(meta3$date)
 ```
 
 ## Prepare kleborate output
@@ -808,11 +815,15 @@ all_amr + beta_lactamse + plot_layout(guides = "collect")
 
 
 
-# plot the core gene trees
+# map the three regions against the tree
 ```{r plot_core_gene_tree, message=FALSE}
 # root the tree at midpoint
-tree <- midpoint(gubbins_tree) # from library phangorn
+#tree <- midpoint(gubbins_tree) # from library phangorn
 
+text_size <- 2
+y_offset <- 2.2
+
+# using the tree generated after running iqtree on the gubbins recombination free alignment
 tree <- midpoint(manual_tree) # from library phangorn
 
 tree$tip.label <-
@@ -823,14 +834,14 @@ y <-
   tree %>%
   ggtree() %<+%
   date_data +
-    geom_tippoint(aes(color=wards), size = 2.5) +
+    geom_tippoint(aes(color=wards), size = 1.2) +
      scale_colour_manual(values = ward_col, na.translate = FALSE,
-                        guide = guide_legend(order = 1))# +
-  geom_treescale(label = "point mutations",
+                        guide = guide_legend(order = 1)) +
+  geom_treescale(#label = "point mutations",
                  y = 12,
-                 x  = 500,
-                 fontsize = 7,
-                 linesize = 1.5)
+                 x  = 0.0000006,
+                 fontsize = 4,
+                 linesize = 1)
 y 
 
 h1 <- 
@@ -838,8 +849,9 @@ h1 <-
                width = 0.02,
          colnames_position = "top",
         colnames_angle = 90,
-        colnames_offset_y = 3,
-        hjust = 0.5) +
+        colnames_offset_y = y_offset,
+        hjust = 0.5,
+        font.size = text_size) +
   scale_fill_manual(values = datecol,
                     na.translate = FALSE,
                         guide = guide_legend(order = 2)) +
@@ -851,19 +863,18 @@ h2 <- h1 + new_scale_fill()
 
 h3 <- 
   gheatmap(h2, one,
-         offset = 40,
+         offset = 0.000002,
          width = 0.17,
            colnames_position = "top",
         colnames_angle = 90,
-        colnames_offset_y = 4,
+        colnames_offset_y = y_offset,
         hjust = 0.5,
-        font.size = 3.5) +
+        font.size = text_size) +
   scale_fill_manual(values = one_col,
                     na.translate = FALSE,
                        labels = c("Absent", "Present"),
                     guide = guide_legend(order = 3)) +
-  labs(fill = "Region One CDS") +
-  vexpand(0.02)
+  labs(fill = "Region One CDS") 
 
 h3
 
@@ -871,42 +882,41 @@ h4 <- h3 + new_scale_fill()
 
 h5 <- 
   gheatmap(h4, two,
-         offset = 200,
+         offset = 0.000009,
          width = 1.2,
            colnames_position = "top",
         colnames_angle = 90,
-        colnames_offset_y = 4,
+        colnames_offset_y = y_offset,
         hjust = 0.5,
-        font.size = 3.5) +
+        font.size = text_size) +
   scale_fill_manual(values = two_col,
                     na.translate = FALSE,
                        labels = c("Absent", "Present"),
                     guide = guide_legend(order = 4)) +
-  labs(fill = "Region Two CDS") +
-  vexpand(0.02)
+  labs(fill = "Region Two CDS") 
+
 h5
 
 h6 <- h5 + new_scale_fill()
 
 h7 <- 
   gheatmap(h6, three,
-         offset = 1270,
+         offset = 0.000055,
          width = 1,
            colnames_position = "top",
         colnames_angle = 90,
-        colnames_offset_y = 4,
+        colnames_offset_y = y_offset,
         hjust = 0.5,
-        font.size = 3.5) +
+        font.size = text_size) +
   scale_fill_manual(values = three_col,
                     na.translate = FALSE,
                        labels = c("Absent", "Present"),
                     guide = guide_legend(order = 5)) +
-  labs(fill = "Region Three CDS") +
-  vexpand(0.02) + theme_light()
+  labs(fill = "Region Three CDS") 
 
 h7 +
   vexpand(0.02) + theme(
-    legend.position = c(.05, .90),
+    legend.position = c(.05, 1),
     legend.justification = c("left", "top"),
     legend.box.just = "left",
     legend.margin = margin(6, 6, 6, 6)
@@ -1262,26 +1272,45 @@ dev.off()
 ```{r}
 x = 1.5
 y <-
-  tree_2 %>%
+  tree %>%
   ggtree() %<+%
-  date_data +
-    geom_tippoint(aes(color=wards), size = 2.5) +
+  date_data_1 +
+    geom_tippoint(aes(color=wards), size = 2) +
      scale_color_manual(values = ward_col ,
                         na.translate = FALSE,
                         guide = guide_legend(order = 1)) +
-  geom_treescale(label = "point mutations",
-                 y = 20,
-                 x  = 720) +
+  geom_treescale(#label = "point mutations",
+                 y = 12,
+                 x  = 0.0000006,
+                 fontsize = 4,
+                 linesize = 1) +
     geom_tiplab(align = TRUE,
                 size = 2,
-                linesize = 0.2) +
-    hexpand(0.001)
+                linesize = 0.2) 
 y 
 
-h1 <- 
-  gheatmap(y, meta3,
+ont_heatmap <- 
+  gheatmap(y, ont_df,
                width = 0.01,
-           offset = 40 * x,
+           offset = 0.000002 * x,
+         colnames_position = "top",
+        colnames_angle = 90,
+        colnames_offset_y = 3,
+        hjust = 0.5,
+        font.size = font_size) +
+  scale_fill_manual(values = ont_col,
+                    na.translate = FALSE,
+                        guide = guide_legend(order = 1)) +
+ labs(fill = "ONT Available")
+
+ont_heatmap
+
+ont_1 <- ont_heatmap + new_scale_fill()
+
+h1 <- 
+  gheatmap(ont_1, meta3,
+               width = 0.01,
+           offset = 0.0000024 * x,
          colnames_position = "top",
         colnames_angle = 90,
         colnames_offset_y = 3,
@@ -1289,7 +1318,7 @@ h1 <-
         font.size = font_size) +
   scale_fill_manual(values = datecol,
                     na.translate = FALSE,
-                        guide = guide_legend(order = 1)) +
+                        guide = guide_legend(order = 2)) +
   labs(fill = "Year")
 
 h1
@@ -1297,27 +1326,27 @@ h1
 h2 <- h1 + new_scale_fill()
 
 
-lineage <- 
-  gheatmap(h2, major_lineages,
-         offset = 50 * x,
-         width = 0.01,
-           colnames_position = "top",
-        colnames_angle = 90,
-        colnames_offset_y = 4,
-        hjust = 0.5,
-        font.size = font_size) +
-  scale_fill_manual(values = lineage_col,
-                    na.translate = FALSE,
-                    guide = guide_legend(order = 2)) +
-  labs(fill = "rPinecone Major Lineages") 
-
-lineage
-
-sublineage <- lineage + new_scale_fill()
+# lineage <- 
+#   gheatmap(h2, major_lineages,
+#          offset = 0.0000028 * x,
+#          width = 0.01,
+#            colnames_position = "top",
+#         colnames_angle = 90,
+#         colnames_offset_y = 4,
+#         hjust = 0.5,
+#         font.size = font_size) +
+#   scale_fill_manual(values = lineage_col,
+#                     na.translate = FALSE,
+#                     guide = guide_legend(order = 3)) +
+#   labs(fill = "rPinecone Major Lineages") 
+# 
+# lineage
+# 
+# sublineage <- lineage + new_scale_fill()
 
 sub_lineage <- 
-  gheatmap(sublineage, sub_lineages,
-         offset = 60 * x,
+  gheatmap(h2, sub_lineages,
+         offset = 0.0000028 * x,
          width = 0.01,
            colnames_position = "top",
         colnames_angle = 90,
@@ -1328,8 +1357,7 @@ sub_lineage <-
                        #labels = c("Absent", "Present"),
                     na.translate = FALSE,
                     guide = guide_legend(order = 3)) +
-  labs(fill = "rPinecone Sub-lineages") +
-  vexpand(0.02)
+  labs(fill = "rPinecone Sub-lineages") 
 
 sub_lineage
 
@@ -1337,7 +1365,7 @@ ybt <- sub_lineage + new_scale_fill()
 
 h3_yb <- 
   gheatmap(ybt, ybst,
-         offset = 70 * x,
+         offset = 0.0000032 * x,
          width = 0.01,
            colnames_position = "top",
         colnames_angle = 90,
@@ -1356,7 +1384,7 @@ amr <- h3_yb + new_scale_fill()
 
 h3_amr <-
   gheatmap(amr, amr_df1,
-         offset = 90 * x,
+         offset = 0.0000040 * x,
          width = 0.4,
            colnames_position = "top",
         colnames_angle = 90,
@@ -1364,8 +1392,7 @@ h3_amr <-
         hjust = 0.5,
         font.size = font_size) +
       scale_fill_manual(values = binnary_colors,
-                    na.translate = FALSE,
-                    guide = guide_legend(order = 5)) +
+                    na.translate = FALSE) +
   guides(fill = "none")
 
 h3_amr
@@ -1374,7 +1401,7 @@ plasmid <- h3_amr + new_scale_fill()
 
 h3_plasmid <- 
   gheatmap(plasmid, plasmid_data_1,
-         offset = 500,
+         offset = 0.000022,
          width = 0.2,
            colnames_position = "top",
         colnames_angle = 90,
@@ -1384,149 +1411,44 @@ h3_plasmid <-
       scale_fill_manual(values = binnary_colors,
                     na.translate = FALSE,
                     labels = c("Absent", "Present"),
-                    guide = guide_legend(order = 6)) +
-  labs(fill = "AMR/plasmid Presence/Absence") +
-  vexpand(0.02)
+                    guide = guide_legend(order = 5)) +
+  labs(fill = "AMR/plasmid") 
 
 h3_plasmid + theme(
-    legend.position = c(0.1, 0.95),
+    legend.position = c(0.04, 1),
     legend.justification = c("left", "top"),
     legend.box.just = "left",
     legend.margin = margin(6, 6, 6, 6),
-    text = element_text(size = 20)
-    ) #+ vexpand(-1.2)
+    text = element_text(size = 10)
+    ) +
+  vexpand(0.02)
 ```
 
 
-
-
-
-
-# miscellanious
-
-```{r, eval=FALSE}
-kleb_metadata <-
-  read_csv("/Users/zuza/repos/redesigned-lamp/docs/kleb_metadata.csv")
-date_data <-
-  select(kleb_metadata, LaneAcc, DATE)
-
-
-y <- transpose(date_data, make.names = "LaneAcc")
-
-merge(data, y)
-head(data)
-
-head(date_data)
-date_data <- column_to_rownames(date_data, var = "LaneAcc")
-head(date_data)
-
-
-
-
-merged_data <- merge(transposed_df, date_data) 
-head(merged_data)
-
-data.table:transpose(merged_data)
-
-x <- reshape2::melt(merged_data)
-
-ggplot(x, aes(y = Gene, x = variable, fill = value)) +
-  geom_tile() +
-  theme(axis.text.x = element_text(angle = 90))
-
-```
-
-
-```{r, eval=FALSE}
-
-pdf("~/repos/redesigned-lamp/test1.pdf", width = 300, height = 20)
-pivot %>% ggplot(aes(Gene, count)) + geom_tile(color = "red") +
-  theme(axis.text.x = element_text(angle = 90))
-
-dev.off()
-```
-
-
-### attribute results from Graphia
-Using Graphia, I extract the attribute data after clustering the nodes using the
-Louvain Clusterring algorithym.
-```{r load_graphia_results, message=FALSE, eval=FALSE}
-library(tidyverse)
-clusters <- 
-  read_csv("./results/graphia/full_final_graph-attributes.csv") %>% clean_names()
-
-# save objects to Rdata
-save(clusters,
-     file = "data/r/pangenomeClusters.RData")
-```
+# snp scalled tree
 ```{r}
-load("data/r/pangenomeClusters.RData")
-clusters
 
-summary(clusters)
-str(clusters)
+tree <- midpoint(results$tree) # from library phangorn
 
-clusters %>% filter(louvain_cluster_size <= 118)
-clusters %>%
-  filter(node_members != 134) %>%
-  filter(!str_detect(node_name_2, "group")) %>%
-  #group_by(louvain_cluster) %>%
-  ggplot() +
-  geom_col(aes(node_members, x = node_name_2)) +
-  theme(axis.text.x = element_text(angle = 90))
+tree %>%
+  ggtree() %<+%
+  date_data_1 +
+    geom_tippoint(aes(color=wards), size = 1.2) +
+     scale_colour_manual(values = ward_col, na.translate = FALSE,
+                        guide = guide_legend(order = 1)) #+
+  geom_treescale(label = "SNPs",
+                 y = 20,
+                 x  = 6,
+                 fontsize = 4,
+                 linesize = 1) +
+   theme(
+    legend.position = c(.06, 1),
+    legend.justification = c("left", "top"),
+    legend.box.just = "left",
+    legend.margin = margin(6, 6, 6, 6),
+    text = element_text(size = 10)
+    )
 
-
-clusters %>%
-  filter(node_members != 134) %>%
-  filter(node_members >= 100) %>%
-  filter(!str_detect(node_name_2, "group")) %>%
-  #group_by(louvain_cluster) %>%
-  ggplot() +
-  geom_col(aes(node_members, x = node_name_2)) +
-  theme(axis.text.x = element_text(angle = 90))
-
-genes_to_check <- clusters %>%
-  filter(node_members < 134) %>%
-  #filter(node_members >= 100) %>%
-  filter(!str_detect(node_name_2, "group"))
-
-#genes_to_check$node_name_2
-```
-
-
-### check genes from graphia output
-```{r eval=FALSE}
-# check genes from graphia output
-genes <- genes_to_check$node_name_2
-genes
-
-
-df1 <- data %>% filter(str_detect(Gene, paste(genes, collapse = "|"))) %>%
-  filter(!str_detect(Gene, "~"))
-
-transposed_df <- t(df1)
-
-colnames(transposed_df) <-transposed_df[1,]
-
-head(transposed_df)
-
-restructured_df <- transposed_df[rownames(transposed_df) %notin% c("Gene"), ]
-
-x <- as.data.frame(restructured_df)
-
-#rownames(x)
-
-tree <- midpoint(tree)
-y <- tree %>% ggtree() %<+% x
-
-gheatmap(y, x,
-              # width = 0.02,
-         colnames_position = "top",
-        colnames_angle = 90,
-        colnames_offset_y = 14,
-        hjust = 0.5) +
-  scale_fill_viridis_d(direction = -1) +
-  vexpand(0.1)
 ```
 
 ```{r}
