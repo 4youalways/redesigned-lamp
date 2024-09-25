@@ -184,10 +184,10 @@ save(comparison_1, comparison_2, comparison_3, comparison_4,
 region_num <- c("insertion_4", "insertion_3", "insertion_2", "one", "two", "three", "four", "five", "six", "seven", "eight", "nine", "ten", "eleven", "twelve", "thirteen", "fourteen", "phage_region_1", "sixteen", "insertion_1", "phage_region_2", "phage_region_3", "phage_region_4")
 
 # start gene in annotation
-starts <- c("mug", "mdoC", "yedJ", "cpxR", "ahr", "pknK", "ppiB", "phoH", "ves", "dcuS", "lcfB", "budC", "ychF", "yedJ", "fadL", "nadK", "cysD", "ureG", "pagL", "smpB", "sapB", "hiuH", "menA")
+starts <- c("mug", "ghrA_2", "argP_2", "cpxR", "ahr", "pknK", "ppiB", "phoH", "ves", "dcuS", "lcfB", "budC", "ychF", "yedJ", "fadL", "nadK", "cysD", "ureG", "pagL", "smpB", "sapB", "hiuH", "menA")
 
 # end gene in annotation
-ends <- c("evgA", "phoH", "yeeO", "fieF" ,"xynB", "proB", "cadC", "gpx1", "nifJ", "ynfM", "yjhB", "ccmF", "ais", "ddpB", "gltX", "bepF", "casC", "glpF_2", "ycnE", "bepF", "ribA", "folD", "cpxA" )
+ends <- c("evgA", "phoH", "intA_2", "fieF" ,"xynB", "proB", "cadC", "gpx1", "nifJ", "ynfM", "yjhB", "ccmF", "ais", "ddpB", "gltX", "bepF", "casC", "glpF_2", "ycnE", "gbuA", "ribA", "folD", "cpxA" )
 
 regions <- tibble(region_num, starts, ends)
 
@@ -230,6 +230,39 @@ get_seg <-
   return(seg)
   }
 
+# color the segments
+annotate_seg <-
+  function(dna_seg) {
+    dna_seg$fill <-
+        case_when(dna_seg$gene %in% mercury_resistance ~ "#CC6677",
+                  grepl("vir|ptlA|ptlE", dna_seg$gene) ~ "#332288",
+                  grepl("int", dna_seg$gene) ~ "#ddcc77",
+                  grepl("mnt|scaC", dna_seg$gene) ~ "#1f78b4",
+                  grepl("oqx", dna_seg$gene) ~ "#117733",
+                  grepl("IS", dna_seg$gene) ~ "#88ccee",
+                  dna_seg$gene %in% amr ~ "#117733",
+                  dna_seg$gene %in% transposases ~ "#88ccee",
+                  dna_seg$gene %in% "-" ~ "gray",
+            TRUE ~ "black")
+    
+
+    dna_seg$col <-
+        case_when(dna_seg$gene %in% mercury_resistance ~ "#CC6677",
+                  grepl("vir|ptlA|ptlE", dna_seg$gene) ~ "#332288",
+                  grepl("int", dna_seg$gene) ~ "#ddcc77",
+                  grepl("mnt|scaC", dna_seg$gene) ~ "#1f78b4",
+                  grepl("oqx", dna_seg$gene) ~ "#117733",
+                  grepl("IS", dna_seg$gene) ~ "#88ccee",
+                  dna_seg$gene %in% amr ~ "#117733",
+                  dna_seg$gene %in% transposases ~ "#88ccee",
+                  dna_seg$gene %in% "-" ~ "gray",
+            TRUE ~ "black")
+
+    
+     return(dna_seg)
+
+  }
+
 # function to plot the region in all the assemblies
 plot_region <- 
   function(region, title) { # takes in the region to plot and the title for the plot
@@ -239,27 +272,32 @@ plot_region <-
   y <- regions[regions$region_num == region, ]$ends
   
   seg1 <- create_segment(dna_seg1, x, y)
+  seg1 <- annotate_seg(seg1)
   seg1_annotation <- create_annotation(dna_seg1)
 
   seg2 <- create_segment(dna_seg2, x, y)
+  seg2 <- annotate_seg(seg2)
   seg2_annotation <- create_annotation(dna_seg2)
   
   seg3 <- create_segment(dna_seg3, x, y)
+  seg3 <- annotate_seg(seg3)
   seg3_annotation <- create_annotation(dna_seg3)
   
   seg4 <- create_segment(dna_seg4, x, y)
+  seg4 <- annotate_seg(seg4)
   seg4_annotation <- create_annotation(dna_seg4)
   
   seg5 <- create_segment(dna_seg5, x, y)
+  seg5 <- annotate_seg(seg5)
   seg5_annotation <- create_annotation(dna_seg5)
   
   
   plot_gene_map(list(seg1, seg2, seg3, seg4, seg5),
               gene_type = "arrows",
-              annotations = list(seg1_annotation, seg2_annotation,
-                                 seg3_annotation, seg4_annotation,
-                                 seg5_annotation),
-              annotation_height = 2,
+              # annotations = list(seg1_annotation, seg2_annotation,
+              #                   seg3_annotation, seg4_annotation,
+              #                   seg5_annotation),
+              # annotation_height = 2,
               comparisons = list(comparison_1, comparison_2,
                                  comparison_3, comparison_4),
               dna_seg_labels = list("1004078", "BKREGE",
@@ -368,55 +406,12 @@ for the coding sequences
 
 ```{r chromosmal_insertion_region}
 
-amr <- c("tet(A)", "Sul1",  "dfrA7", "CatA1")
-transposases <- c( "IS1R", "ISEcl3",  "ISPrst2", "ISPrst3", "IS1R",
-                   "TnAs3", "IS26", "tetR")
-mercury_resistance <-  c("merT", "merP", "merC", "merA")
-
 
 outbreak_insertion <-
   curated_dna_seg3 %>% filter(start >= 3359021 & end <= 3411255)
 
 outbreak_insertion
 
-annotate_seg <-
-  function(dna_seg) {
-    dna_seg$fill <-
-        case_when(dna_seg$gene %in% mercury_resistance ~ "#1f78b4",
-            TRUE ~ dna_seg$fill)
-    
-    dna_seg$fill <-
-        case_when(dna_seg$gene %in% amr ~ "#a6cee3",
-            TRUE ~ dna_seg$fill)
-    
-     dna_seg$fill <-
-        case_when(dna_seg$gene %in% transposases ~ "#b2df8a",
-            TRUE ~ dna_seg$fill)
-     
-     dna_seg$fill <-
-        case_when(dna_seg$gene %in% "-" ~ "gray",
-            TRUE ~ dna_seg$fill)
-     
-    #color the segments
-    dna_seg$col <-
-        case_when(dna_seg$gene %in% mercury_resistance ~ "#1f78b4",
-            TRUE ~ dna_seg$fill)
-    
-    dna_seg$col <-
-        case_when(dna_seg$gene %in% amr ~ "#a6cee3",
-            TRUE ~ dna_seg$fill)
-    
-     dna_seg$col <-
-        case_when(dna_seg$gene %in% transposases ~ "#b2df8a",
-            TRUE ~ dna_seg$fill)
-     
-     dna_seg$col <-
-        case_when(dna_seg$gene %in% "-" ~ "gray",
-            TRUE ~ dna_seg$fill)
-     
-     return(dna_seg)
-
-  }
 
 
 
@@ -429,7 +424,7 @@ outbreak <- annotate_seg(outbreak_segment)
 plot_gene_map(dna_segs = list(outbreak))
 #plot the gene map
 
-plot_gene_map(dna_segs = list(chromsomal_amr_integration),
+plot_gene_map(dna_segs = list(outbreak),
                               gene_type = "arrows",
               annotations = annotation(text = chromsomal_amr_integration$gene,
                                           x1 = middle(chromsomal_amr_integration),
