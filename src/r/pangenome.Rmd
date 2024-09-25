@@ -156,6 +156,10 @@ snp_tree <-
 gubbins_tree <-
   ape::read.tree("./results/gubbins/ST39.final_tree.tre")
 
+# load the manually generated gubbins tree
+manual_tree <-
+  ape::read.tree("./results/snippy/iqtree/manual.filtered_polymorphic_sites.fasta.treefile")
+
 # read metadata from the Genome paper
 metadata <- 
     read_csv("docs/kleb_metadata.csv",
@@ -260,6 +264,13 @@ distribution + theme(axis.text.x = element_blank())
 
 # Prepare metadata for annotating heatmap
 
+## ONT data
+```{r}
+ids_with_ont <-
+  c("ERR12059348", "ERR12058301", "ERR12059076", "ERR12058306", "ERR12058885")
+```
+
+
 ## prepare lineage annotation
 ```{r}
 
@@ -296,8 +307,9 @@ sub_lineages <-
   select(sub_lineage) %>%
   mutate(across(where(is.character), as.factor))
 
-sub_lineages$sub_lineage
+sub_lineages$sub_lineage 
 
+outbreak_clade <- sub_lineages %>% filter(sub_lineage == 8)
 itol_labels_template(results)
 results$table
 str(sub_lineages)
@@ -508,6 +520,65 @@ y$raw_date <- case_when(y$genome %in% tip_metadata$lane_acc ~ tip_metadata$date)
 y$date <- case_when(y$genome %in% date_data$lane_acc ~ date_data$year,
                     TRUE ~ "Other")
 
+# calculate proportions for the results sections
+plasmid_columns <- colnames(y[1:17]) %>% toString()
+
+# set outbreak clade to use for comparison of frequencies
+outbreak_clade$genome <- rownames(outbreak_clade) 
+
+avrg #<-
+  y %>% mutate(clade = case_when(genome %in% outbreak_clade$genome ~ "Outbreak",
+                               TRUE ~ "Other")) %>%
+  rowwise() %>%
+    mutate(average = sum(c(`Col(pHAD28)`, Col440II, Col440I, ColRNAI, `FII(pBK30683)`,
+                           `IncFIA(HI1)`, `IncFIB(K)(pCAV1099-114)`,
+                           `IncFIB(K)`, `IncFIB(pNDM-Mar)`, `IncFIB(pQil)`,
+                           `IncFII(K)`, `IncFII(pCRY)`, `IncFII(pKP91)`,
+                           `IncFII(pKPX1)`, `IncHI1B(pNDM-MAR)`,
+                           IncR, IncX1))) %>%
+  select(clade, average) %>%
+    filter(clade == "Other") %>%
+    summary()
+
+View(avrg)
+
+colnames(y)
+
+freq <- y %>% mutate(clade = case_when(genome %in% outbreak_clade$genome ~ "Outbreak",
+                               TRUE ~ "Other")) %>%
+  group_by(clade) %>%
+  select(Col440I, `IncFIB(K)`, ColRNAI, clade) #%>% 
+  summarise_all(sum) %>% pivot_longer(cols = Col440I:ColRNAI) %>%
+  ggplot(mapping = aes(x = clade, y = value, fill = name)) +
+  geom_col(position = "fill")
+
+
+outbreak_clade
+# apply(y, 2, mean, na.rm = FALSE)
+# 
+# y %>% rowwise() %>% mutate(mean = mean(plasmid_columns))
+# 
+# 
+y %>% group_by(date) %>% select(Col440I, `IncFIB(K)`, ColRNAI, date) %>%
+  summarise_all(sum) %>%
+  pivot_longer(cols = Col440I:ColRNAI) %>%
+  ggplot(mapping = aes(x = date, y = value, fill = name)) +
+  geom_col(position = "fill") +
+  theme_light() +
+  labs(y = "Proportion of Plasmid Replicon",
+       x = "Date",
+       fill = "Replicon Type")
+
+y
+# calculate proportions for plasmids
+y[1:17] %>%
+  as_tibble() %>%
+  summarise_all(sum) %>%
+  pivot_longer(cols = `Col(pHAD28)`:IncX1) %>%
+  mutate(prop = value/sum(value)*100)
+
+# 
+
 #y$category <- case_when(y$date == "2017" ~ "2017",
 #                        TRUE ~ "Other")
 
@@ -524,7 +595,7 @@ piv1 %>% ggplot() + geom_col(aes(date, presence, fill = replicon))
 #y <- y %>% select(!c(genome))
 
 # create a column plot with proportions vs date
-piv1 %>% ggplot(mapping = aes(x = date, y = presence, fill = replicon)) +
+plasmid_prps <- piv1 %>% ggplot(mapping = aes(x = date, y = presence, fill = replicon)) +
   geom_col(position = "fill") +
   theme_light() +
   labs(y = "Proportion of Plasmid Replicon",
@@ -612,6 +683,51 @@ amr_2$date <-
   case_when(amr_2$genome %in% date_data$lane_acc ~ date_data$year,
             TRUE ~ "Other")
 
+
+
+amr_2
+
+# calculate proportions for plasmids
+
+
+
+num_amr #<-
+  amr_2 %>% mutate(clade = case_when(genome %in% outbreak_clade$genome ~ "Outbreak",
+                               TRUE ~ "Other")) %>%
+  rowwise() %>%
+  mutate(across(where(is.factor), as.character)) %>%
+  mutate_at(vars(colnames(amr_2[1:44])), as.numeric) 
+
+num_amr %>%
+  rowwise() %>%
+  mutate(total = sum(c(`aac6-Ib`, dfrA14))) %>% print(n = ,1000)
+
+
+num_amr %>%
+  rowwise() %>%
+  mutate(total = sum(c(`aac3-IIa`, `aac3-IId`, `aac6-Ib`, `aadA1-pm`,
+                       aadA16, aadA2, `aph3-Ia`, aphA6,  strA,  strB,  ampH,
+                       `blaCTX-M-15`, `blaLAP-2`, `blaNDM-1`, `blaOXA-1`,
+                       `blaOXA-10`, `blaOXA-9`, `blaSHV-1`, `blaSHV-187`,
+                       `blaTEM-105`, FosA6,  OqxA, OqxBgb, `qnr-S1`, qnrB1,
+                       qnrB17, `mph(A)`, catA1, catA2, catB4, cmlA5, arr2,
+                       arr3, sul1, sul2, tetA, tetD, tetR, dfrA12, dfrA14,
+                       dfrA15b, dfrA27, dfrA30, dhfr7)))  %>%
+  select(clade, total) %>%
+    filter(clade == "Other") %>%
+    summary()
+
+num_amr 
+rfc_amr <-
+  num_amr[1:44] %>%
+  as_tibble() %>%
+  summarise_all(sum) %>%
+  pivot_longer(cols = `aac3-IIa`:dhfr7) %>%
+  mutate(prop = value/135*100)
+
+View(rfc_amr)
+
+order(rfc_amr$value)
 # the presence/absebce information is in factor format
 # direct conversion into numeric format is bringing unusal formating
 # convert them to characterfirst then into numeric
@@ -631,7 +747,7 @@ amr_4 <- amr_3 %>%
                            grepl("bla", amr_3$gene) ~ "Beta-lactam",
                            grepl("tet", amr_3$gene) ~ "Tetracyclines",
                            grepl("qnr", amr_3$gene) ~ "Fluoroquinolones",
-                           grepl("cat", amr_3$gene) ~ "Phenicols",
+                           grepl("cat|cmlA5", amr_3$gene) ~ "Phenicols",
                            grepl("sul", amr_3$gene) ~ "Sulfonamides",
                            grepl("dfr|dhf", amr_3$gene) ~ "Trimethoprim",
                            grepl("Fos", amr_3$gene) ~ "Fosfomycin",
@@ -697,6 +813,8 @@ all_amr + beta_lactamse + plot_layout(guides = "collect")
 # root the tree at midpoint
 tree <- midpoint(gubbins_tree) # from library phangorn
 
+tree <- midpoint(manual_tree) # from library phangorn
+
 tree$tip.label <-
   tree$tip.label %>%
   str_replace_all( "Reference", "ERR12058301")
@@ -707,7 +825,7 @@ y <-
   date_data +
     geom_tippoint(aes(color=wards), size = 2.5) +
      scale_colour_manual(values = ward_col, na.translate = FALSE,
-                        guide = guide_legend(order = 1)) +
+                        guide = guide_legend(order = 1))# +
   geom_treescale(label = "point mutations",
                  y = 12,
                  x  = 500,
