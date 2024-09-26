@@ -61,7 +61,7 @@ ward_col <- c("CHATINKHA NURSERY" = "#CC6677",
               "INTENSIVE CARE UNIT" = "#44aa99",
               "PAEDIATRIC A&E" = "#999933",
               "PAEDIATRIC SURGICAL WARD" = "#aa4499",
-               "PICU/HDU" = "#f0f0f0",
+               "PICU/HDU" = "#7570b3",
               "unknown" = "#555555",
               "Other wards" = "#555555")
   
@@ -98,10 +98,10 @@ replicon_cols <- c("Col(pHAD28)" = "#71bc78", "Col440II" = "#93dfb8",
                    "IncFIB(pQil)" = "#EE99AA", "IncFII(K)" = "#994455",
                    "IncFII(pCRY)" = "#EECC66", "IncFII(pKP91)" = "#997700",
                    "IncFII(pKPX1)" = "#1a4876", "IncHI1B(pNDM-MAR)" = "#a2add0",
-                   "IncR" = "#324ab2", "IncX1" = "#7366bd", "Other" = "#DDDDDD")
+                   "IncR" = "#324ab2", "IncX1" = "#7366bd", "Other" = "#252525")
 
 
-amr_class_cols <- c("Aminoglycosides" = "#CC6677", "Other" = "#DDDDDD",
+amr_class_cols <- c("Aminoglycosides" = "#CC6677", "Other" = "#252525",
                     "Beta-lactam" = "#332288", "Fosfomycin" = "#ddcc77",
                     "Fluoroquinolones" = "#117733", "Phenicols" = "#88ccee",
                     "Sulfonamides" = "#882255", "Tetracyclines" = "#44aa99",
@@ -175,6 +175,7 @@ tip_metadata <-
          study_accession, supplier_sample_name, date, neonate, major_wards)
 
 
+load(file = "data/r/rPinecone_lineages.RData")
 
 # tip_metadata %>%
 #   select(!c(study_accession, supplier_name)) %>%
@@ -274,7 +275,7 @@ ids_with_ont <-
 
 
 ## prepare lineage annotation
-```{r}
+```{r , eval=FALSE}
 
 #create DNAbin from alignment
 #msa <- "./results/snp_sites/phylo.fasta"
@@ -288,6 +289,8 @@ snp_scaled_tree <- rPinecone::ace_scale_phylo(manual_tree, my_alignment)
 
 # perform lineage asignment
 results <- pinecone(snp_scaled_tree, 5, 5)
+
+saveRDS(results, "data/r/rPinecone_lineages.RData")
 
 lineage_1 <- results$table %>% as.data.frame()
 
@@ -476,7 +479,8 @@ rownames(amr_df) <-
   amr_df$"#FILE"
 
 amr_df_num <- select(amr_df, !c("#FILE", "NUM_FOUND",
-                                "Penicillin_Binding_Protein_Ecoli"))
+                                "Penicillin_Binding_Protein_Ecoli",
+                                "FosA6", "OqxA", "OqxBgb", "ampH"))
 
 colnames(amr_df_num)
 # replace all numeric to binary by matching the missing values
@@ -687,7 +691,7 @@ amr_2 <-
 
 # import the date information
 amr_2$date <-
-  case_when(amr_2$genome %in% date_data$lane_acc ~ date_data$year,
+  case_when(amr_2$genome %in% date_data_1$lane_acc ~ date_data_1$year,
             TRUE ~ "Other")
 
 
@@ -698,12 +702,12 @@ amr_2
 
 
 
-num_amr #<-
-  amr_2 %>% mutate(clade = case_when(genome %in% outbreak_clade$genome ~ "Outbreak",
+num_amr <-
+  amr_2 %>% mutate(clade = case_when(genome %in% outbreak_clade_ids ~ "Outbreak",
                                TRUE ~ "Other")) %>%
   rowwise() %>%
   mutate(across(where(is.factor), as.character)) %>%
-  mutate_at(vars(colnames(amr_2[1:44])), as.numeric) 
+  mutate_at(vars(colnames(amr_2[1:42])), as.numeric) 
 
 num_amr %>%
   rowwise() %>%
@@ -713,10 +717,10 @@ num_amr %>%
 num_amr %>%
   rowwise() %>%
   mutate(total = sum(c(`aac3-IIa`, `aac3-IId`, `aac6-Ib`, `aadA1-pm`,
-                       aadA16, aadA2, `aph3-Ia`, aphA6,  strA,  strB,  ampH,
+                       aadA16, aadA2, `aph3-Ia`, aphA6,  strA,  strB,
                        `blaCTX-M-15`, `blaLAP-2`, `blaNDM-1`, `blaOXA-1`,
                        `blaOXA-10`, `blaOXA-9`, `blaSHV-1`, `blaSHV-187`,
-                       `blaTEM-105`, FosA6,  OqxA, OqxBgb, `qnr-S1`, qnrB1,
+                       `blaTEM-105`, `qnr-S1`, qnrB1,
                        qnrB17, `mph(A)`, catA1, catA2, catB4, cmlA5, arr2,
                        arr3, sul1, sul2, tetA, tetD, tetR, dfrA12, dfrA14,
                        dfrA15b, dfrA27, dfrA30, dhfr7)))  %>%
@@ -726,7 +730,7 @@ num_amr %>%
 
 num_amr 
 rfc_amr <-
-  num_amr[1:44] %>%
+  num_amr[1:42] %>%
   as_tibble() %>%
   summarise_all(sum) %>%
   pivot_longer(cols = `aac3-IIa`:dhfr7) %>%
@@ -770,7 +774,8 @@ amr_4 <- amr_3 %>%
 
 
 # plot the proportions of each gene class for every year  
-all_amr <- amr_4 %>%
+all_amr <-
+  amr_4 %>%
   ggplot(mapping = aes(x = date, y = num_presence, fill = class)) +
   geom_col(position = "fill") +
   theme_light() +
@@ -789,7 +794,8 @@ all_amr <- amr_4 %>%
 
 
 # subset the beta lactam genes
-beta_lactamse <- amr_4 %>%
+beta_lactamse <- 
+  amr_4 %>%
   filter(class == "Beta-lactam") %>%
   ggplot(mapping = aes(x = date, y = num_presence, fill = beta_lactam_fct)) +
   geom_col(position = "fill") +
@@ -811,7 +817,20 @@ all_amr + beta_lactamse + plot_layout(guides = "collect")
 
 ```
 
+# get outbreak clade isolate ids
+```{r}
+tree <- midpoint(manual_tree)
 
+View(as_tibble(tree))
+ggtree(tree) + geom_cladelab(node = 195, label = "Outbreak Isolates", barcolour = "red",
+                             align = F) +
+  geom_hilight(node=195, fill="#6699CC")
+
+outbreak_clade_ids <- get_taxa_name(ggtree(tree), node = 195)
+
+# display node labels
+ggtree(tree) + geom_text(aes(label=node), hjust=-.3)
+```
 
 
 
@@ -1286,7 +1305,8 @@ y <-
                  linesize = 1) +
     geom_tiplab(align = TRUE,
                 size = 2,
-                linesize = 0.2) 
+                linesize = 0.2) +
+  geom_hilight(node=195, fill="#6699CC", to.bottom = TRUE)
 y 
 
 ont_heatmap <- 
