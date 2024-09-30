@@ -8,4 +8,13 @@ work/
 results/
 results.bak/
 test/
-
+bin/
+renv/
+.cache/
+.local/
+.rstudio/
+brig/scratch/
+.Rproj.user
+pangenome.Rmd
+*.Rmd
+tmp/

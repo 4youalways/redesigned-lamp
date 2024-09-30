@@ -43,21 +43,6 @@ colnames(assembly_stats) <- c(colnames(assembly_headers), "assembler")
 head(assembly_stats)
 ```
 
-## summarise the stats
-```{r, message=FALSE, eval=FALSE, echo=FALSE}
-assembly_stats %>%
-  group_by(assembler) %>%
-  summarise(number_of_contigs = mean(number), total_length = mean(total_length), longest = mean(longest), shortest = mean(shortest), n50 = mean(N50))
-
-assembly_stats %>%
-  group_by(assembler) %>%
-  ggplot() +
-  geom_point(aes(assembler, log10(total_length)), color = "red") + ylim(0,7.5) +
-  geom_point(aes(assembler, log10(number)), color = "blue") +
-  geom_point(aes(assembler, log10(shortest)), color = "purple")
-
-
-```
 
 ## comparing the hybrid assemblies
 the assemblies have differing numbers and types of plasmids. using pubmlst online
@@ -294,10 +279,6 @@ plot_region <-
   
   plot_gene_map(list(seg1, seg2, seg3, seg4, seg5),
               gene_type = "arrows",
-              # annotations = list(seg1_annotation, seg2_annotation,
-              #                   seg3_annotation, seg4_annotation,
-              #                   seg5_annotation),
-              # annotation_height = 2,
               comparisons = list(comparison_1, comparison_2,
                                  comparison_3, comparison_4),
               dna_seg_labels = list("1004078", "BKREGE",
