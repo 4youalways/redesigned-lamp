@@ -1,7 +1,0 @@
-Usage: ./src/03_hybrid_assembly.sh [-R <PathToReads>] [-C <PathToClusters>] [-O <PathToOutdir>] 
-
-			-R Path to the filtered reads directory
-			-C Path to cluster directories
-            -O Path to output consensus sequence
-			
-			 
