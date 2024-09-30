@@ -18,8 +18,9 @@ workflow  SNIPPY_WORKFLOW {
     main:
     SNIPPY(reads, ref) // variant calling step
     core_snps = SNIPPY_CORE(SNIPPY.out.collect(), ref) // generating fasta alignment
+    GUBBINS(SNIPPY_CORE.out.full_alignment, dates)
     SNP_SITES(core_snps)   
-    IQTREE(SNP_SITES.out.phylo, SNP_SITES.out.constant)
-    GUBBINS(SNP_SITES.out.phylo, dates)
+    IQTREE(GUBBINS.out.filtered_polymorphic_sites, SNP_SITES.out.constant)
+    
 
 }

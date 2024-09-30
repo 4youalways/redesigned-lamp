@@ -13,13 +13,11 @@ process GUBBINS{
     output:
     path 'ST39*'
     path 'phylo*'
+    path 'manual.filtered_polymorphic_sites.fasta'; emit: filtered_polymorphic_sites
     
     script:
     """
-    run_gubbins.py --date ${date} --threads $task.cpus --no-cleanup \
-    --tree-builder raxml --first-tree-builder iqtree --bootstrap 1000 \
-    --model GTRGAMMA --first-model GTRGAMMA \
-    --prefix ST39 ${phylo}
+    run_gubbins.py --threads 64 --prefix manual ${phylo}/core.full.aln  
 
     """
 }

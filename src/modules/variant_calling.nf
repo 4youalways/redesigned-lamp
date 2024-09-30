@@ -31,6 +31,7 @@ process SNIPPY_CORE{
 
     output:
     path "core.*"
+    path "core.full.aln", emit: full_alignment
  
     script :
 
@@ -48,12 +49,11 @@ process SNP_SITES{
     path full_aln
     
     output:
-    path "phylo.aln", emit: phylo
+
     path "constant.txt", emit: constant
  
     script :
     """
-    snp-sites -b -c -o phylo.aln ${full_aln}/core.full.aln
     snp-sites -C ${full_aln}/core.full.aln > constant.txt
     """
 }

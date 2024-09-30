@@ -9,12 +9,12 @@ process IQTREE {
     path constant
     
     output:
-    path 'phylo.aln.*'
+    path '*'
     
     script:
     """
     #!/bin/bash
-    iqtree2 -nt AUTO -fconst \$(cat ${constant}) -s ${phylo} -m GTR+G -bb 1000  -T AUTO
+    iqtree -nt AUTO -fconst \$(cat ${constant}) -s ${phylo} -m GTR+G -bb 1000 --verbose -T AUTO 
 
     """
 }
