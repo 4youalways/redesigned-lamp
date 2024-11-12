@@ -17,6 +17,15 @@ brig/scratch/
 .Rproj.user
 pangenome.Rmd
 *.Rmd
+tmp/bin/
+renv/
+.cache/
+.local/
+.rstudio/
+brig/scratch/
+.Rproj.user
+pangenome.Rmd
+*.Rmd
 tmp/txt/
 pyjar*
 env/
