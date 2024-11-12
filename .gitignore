@@ -8,7 +8,16 @@ work/
 results/
 results.bak/
 test/
-txt/
+bin/
+renv/
+.cache/
+.local/
+.rstudio/
+brig/scratch/
+.Rproj.user
+pangenome.Rmd
+*.Rmd
+tmp/txt/
 pyjar*
 env/
 environment.yaml
