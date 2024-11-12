@@ -8,4 +8,11 @@ work/
 results/
 results.bak/
 test/
+txt/
+pyjar*
+env/
+environment.yaml
+*.code-workspace
+src/logs/
+
 
