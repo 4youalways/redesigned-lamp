@@ -167,7 +167,10 @@ metadata <-
     read_csv("docs/kleb_metadata.csv",
            show_col_types = FALSE) %>%
   clean_names() %>%
-  filter(main_st == "ST39")
+  filter(main_st == "ST39") 
+
+metadata$date <- str_replace_na(metadata$date, replacement = "Unknown") 
+
 
 tip_metadata <-
   metadata %>%
@@ -175,7 +178,7 @@ tip_metadata <-
          study_accession, supplier_sample_name, date, neonate, major_wards)
 
 
-load(file = "data/r/rPinecone_lineages.RData")
+#load(file = "data/r/rPinecone_lineages.RData")
 
 ariba <-
   read_csv("./docs/clean_ariba_amr.csv") %>%
@@ -216,6 +219,10 @@ pangenome_distribution <-
   labs(y = "Number of Genomes",
        x = "Year of Isolation",
        fill = "Ward") +
+  scale_y_continuous(n.breaks = 10) +
+  scale_y_continuous(#n.breaks = 10,
+                     sec.axis = sec_axis(~ .)) +
+  theme_light() +
   theme(axis.text = element_text(size = 13,
                                  face = "bold"),
         axis.text.x = element_text(angle = 30,
@@ -328,17 +335,28 @@ date_data <-
   filter(lane_acc %in% core_gene_tree$tip.label)
 
 
+# date_data_1 <-
+  # date_data %>%
+  # mutate(ont =
+  #          case_when(date_data$lane_acc %in% ids_with_ont ~ "yes",
+  #                        TRUE ~ ""),
+  #        year =
+  #          case_when(date_data$date == 2016 ~ "2016",
+  #           date_data$date == 2017 ~ "2017",
+  #           date_data$date == 2018 ~ "2018",
+  #           date_data$date == 2019 ~ "2019",
+  #           TRUE ~ "Other"),
+  #        wards =
+  #          case_when(date_data$major_wards ==
+  #             "CHATINKHA NURSERY" ~ "CHATINKHA NURSERY",
+  #           TRUE ~ "Other wards"))
+
 date_data_1 <-
   date_data %>%
   mutate(ont =
            case_when(date_data$lane_acc %in% ids_with_ont ~ "yes",
                          TRUE ~ ""),
-         year =
-           case_when(date_data$date == 2016 ~ "2016",
-            date_data$date == 2017 ~ "2017",
-            date_data$date == 2018 ~ "2018",
-            date_data$date == 2019 ~ "2019",
-            TRUE ~ "Other"),
+         year = date_data$date,
          wards =
            case_when(date_data$major_wards ==
               "CHATINKHA NURSERY" ~ "CHATINKHA NURSERY",
@@ -699,7 +717,7 @@ amr_4 <- amr_3 %>%
 
 
 # plot the proportions of each gene class for every year  
-all_amr <-
+#all_amr <-
   amr_4 %>%
   ggplot(mapping = aes(x = date, y = num_presence, fill = class)) +
   geom_col(position = "fill") +
@@ -768,6 +786,7 @@ y_offset <- 2.2
 
 # using the tree generated after running iqtree on the gubbins recombination free alignment
 tree <- midpoint(manual_tree) # from library phangorn
+  
 
 tree$tip.label <-
   tree$tip.label %>%
@@ -776,7 +795,7 @@ tree$tip.label <-
 y <-
   tree %>%
   ggtree() %<+%
-  date_data +
+  date_data_1 +
     geom_tippoint(aes(color=wards), size = 1.2) +
      scale_colour_manual(values = ward_col, na.translate = FALSE,
                         guide = guide_legend(order = 1)) +
@@ -784,7 +803,9 @@ y <-
                  y = 12,
                  x  = 0.0000006,
                  fontsize = 4,
-                 linesize = 1)
+                 linesize = 1) +
+    geom_hilight(node=195, fill="#6699CC", to.bottom = TRUE)
+
 y 
 
 h1 <- 
