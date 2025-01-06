@@ -720,11 +720,12 @@ amr_4 <- amr_3 %>%
 #all_amr <-
   amr_4 %>%
   ggplot(mapping = aes(x = date, y = num_presence, fill = class)) +
-  geom_col(position = "fill") +
+  geom_col(position = "stack") +
   theme_light() +
-  labs(y = "Proportion of AMR gene class",
+  labs(y = "Total number of AMR gene class",
        x = "Date",
        fill = "AMR gene class") +
+    scale_y_break(c(250, 1000)) +
   scale_fill_manual(values = amr_class_cols) +
   theme(axis.text = element_text(size = 13,
                                  face = "bold"),
@@ -734,7 +735,6 @@ amr_4 <- amr_3 %>%
                                   size = "15"),
         legend.title = element_text(size = 15,
                                     face = "bold"))
-
 
 # subset the beta lactam genes
 beta_lactamse <- 
@@ -770,6 +770,8 @@ ggtree(tree) + geom_cladelab(node = 195, label = "Outbreak Isolates", barcolour 
   geom_hilight(node=195, fill="#6699CC")
 
 outbreak_clade_ids <- get_taxa_name(ggtree(tree), node = 195)
+
+outbreak_clade_ids
 
 # display node labels
 ggtree(tree) + geom_text(aes(label=node), hjust=-.3)
@@ -1079,6 +1081,47 @@ tree %>%
     )
 
 ```
+
+
+# Subset the phylogenetic tree to the outbreak clade
+## extract the strain accessions for the outbreak clade
+```{r}
+# Show the putbreak clade to extract
+ggtree(tree) +
+  geom_cladelab(node = 195,
+                label = "Outbreak Isolates",
+                barcolour = "red",
+                align = F) +
+  geom_hilight(node=195, fill="#6699CC")
+
+# get the tip labs
+extract.clade(tree, 195) %>% ggtree()
+
+outbreak_clade_ids <-
+  get_taxa_name(ggtree(tree), node = 195)
+
+outbreak_clade_ids
+```
+
+
+## extract the strain accessions for the outbreak clade and the neigbouring strains
+``` {r}
+
+# extract the clade inluding the neigbouring clace
+ggtree(tree) + geom_cladelab(node = 196,
+                             label = "Outbreak Isolates",
+                             barcolour = "red",
+                             align = F) +
+  geom_hilight(node=196, fill="#6699CC")
+
+# get the tiplabs
+extract.clade(tree, 196) %>% ggtree()
+extra_clade_ids <-
+  get_taxa_name(ggtree(tree), node = 196)
+
+extra_clade_ids
+```
+
 
 ```{r}
 sessionInfo()
