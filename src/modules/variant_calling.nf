@@ -54,6 +54,6 @@ process SNP_SITES{
  
     script :
     """
-    snp-sites -C ${full_aln}/core.full.aln > constant.txt
+    snp-sites -C ${full_aln} > constant.txt
     """
 }
