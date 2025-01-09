@@ -23,7 +23,8 @@ process KLEBORATE {
     maxForks 2
     errorStrategy 'finish'
     
-    container 'staphb/kleborate:2.4.1'
+    container 'staphb/kleborate:3.1.2'
+    //conda './env/kleborate.yaml' //conda environment for kleborate has an error accessing the libgsl.so.25
     
     input:
     path(fasta)
@@ -34,6 +35,6 @@ process KLEBORATE {
  
     script :
     """
-    kleborate --all -o kleborate_results.txt -a ${fasta}
+    kleborate -p kpsc --trim_headers -o kleboratels -a ${fasta}
     """
 }
