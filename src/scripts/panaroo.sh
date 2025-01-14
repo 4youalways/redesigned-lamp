@@ -34,4 +34,4 @@ if [ ! -d "$output_dir" ]; then
 fi
 
 # Run bakta
-panaroo -i ${input_dir}/*gff -o ${output_dir} --clean-mode strict -t $threads -a core
+panaroo -i ${input_dir}/*gff3 -o ${output_dir} --clean-mode strict -t $threads -a core
